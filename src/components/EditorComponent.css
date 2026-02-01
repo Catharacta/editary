@@ -1,0 +1,12 @@
+.editor-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--bg-editor);
+}
+
+.codemirror-placeholder {
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}

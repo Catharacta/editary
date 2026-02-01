@@ -1,0 +1,16 @@
+.status-bar {
+    height: var(--status-height);
+    background-color: var(--bg-status);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 1rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    gap: 1.5rem;
+}
+
+.status-item {
+    cursor: default;
+}
