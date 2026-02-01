@@ -1,16 +1,22 @@
 .status-bar {
-    height: var(--status-height);
     background-color: var(--bg-status);
+    /* Should be blue-ish or distinct defined in var */
+    color: #ffffff;
+    /* Explicit white for contrast on status color */
     border-top: 1px solid var(--border-color);
+    padding: 0 1rem;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0 1rem;
+    gap: 1rem;
     font-size: 0.8rem;
-    color: var(--text-secondary);
-    gap: 1.5rem;
+    flex-shrink: 0;
+    /* Prevent shrinking */
 }
 
 .status-item {
-    cursor: default;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }

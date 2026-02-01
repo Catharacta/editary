@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppStore } from '../store';
+import { FolderOpen } from 'lucide-react';
 import './AddressBar.css';
 // import { invoke } from '@tauri-apps/api/core';
 
@@ -25,7 +26,7 @@ const AddressBar: React.FC = () => {
                 disabled={!activeTab?.path}
                 onClick={handleRevealInExplorer}
             >
-                📂
+                <FolderOpen size={16} />
             </button>
         </div>
     );

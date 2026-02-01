@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, Moon, Sun } from 'lucide-react';
 import { Store } from '@tauri-apps/plugin-store';
+import { useAppStore } from '../store';
 import './SettingsModal.css';
 
 interface SettingsModalProps {
@@ -20,44 +21,37 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     });
     const [store, setStore] = useState<Store | null>(null);
 
+    // Get setTheme action from global store
+    const setTheme = useAppStore(state => state.setTheme);
+
     // Initialize Store
     useEffect(() => {
         const initStore = async () => {
             try {
-                // Correct way to initialize store in v2 if constructor is private
-                // However, based on some v2 examples, `new Store` IS used.
-                // The lint might be confused or using a different version type definition.
-                // If `Store.load` exists, we use it. If not, we try `new`.
-                // Checking the lint error "Constructor of class 'Store' is private", it implies we MUST use a static method.
-                // Commonly `load`.
                 const _store = await Store.load('settings.json');
                 setStore(_store);
 
                 const savedTheme = await _store.get<string>('theme');
                 const savedFontSize = await _store.get<number>('fontSize');
 
+                const initialTheme = (savedTheme as 'dark' | 'light') || 'dark';
+
                 setSettings({
-                    theme: (savedTheme as 'dark' | 'light') || 'dark',
+                    theme: initialTheme,
                     fontSize: savedFontSize || 14
                 });
 
-                // Initial apply
-                if (savedTheme === 'light') {
-                    document.body.classList.add('light-theme');
-                } else {
-                    document.body.classList.remove('light-theme');
-                }
+                // Sync global store with loaded settings
+                setTheme(initialTheme);
+
+                // Initial apply handled by App.tsx observing global store
 
             } catch (e) {
                 console.error("Failed to load store:", e);
-                // Fallback or retry?
             }
         };
         initStore();
-    }, []);
-
-    // Sync when modal opens (optional if we want real-time update reflects)
-    // For now, initStore covers initial load.
+    }, [setTheme]);
 
     const handleThemeChange = async (theme: 'dark' | 'light') => {
         setSettings(prev => ({ ...prev, theme }));
@@ -67,7 +61,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             await store.save();
         }
 
-        document.body.classList.toggle('light-theme', theme === 'light');
+        // Update global store
+        setTheme(theme);
     };
 
     if (!isOpen) return null;

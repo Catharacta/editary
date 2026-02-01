@@ -12,15 +12,23 @@ import { useAppStore } from './store';
 import { openFile } from './api';
 
 function App() {
-  const { tabs, updateTabContent } = useAppStore();
+  const { tabs, updateTabContent, theme } = useAppStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [changedFilePath, setChangedFilePath] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  // Apply Theme Logic
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+  }, [theme]);
+
   useEffect(() => {
     const unlisten = listen<string>('file-changed', (event) => {
       const path = event.payload;
-      // Check if this file is open
       const tab = tabs.find(t => t.path === path);
       if (tab) {
         setChangedFilePath(path);
@@ -39,7 +47,7 @@ function App() {
         const result = await openFile(changedFilePath);
         const tab = tabs.find(t => t.path === changedFilePath);
         if (tab) {
-          updateTabContent(tab.id, result.content, false); // Reload clean
+          updateTabContent(tab.id, result.content, false);
         }
         setToastMessage(null);
         setChangedFilePath(null);
@@ -56,12 +64,14 @@ function App() {
 
   return (
     <div className="app-container">
-      <Sidebar />
-      <div className="main-area">
-        <Toolbar onOpenSettings={() => setIsSettingsOpen(true)} />
-        <AddressBar />
-        <EditorComponent />
-        <StatusBar />
+      <Toolbar onOpenSettings={() => setIsSettingsOpen(true)} />
+      <div className="content-area">
+        <Sidebar />
+        <div className="main-area">
+          <AddressBar />
+          <EditorComponent />
+          <StatusBar />
+        </div>
       </div>
       {toastMessage && (
         <Toast

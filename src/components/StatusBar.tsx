@@ -1,12 +1,24 @@
 import React from 'react';
+import { useAppStore } from '../store';
 import './StatusBar.css';
 
 const StatusBar: React.FC = () => {
+    const { cursorPos, tabs, activeTabId } = useAppStore();
+    const activeTab = tabs.find(t => t.id === activeTabId);
+
+    // Encoding could be pulled from tab if we stored it (openFile returns it)
+    // For now hardcode UTF-8 as standard, or update store to hold encoding
+    const encoding = "UTF-8";
+
     return (
         <footer className="status-bar">
-            <div className="status-item">Ln 1, Col 1</div>
-            <div className="status-item">UTF-8</div>
-            <div className="status-item">CRLF</div>
+            {activeTab && (
+                <>
+                    <div className="status-item">Ln {cursorPos.line}, Col {cursorPos.col}</div>
+                    <div className="status-item">{encoding}</div>
+                    <div className="status-item">CRLF</div>
+                </>
+            )}
         </footer>
     );
 };

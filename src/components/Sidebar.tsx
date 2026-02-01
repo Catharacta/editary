@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppStore } from '../store';
 import { open } from '@tauri-apps/plugin-dialog';
 import { openFile, watchFile, unwatchFile } from '../api';
+import { FileText, FileEdit, X, FolderOpen, FilePlus } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
@@ -10,7 +11,7 @@ const Sidebar: React.FC = () => {
     // Debug: Add a tab if empty (only on first load)
     React.useEffect(() => {
         if (tabs.length === 0) {
-            // addTab(); // Don't auto-add untitled for now to test "Open"
+            // addTab(); 
         }
     }, [tabs.length, addTab]);
 
@@ -20,14 +21,13 @@ const Sidebar: React.FC = () => {
                 multiple: false,
                 filters: [{
                     name: 'Text',
-                    extensions: ['txt', 'md', 'rs', 'ts', 'tsx', 'js', 'json', 'css', 'html', 'toml', 'yaml']
+                    extensions: ['txt', 'md', 'rs', 'ts', 'tsx', 'js', 'json', 'css', 'html', 'toml', 'yaml', 'lock', 'xml']
                 }]
             });
 
             if (selected) {
-                const path = selected as string; // Single file
+                const path = selected as string;
 
-                // Check if already open
                 const existing = tabs.find(t => t.path === path);
                 if (existing) {
                     setActiveTab(existing.id);
@@ -36,7 +36,6 @@ const Sidebar: React.FC = () => {
 
                 const result = await openFile(path);
                 addTab(path, result.content);
-                // Watch file
                 await watchFile(path);
             }
         } catch (err) {
@@ -61,12 +60,16 @@ const Sidebar: React.FC = () => {
                         className="add-tab-btn"
                         onClick={handleOpenFile}
                         title="Open File"
-                    >📂</button>
+                    >
+                        <FolderOpen size={16} />
+                    </button>
                     <button
                         className="add-tab-btn"
                         onClick={() => addTab()}
                         title="New File"
-                    >+</button>
+                    >
+                        <FilePlus size={16} />
+                    </button>
                 </div>
             </div>
             <ul className="file-list">
@@ -78,7 +81,7 @@ const Sidebar: React.FC = () => {
                         title={tab.path || tab.displayName}
                     >
                         <span className="file-icon">
-                            {tab.path ? '📄' : '📝'}
+                            {tab.path ? <FileText size={14} /> : <FileEdit size={14} />}
                         </span>
                         <span className="file-name">
                             {tab.displayName}
@@ -87,7 +90,9 @@ const Sidebar: React.FC = () => {
                         <button
                             className="close-tab-btn"
                             onClick={(e) => handleCloseTab(tab.id, tab.path, e)}
-                        >×</button>
+                        >
+                            <X size={12} />
+                        </button>
                     </li>
                 ))}
             </ul>

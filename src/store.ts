@@ -8,25 +8,38 @@ export interface Tab {
     displayName: string;
     content: string; // Text content
     isDirty: boolean;
-    editorState?: EditorState; // Optional: Keep CodeMirror state for history/undo/redo
+    editorState?: EditorState;
+}
+
+export interface CursorPos {
+    line: number;
+    col: number;
 }
 
 interface AppState {
     tabs: Tab[];
     activeTabId: string | null;
+    theme: 'dark' | 'light';
+    cursorPos: CursorPos;
 
-    // Actions
     addTab: (path?: string, content?: string) => string;
     closeTab: (id: string) => void;
     setActiveTab: (id: string) => void;
     updateTabContent: (id: string, content: string, isDirty?: boolean) => void;
     updateTabState: (id: string, newState: Partial<Tab>) => void;
     setEditorState: (id: string, state: EditorState) => void;
+    setTheme: (theme: 'dark' | 'light') => void;
+    setCursorPos: (pos: CursorPos) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
     tabs: [],
     activeTabId: null,
+    theme: 'dark',
+    cursorPos: { line: 1, col: 1 },
+
+    setTheme: (theme) => set({ theme }),
+    setCursorPos: (pos) => set({ cursorPos: pos }),
 
     addTab: (path = undefined, content = '') => {
         const id = uuidv4();
