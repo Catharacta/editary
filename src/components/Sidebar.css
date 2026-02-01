@@ -13,6 +13,23 @@
     font-size: 0.8rem;
     text-transform: uppercase;
     color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0 0.5rem;
+}
+
+.add-tab-btn:hover {
+    color: var(--text-primary);
 }
 
 .file-list {
@@ -28,6 +45,8 @@
     align-items: center;
     gap: 0.5rem;
     color: var(--text-primary);
+    position: relative;
+    border-left: 3px solid transparent;
 }
 
 .file-item:hover {
@@ -44,4 +63,35 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 0.9rem;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dirty-indicator {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-left: 4px;
+}
+
+.close-tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.file-item:hover .close-tab-btn {
+    opacity: 1;
+}
+
+.close-tab-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
 }
