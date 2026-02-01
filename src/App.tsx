@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 import Sidebar from './components/Sidebar';
@@ -6,6 +6,8 @@ import AddressBar from './components/AddressBar';
 import EditorComponent from './components/EditorComponent';
 import StatusBar from './components/StatusBar';
 import Toast from './components/Toast';
+import Toolbar from './components/Toolbar';
+import SettingsModal from './components/SettingsModal';
 import { useAppStore } from './store';
 import { openFile } from './api';
 
@@ -13,6 +15,7 @@ function App() {
   const { tabs, updateTabContent } = useAppStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [changedFilePath, setChangedFilePath] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     const unlisten = listen<string>('file-changed', (event) => {
@@ -28,7 +31,7 @@ function App() {
     return () => {
       unlisten.then(f => f());
     };
-  }, [tabs]); // Re-bind if tabs change? Better to use ref for tabs to avoid re-binding
+  }, [tabs]);
 
   const handleReload = async () => {
     if (changedFilePath) {
@@ -55,6 +58,7 @@ function App() {
     <div className="app-container">
       <Sidebar />
       <div className="main-area">
+        <Toolbar onOpenSettings={() => setIsSettingsOpen(true)} />
         <AddressBar />
         <EditorComponent />
         <StatusBar />
@@ -66,6 +70,10 @@ function App() {
           onIgnore={handleIgnore}
         />
       )}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

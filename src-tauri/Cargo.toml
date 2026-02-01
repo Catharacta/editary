@@ -26,4 +26,5 @@ encoding_rs = "0.8.35"
 chardetng = "0.1.17"
 notify = "8.2.0"
 tauri-plugin-dialog = "2"
+tauri-plugin-store = "2"
 
