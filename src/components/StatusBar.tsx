@@ -3,7 +3,8 @@ import { useAppStore } from '../store';
 import './StatusBar.css';
 
 const StatusBar: React.FC = () => {
-    const { cursorPos, tabs, activeTabId } = useAppStore();
+    const { cursorPos, tabs, panes, activePaneId } = useAppStore();
+    const activeTabId = panes[activePaneId].activeTabId;
     const activeTab = tabs.find(t => t.id === activeTabId);
 
     // Encoding could be pulled from tab if we stored it (openFile returns it)

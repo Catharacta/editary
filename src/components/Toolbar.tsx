@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Settings, Undo, Redo } from 'lucide-react';
+import { Save, Settings, Undo, Redo, Columns, XSquare } from 'lucide-react';
 import { useAppStore } from '../store';
 import { saveFile, watchFile, unwatchFile } from '../api';
 import { save } from '@tauri-apps/plugin-dialog';
@@ -10,7 +10,8 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ onOpenSettings }) => {
-    const { tabs, activeTabId, updateTabContent, updateTabState } = useAppStore();
+    const { tabs, panes, activePaneId, updateTabContent, updateTabState, isSplit, enableSplit, disableSplit } = useAppStore();
+    const activeTabId = panes[activePaneId].activeTabId;
     const activeTab = tabs.find(t => t.id === activeTabId);
 
     const performSave = async (path: string, content: string) => {
@@ -98,6 +99,15 @@ const Toolbar: React.FC<ToolbarProps> = ({ onOpenSettings }) => {
             </div>
             <div className="toolbar-spacer" />
             <div className="toolbar-group">
+                {!isSplit ? (
+                    <button className="toolbar-btn" title="Split Editor" onClick={enableSplit}>
+                        <Columns size={18} />
+                    </button>
+                ) : (
+                    <button className="toolbar-btn" title="Close Split" onClick={disableSplit}>
+                        <XSquare size={18} />
+                    </button>
+                )}
                 <button className="toolbar-btn" title="Settings" onClick={onOpenSettings}>
                     <Settings size={18} />
                 </button>

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 import Sidebar from './components/Sidebar';
-import AddressBar from './components/AddressBar';
-import EditorComponent from './components/EditorComponent';
+import PaneContainer from './components/PaneContainer';
 import StatusBar from './components/StatusBar';
 import Toast from './components/Toast';
 import Toolbar from './components/Toolbar';
@@ -12,7 +11,7 @@ import { useAppStore } from './store';
 import { openFile } from './api';
 
 function App() {
-  const { tabs, reloadTabContent, theme } = useAppStore();
+  const { tabs, reloadTabContent, theme, isSplit, panes } = useAppStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [changedFilePath, setChangedFilePath] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -68,8 +67,22 @@ function App() {
       <div className="content-area">
         <Sidebar />
         <div className="main-area">
-          <AddressBar />
-          <EditorComponent key={tabs.find(t => t.id === useAppStore.getState().activeTabId)?.id || 'empty'} />
+          {/* Global AddressBar removed, it's now per-pane */}
+          <div className="input-area" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+            <PaneContainer
+              key={`primary-${panes.primary.activeTabId}`}
+              paneId="primary"
+            />
+            {isSplit && (
+              <>
+                <div style={{ width: '1px', background: 'var(--border-color)' }}></div>
+                <PaneContainer
+                  key={`secondary-${panes.secondary.activeTabId}`}
+                  paneId="secondary"
+                />
+              </>
+            )}
+          </div>
           <StatusBar />
         </div>
       </div>

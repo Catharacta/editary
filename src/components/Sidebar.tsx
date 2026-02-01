@@ -6,7 +6,8 @@ import { FileText, FileEdit, X, FolderOpen, FilePlus } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
-    const { tabs, activeTabId, setActiveTab, closeTab, addTab } = useAppStore();
+    const { tabs, panes, activePaneId, setActiveTab, closeTab, addTab } = useAppStore();
+    const activeTabId = panes[activePaneId].activeTabId;
 
 
 

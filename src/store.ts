@@ -2,6 +2,14 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { EditorState } from '@codemirror/state';
 
+export type PaneId = 'primary' | 'secondary';
+
+export interface PaneState {
+    id: PaneId;
+    activeTabId: string | null;
+    // History stack could go here later
+}
+
 export interface Tab {
     id: string;
     path: string | null; // null for new untitled files
@@ -9,6 +17,7 @@ export interface Tab {
     content: string; // Text content
     isDirty: boolean;
     contentVersion: number; // 0 for initial, increment on external reload
+    internalContentVersion: number; // Increment on internal edits for sync
     editorState?: EditorState;
 }
 
@@ -19,12 +28,17 @@ export interface CursorPos {
 
 interface AppState {
     tabs: Tab[];
-    activeTabId: string | null;
+    // Split View State
+    panes: Record<PaneId, PaneState>;
+    activePaneId: PaneId;
+    isSplit: boolean;
+
     theme: 'dark' | 'light';
     cursorPos: CursorPos;
 
+    // Actions
     addTab: (path?: string, content?: string) => string;
-    closeTab: (id: string) => void;
+    closeTab: (id: string, paneId?: PaneId) => void;
     setActiveTab: (id: string) => void;
     updateTabContent: (id: string, content: string, isDirty?: boolean) => void;
     reloadTabContent: (id: string, content: string) => void;
@@ -32,11 +46,21 @@ interface AppState {
     setEditorState: (id: string, state: EditorState) => void;
     setTheme: (theme: 'dark' | 'light') => void;
     setCursorPos: (pos: CursorPos) => void;
+
+    // Split View Actions
+    enableSplit: () => void;
+    disableSplit: () => void;
+    setActivePane: (paneId: PaneId) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, _get) => ({
     tabs: [],
-    activeTabId: null,
+    panes: {
+        primary: { id: 'primary', activeTabId: null },
+        secondary: { id: 'secondary', activeTabId: null },
+    },
+    activePaneId: 'primary',
+    isSplit: false,
     theme: 'dark',
     cursorPos: { line: 1, col: 1 },
 
@@ -72,38 +96,72 @@ export const useAppStore = create<AppState>((set) => ({
             content,
             isDirty: false,
             contentVersion: 0,
+            internalContentVersion: 0,
         };
 
-        set((state) => ({
-            tabs: [...state.tabs, newTab],
-            activeTabId: id,
-        }));
+        set((state) => {
+            const activePane = state.panes[state.activePaneId];
+            return {
+                tabs: [...state.tabs, newTab],
+                panes: {
+                    ...state.panes,
+                    [state.activePaneId]: {
+                        ...activePane,
+                        activeTabId: id
+                    }
+                }
+            };
+        });
 
         return id;
     },
 
-    closeTab: (id) => {
+    closeTab: (id, _targetPaneId) => {
         set((state) => {
             const newTabs = state.tabs.filter((t) => t.id !== id);
-            let newActiveId = state.activeTabId;
 
-            if (state.activeTabId === id) {
-                newActiveId = newTabs.length > 0 ? newTabs[newTabs.length - 1].id : null;
-            }
+            // Function to calculate new active ID for a specific pane
+            const getNewActiveId = (currentActiveId: string | null) => {
+                if (currentActiveId === id) {
+                    return newTabs.length > 0 ? newTabs[newTabs.length - 1].id : null;
+                }
+                return currentActiveId;
+            };
+
+            // Update all panes that might have this tab active
+            const newPanes = { ...state.panes };
+
+            (['primary', 'secondary'] as PaneId[]).forEach(paneId => {
+                const pane = newPanes[paneId];
+                if (pane.activeTabId === id) {
+                    newPanes[paneId] = {
+                        ...pane,
+                        activeTabId: getNewActiveId(pane.activeTabId)
+                    };
+                }
+            });
 
             return {
                 tabs: newTabs,
-                activeTabId: newActiveId,
+                panes: newPanes,
             };
         });
     },
 
-    setActiveTab: (id) => set({ activeTabId: id }),
+    setActiveTab: (id) => set((state) => ({
+        panes: {
+            ...state.panes,
+            [state.activePaneId]: {
+                ...state.panes[state.activePaneId],
+                activeTabId: id
+            }
+        }
+    })),
 
     updateTabContent: (id, content, isDirty = true) => {
         set((state) => ({
             tabs: state.tabs.map((t) =>
-                t.id === id ? { ...t, content, isDirty } : t
+                t.id === id ? { ...t, content, isDirty, internalContentVersion: t.internalContentVersion + 1 } : t
             ),
         }));
     },
@@ -111,7 +169,13 @@ export const useAppStore = create<AppState>((set) => ({
     reloadTabContent: (id, content) => {
         set((state) => ({
             tabs: state.tabs.map((t) =>
-                t.id === id ? { ...t, content, isDirty: false, contentVersion: t.contentVersion + 1 } : t
+                t.id === id ? {
+                    ...t,
+                    content,
+                    isDirty: false,
+                    contentVersion: t.contentVersion + 1,
+                    internalContentVersion: t.internalContentVersion + 1
+                } : t
             ),
         }));
     },
@@ -131,4 +195,28 @@ export const useAppStore = create<AppState>((set) => ({
             ),
         }));
     },
+
+    // Split View Actions
+    enableSplit: () => set((state) => {
+        if (state.isSplit) return {}; // Already split
+
+        return {
+            isSplit: true,
+            panes: {
+                ...state.panes,
+                secondary: {
+                    ...state.panes.secondary,
+                    activeTabId: state.panes.primary.activeTabId
+                }
+            },
+            activePaneId: 'secondary' // Focus new pane
+        };
+    }),
+
+    disableSplit: () => set((_state) => ({
+        isSplit: false,
+        activePaneId: 'primary'
+    })),
+
+    setActivePane: (paneId) => set({ activePaneId: paneId }),
 }));
