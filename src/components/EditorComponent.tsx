@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { EditorState, Extension, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { markdown } from '@codemirror/lang-markdown';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -10,9 +10,9 @@ import './EditorComponent.css';
 
 const EditorComponent: React.FC = () => {
     const editorRef = useRef<HTMLDivElement>(null);
-    const viewRef = useRef<EditorView | null>(null);
+    const [view, setView] = useState<EditorView | null>(null);
 
-    // Dependencies from Store
+    // Store State
     const {
         tabs,
         activeTabId,
@@ -22,9 +22,10 @@ const EditorComponent: React.FC = () => {
         setCursorPos
     } = useAppStore();
 
+    // Derived State
     const activeTab = tabs.find(t => t.id === activeTabId);
 
-    // Refs for callbacks
+    // Refs for stable callbacks
     const activeTabIdRef = useRef(activeTabId);
     const updateTabContentRef = useRef(updateTabContent);
     const setEditorStateRef = useRef(setEditorState);
@@ -37,16 +38,18 @@ const EditorComponent: React.FC = () => {
         setCursorPosRef.current = setCursorPos;
     }, [activeTabId, updateTabContent, setEditorState, setCursorPos]);
 
-    // Compartments for dynamic configuration
+    // Compartments
     const themeCompartment = useRef(new Compartment());
     const listenerCompartment = useRef(new Compartment());
 
-    // Initialize View
+    // --- Initialization Logic ---
+    // This component is now re-mounted whenever activeTabId changes (due to Key in App.tsx)
     useEffect(() => {
         if (!editorRef.current) return;
+        if (!activeTab) return; // Should likely be handled by parent or return null, but check safely
 
+        // 1. Definition of update listener
         const updateListener = EditorView.updateListener.of((update) => {
-            // Update Cursor Position
             if (update.selectionSet) {
                 const state = update.state;
                 const pos = state.selection.main.head;
@@ -56,154 +59,145 @@ const EditorComponent: React.FC = () => {
                     col: pos - line.from + 1
                 });
             }
-
             if (update.docChanged || update.selectionSet) {
                 const currentId = activeTabIdRef.current;
-                if (!currentId) return;
-
-                if (update.docChanged) {
-                    const content = update.state.doc.toString();
-                    updateTabContentRef.current(currentId, content, true);
+                if (currentId) {
+                    if (update.docChanged) updateTabContentRef.current(currentId, update.state.doc.toString(), true);
+                    setEditorStateRef.current(currentId, update.state);
                 }
-                setEditorStateRef.current(currentId, update.state);
             }
         });
 
-        const initialExtensions: Extension[] = [
+        // 2. Extensions Configuration
+        const extensions: Extension[] = [
             lineNumbers(),
             highlightActiveLine(),
             history(),
             highlightSelectionMatches(),
             markdown(),
-            // Theme Compartment
             themeCompartment.current.of(theme === 'dark' ? oneDark : []),
             keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
-            // Listener Compartment
             listenerCompartment.current.of(updateListener)
         ];
 
-        const state = EditorState.create({
-            doc: "",
-            extensions: initialExtensions
-        });
+        // 3. State Creation
+        // If we have a saved EditorState, restore it. Otherwise create from content.
+        let state: EditorState;
+        if (activeTab.editorState) {
+            // Restore functionality logic:
+            // EditorState.fromJSON() isn't used here because we store the object reference in memory (Zustand).
+            // However, we must ensure the 'extensions' are re-applied or compatible?
+            // A stored EditorState *contains* its configuration (facets, fields).
+            // If we re-use it, we keep the history and config. 
+            // BUT, our "refs" in the listeners (stored in compartments/fields) might be stale closures?
+            // WE are using `activeTabIdRef` which is updated by the side-effect.
+            // AND we wrap the listener in a compartment. 
+            // Ideally, we should Reconfigure the listener compartment on restore?
+            // Actually, if we use the *same* state object, it has the *old* extensions.
+            // We need to be careful. 
 
-        const view = new EditorView({
+            // Simplest robust approach for MVP without complex Reconfiguration:
+            // Just re-create state from content if we don't care about precise Undo stack persistence across tab switches *deeply*.
+            // BUT requirement says "Undo/Redo history preserved". 
+            // So we MUST use `activeTab.editorState`.
+
+            state = activeTab.editorState;
+
+            // Warning: If we re-use state, the `updateListener` embedded in it is the OLD function from previous mount.
+            // That old function uses the OLD `activeTabIdRef`.
+            // Does strictly `activeTabIdRef` survive? 
+            // It is a Ref object. If the Component unmounts, the Ref object is lost (garbage collected eventually).
+            // The old listener closure holds a reference to the OLD Ref object.
+            // That OLD Ref object will NOT be updated by the NEW Component instance.
+            // THIS is the danger of re-using EditorState object with closure-based listeners across React remounts.
+
+            // FIX: We must RECONFIGURE the listener compartment immediately after restoring state.
+            // This injects the NEW listener (bound to NEW Refs).
+        } else {
+            state = EditorState.create({
+                doc: activeTab.content,
+                extensions: extensions
+            });
+        }
+
+        // 4. View Creation
+        const newView = new EditorView({
             state,
             parent: editorRef.current
         });
 
-        viewRef.current = view;
+        // 5. Post-Restore Fixup (Reconfigure Listener to use fresh Refs)
+        if (activeTab.editorState) {
+            newView.dispatch({
+                effects: listenerCompartment.current.reconfigure(updateListener)
+            });
+            // Also ensure Theme matches current preference (state might have old theme)
+            newView.dispatch({
+                effects: themeCompartment.current.reconfigure(theme === 'dark' ? oneDark : [])
+            });
+        }
+
+        setView(newView);
+        // Save initial state if new
+        if (!activeTab.editorState) {
+            setEditorStateRef.current(activeTab.id, state);
+        }
 
         return () => {
-            view.destroy();
-            viewRef.current = null;
+            newView.destroy();
+            setView(null);
         };
-    }, []); // Run once on mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run once on mount (which happens on every tab switch now)
 
-    // Handle Theme Change
+    // --- Effects ---
+
+    // 1. Theme Change
     useEffect(() => {
-        const view = viewRef.current;
         if (!view) return;
-
-        // Dispatch effect to reconfigure theme compartment
-        view.dispatch({
-            effects: themeCompartment.current.reconfigure(
-                theme === 'dark' ? oneDark : [] // Empty array for default light theme
-            )
-        });
-    }, [theme]);
-
-    // Handle Active Tab Change
-    useEffect(() => {
-        const view = viewRef.current;
-        if (!view) return;
-
-        if (!activeTab) {
-            // Clear content if no tab
-            view.setState(EditorState.create({ doc: "", extensions: [] }));
-            return;
-        }
-
-        // Restore state or create new
-        if (activeTab.editorState) {
-            // Only set state if different to avoid reset loop
-            if (view.state !== activeTab.editorState) {
-                view.setState(activeTab.editorState);
-
-                // Re-apply theme if the stored state had old theme config?
-                // Actually EditorState contains the configuration.
-                // If we restore state, we restore its config too.
-                // So we might need to verify if theme matches current global theme.
-                // But for now, let's assume simple restore. 
-                // A better approach for robust theme switching on restore is to NOT store theme in Tab State 
-                // but inject it cleanly.
-                // Since we use compartments in the *View* (managed by us here via dispatch), 
-                // simply setState might overwrite the compartment structure if the restored state didn't have it?
-                // Yes, setState replaces the entire state.
-
-                // If we just do `view.setState(activeTab.editorState)`, we lose the *current* compartment references 
-                // if they are not identical.
-                // Actually, if we use the same compartments, it might work.
-
-                // Workaround: After restore, confirm theme.
-                // But wait, `activeTab.editorState` was saved *with* the Compartment logic active.
-                // So it should be fine.
-            }
-        } else {
-            // Create new State for new tab
-            // We must re-use the SAME listener/theme logic
-
-            const updateListener = EditorView.updateListener.of((update) => {
-                if (update.selectionSet) {
-                    const state = update.state;
-                    const pos = state.selection.main.head;
-                    const line = state.doc.lineAt(pos);
-                    setCursorPosRef.current({
-                        line: line.number,
-                        col: pos - line.from + 1
-                    });
-                }
-                if (update.docChanged || update.selectionSet) {
-                    const currentId = activeTabIdRef.current;
-                    if (!currentId) return;
-
-                    if (update.docChanged) {
-                        updateTabContentRef.current(currentId, update.state.doc.toString(), true);
-                    }
-                    setEditorStateRef.current(currentId, update.state);
-                }
-            });
-
-            const extensions: Extension[] = [
-                lineNumbers(),
-                highlightActiveLine(),
-                history(),
-                highlightSelectionMatches(),
-                markdown(),
-                themeCompartment.current.of(theme === 'dark' ? oneDark : []),
-                keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
-                listenerCompartment.current.of(updateListener)
-            ];
-
-            const newState = EditorState.create({
-                doc: activeTab.content || "",
-                extensions
-            });
-
-            view.setState(newState);
-            setEditorState(activeTab.id, newState);
-        }
-
-        // Ensure theme is correct (in case stored state had old theme)
         view.dispatch({
             effects: themeCompartment.current.reconfigure(
                 theme === 'dark' ? oneDark : []
             )
         });
+    }, [theme, view]);
 
-        view.focus();
+    // 2. External Content Reload (Same Tab, Version increased)
+    // Since we unmount on Tab Change, this only handles "Reload" while active.
+    const renderedVersionRef = useRef<number>(activeTab?.contentVersion || 0);
 
-    }, [activeTabId]); // Only when ID changes
+    useEffect(() => {
+        if (!view || !activeTab) return;
+
+        if (activeTab.contentVersion > renderedVersionRef.current) {
+            const transaction = view.state.update({
+                changes: { from: 0, to: view.state.doc.length, insert: activeTab.content }
+            });
+            view.dispatch(transaction);
+            renderedVersionRef.current = activeTab.contentVersion;
+        }
+    }, [activeTab?.contentVersion, view, activeTab]);
+
+    // 3. Undo/Redo Events
+    useEffect(() => {
+        const handleUndo = () => { if (view) undo(view); };
+        const handleRedo = () => { if (view) redo(view); };
+        window.addEventListener('editor:undo', handleUndo);
+        window.addEventListener('editor:redo', handleRedo);
+        return () => {
+            window.removeEventListener('editor:undo', handleUndo);
+            window.removeEventListener('editor:redo', handleRedo);
+        };
+    }, [view]);
+
+    // --- Render ---
+    if (!activeTab) {
+        return (
+            <div className="editor-container empty-state">
+                <div className="empty-message">No file is open</div>
+            </div>
+        );
+    }
 
     return (
         <div className="editor-container" ref={editorRef} />

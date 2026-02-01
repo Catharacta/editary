@@ -8,6 +8,7 @@ export interface Tab {
     displayName: string;
     content: string; // Text content
     isDirty: boolean;
+    contentVersion: number; // 0 for initial, increment on external reload
     editorState?: EditorState;
 }
 
@@ -26,6 +27,7 @@ interface AppState {
     closeTab: (id: string) => void;
     setActiveTab: (id: string) => void;
     updateTabContent: (id: string, content: string, isDirty?: boolean) => void;
+    reloadTabContent: (id: string, content: string) => void;
     updateTabState: (id: string, newState: Partial<Tab>) => void;
     setEditorState: (id: string, state: EditorState) => void;
     setTheme: (theme: 'dark' | 'light') => void;
@@ -44,10 +46,6 @@ export const useAppStore = create<AppState>((set) => ({
     addTab: (path = undefined, content = '') => {
         const id = uuidv4();
         const displayName = path ? path.split(/[\\/]/).pop() || 'Unknown' : 'Untitled-1';
-        // Logic for Untitled-N could be better, but MVP: Untitled-1
-
-        // If untitled, verify name uniqueness or simple increment? 
-        // For now simple.
 
         const newTab: Tab = {
             id,
@@ -55,6 +53,7 @@ export const useAppStore = create<AppState>((set) => ({
             displayName,
             content,
             isDirty: false,
+            contentVersion: 0,
         };
 
         set((state) => ({
@@ -71,12 +70,7 @@ export const useAppStore = create<AppState>((set) => ({
             let newActiveId = state.activeTabId;
 
             if (state.activeTabId === id) {
-                // If closing active tab, select the one before it, or after, or null
-                if (newTabs.length > 0) {
-                    newActiveId = newTabs[newTabs.length - 1].id;
-                } else {
-                    newActiveId = null;
-                }
+                newActiveId = newTabs.length > 0 ? newTabs[newTabs.length - 1].id : null;
             }
 
             return {
@@ -86,31 +80,37 @@ export const useAppStore = create<AppState>((set) => ({
         });
     },
 
-    setActiveTab: (id) => {
-        set({ activeTabId: id });
-    },
+    setActiveTab: (id) => set({ activeTabId: id }),
 
     updateTabContent: (id, content, isDirty = true) => {
         set((state) => ({
-            tabs: state.tabs.map((tab) =>
-                tab.id === id ? { ...tab, content, isDirty } : tab
+            tabs: state.tabs.map((t) =>
+                t.id === id ? { ...t, content, isDirty } : t
+            ),
+        }));
+    },
+
+    reloadTabContent: (id, content) => {
+        set((state) => ({
+            tabs: state.tabs.map((t) =>
+                t.id === id ? { ...t, content, isDirty: false, contentVersion: t.contentVersion + 1 } : t
             ),
         }));
     },
 
     updateTabState: (id, newState) => {
         set((state) => ({
-            tabs: state.tabs.map((tab) =>
-                tab.id === id ? { ...tab, ...newState } : tab
+            tabs: state.tabs.map((t) =>
+                t.id === id ? { ...t, ...newState } : t
             ),
         }));
     },
 
     setEditorState: (id, editorState) => {
         set((state) => ({
-            tabs: state.tabs.map((tab) =>
-                tab.id === id ? { ...tab, editorState } : tab
+            tabs: state.tabs.map((t) =>
+                t.id === id ? { ...t, editorState } : t
             ),
         }));
-    }
+    },
 }));

@@ -12,7 +12,7 @@ import { useAppStore } from './store';
 import { openFile } from './api';
 
 function App() {
-  const { tabs, updateTabContent, theme } = useAppStore();
+  const { tabs, reloadTabContent, theme } = useAppStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [changedFilePath, setChangedFilePath] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -47,7 +47,7 @@ function App() {
         const result = await openFile(changedFilePath);
         const tab = tabs.find(t => t.path === changedFilePath);
         if (tab) {
-          updateTabContent(tab.id, result.content, false);
+          reloadTabContent(tab.id, result.content);
         }
         setToastMessage(null);
         setChangedFilePath(null);
@@ -69,7 +69,7 @@ function App() {
         <Sidebar />
         <div className="main-area">
           <AddressBar />
-          <EditorComponent />
+          <EditorComponent key={tabs.find(t => t.id === useAppStore.getState().activeTabId)?.id || 'empty'} />
           <StatusBar />
         </div>
       </div>

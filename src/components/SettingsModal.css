@@ -83,9 +83,6 @@
 }
 
 .toggle-btn.active {
-    background-color: var(--bg-tertiary);
-    /* or a lighter generic bg */
-    color: var(--text-primary);
-    /* In dark mode, maybe a slightly lighter gray */
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--accent-color);
+    color: #ffffff;
 }

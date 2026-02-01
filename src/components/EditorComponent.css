@@ -2,15 +2,23 @@
     flex: 1;
     overflow: hidden;
     position: relative;
-    background-color: var(--bg-editor);
-    height: 100%;
+    /* Ensure CodeMirror takes full height inside this container */
+    display: flex;
+    flex-direction: column;
 }
 
-/* Ensure CodeMirror takes full height */
+.editor-container.empty-state {
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-editor);
+    color: var(--text-secondary);
+}
+
+.empty-message {
+    font-size: 1.2rem;
+    opacity: 0.5;
+}
+
 .cm-editor {
     height: 100%;
-}
-
-.cm-scroller {
-    overflow: auto;
 }
