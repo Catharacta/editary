@@ -45,7 +45,25 @@ export const useAppStore = create<AppState>((set) => ({
 
     addTab: (path = undefined, content = '') => {
         const id = uuidv4();
-        const displayName = path ? path.split(/[\\/]/).pop() || 'Unknown' : 'Untitled-1';
+        let displayName = 'Untitled-1';
+
+        if (path) {
+            displayName = path.split(/[\\/]/).pop() || 'Unknown';
+        } else {
+            // Generate Untitled-N
+            const untitledTabs = useAppStore.getState().tabs
+                .filter(t => !t.path && t.displayName.startsWith('Untitled-'))
+                .map(t => {
+                    const match = t.displayName.match(/Untitled-(\d+)/);
+                    return match ? parseInt(match[1], 10) : 0;
+                });
+
+            let n = 1;
+            while (untitledTabs.includes(n)) {
+                n++;
+            }
+            displayName = `Untitled-${n}`;
+        }
 
         const newTab: Tab = {
             id,
