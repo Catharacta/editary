@@ -3,10 +3,14 @@
     overflow: hidden;
     position: relative;
     background-color: var(--bg-editor);
+    height: 100%;
 }
 
-.codemirror-placeholder {
-    padding: 1rem;
-    color: var(--text-secondary);
-    font-style: italic;
+/* Ensure CodeMirror takes full height */
+.cm-editor {
+    height: 100%;
+}
+
+.cm-scroller {
+    overflow: auto;
 }
