@@ -36,6 +36,10 @@ interface AppState {
     theme: 'dark' | 'light';
     cursorPos: CursorPos;
 
+    // Project State
+    projectRoot: string | null;
+    expandedFolders: Record<string, boolean>;
+
     // Actions
     addTab: (path?: string, content?: string) => string;
     closeTab: (id: string, paneId?: PaneId) => void;
@@ -51,6 +55,12 @@ interface AppState {
     enableSplit: () => void;
     disableSplit: () => void;
     setActivePane: (paneId: PaneId) => void;
+
+    // Project Actions
+    openProject: (path: string) => void;
+    closeProject: () => void;
+    toggleFolder: (path: string) => void;
+    setFolderExpanded: (path: string, expanded: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set, _get) => ({
@@ -63,6 +73,8 @@ export const useAppStore = create<AppState>((set, _get) => ({
     isSplit: false,
     theme: 'dark',
     cursorPos: { line: 1, col: 1 },
+    projectRoot: null,
+    expandedFolders: {},
 
     setTheme: (theme) => set({ theme }),
     setCursorPos: (pos) => set({ cursorPos: pos }),
@@ -219,4 +231,21 @@ export const useAppStore = create<AppState>((set, _get) => ({
     })),
 
     setActivePane: (paneId) => set({ activePaneId: paneId }),
+
+    openProject: (path) => set({ projectRoot: path, expandedFolders: {} }),
+    closeProject: () => set({ projectRoot: null, expandedFolders: {} }),
+
+    toggleFolder: (path) => set((state) => ({
+        expandedFolders: {
+            ...state.expandedFolders,
+            [path]: !state.expandedFolders[path]
+        }
+    })),
+
+    setFolderExpanded: (path, expanded) => set((state) => ({
+        expandedFolders: {
+            ...state.expandedFolders,
+            [path]: expanded
+        }
+    })),
 }));

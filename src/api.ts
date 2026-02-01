@@ -36,3 +36,13 @@ export async function watchFile(path: string): Promise<void> {
 export async function unwatchFile(path: string): Promise<void> {
     return invoke('unwatch_file', { path });
 }
+
+export interface DirectoryEntry {
+    name: string;
+    path: string;
+    is_dir: boolean;
+}
+
+export async function readDir(path: string): Promise<DirectoryEntry[]> {
+    return invoke<DirectoryEntry[]>('read_dir', { path });
+}

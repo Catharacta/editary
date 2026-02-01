@@ -121,6 +121,48 @@ fn save_file(path: String, content: String) -> Result<FileStat, String> {
     })
 }
 
+#[derive(Serialize)]
+struct DirectoryEntry {
+    name: String,
+    path: String,
+    is_dir: bool,
+}
+
+#[tauri::command]
+fn read_dir(path: String) -> Result<Vec<DirectoryEntry>, String> {
+    let mut entries = Vec::new();
+    let read_dir = fs::read_dir(&path).map_err(|e| e.to_string())?;
+
+    for entry in read_dir {
+        if let Ok(entry) = entry {
+            let file_type = entry.file_type().map_err(|e| e.to_string())?;
+            let path_buf = entry.path();
+            let name = entry.file_name().to_string_lossy().to_string();
+
+            entries.push(DirectoryEntry {
+                name,
+                path: path_buf.to_string_lossy().to_string(),
+                is_dir: file_type.is_dir(),
+            });
+        }
+    }
+
+    // Sort: directories first, then files (alphabetical)
+    entries.sort_by(|a, b| {
+        if a.is_dir == b.is_dir {
+            a.name.to_lowercase().cmp(&b.name.to_lowercase())
+        } else {
+            if a.is_dir {
+                std::cmp::Ordering::Less
+            } else {
+                std::cmp::Ordering::Greater
+            }
+        }
+    });
+
+    Ok(entries)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -134,7 +176,8 @@ pub fn run() {
             open_file,
             save_file,
             watch_file,
-            unwatch_file
+            unwatch_file,
+            read_dir
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
