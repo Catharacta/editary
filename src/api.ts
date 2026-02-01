@@ -28,3 +28,11 @@ export async function openFile(path: string): Promise<FileContent> {
 export async function saveFile(path: string, content: string): Promise<FileStat> {
     return invoke<FileStat>('save_file', { path, content });
 }
+
+export async function watchFile(path: string): Promise<void> {
+    return invoke('watch_file', { path });
+}
+
+export async function unwatchFile(path: string): Promise<void> {
+    return invoke('unwatch_file', { path });
+}

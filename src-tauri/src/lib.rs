@@ -1,7 +1,11 @@
 use chardetng::EncodingDetector;
+use notify::{Event, EventKind, RecursiveMode, Watcher};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
+use std::sync::Mutex;
 use std::time::SystemTime;
+use tauri::{AppHandle, Emitter, Manager, State};
 
 #[derive(Serialize, Deserialize)]
 struct FileStat {
@@ -16,6 +20,53 @@ struct FileContent {
     content: String,
     encoding: String,
     stat: FileStat,
+}
+
+struct WatcherState {
+    watcher: Mutex<Option<notify::RecommendedWatcher>>,
+}
+
+#[tauri::command]
+fn watch_file(app: AppHandle, state: State<'_, WatcherState>, path: String) -> Result<(), String> {
+    let mut watcher_lock = state.watcher.lock().map_err(|e| e.to_string())?;
+
+    if watcher_lock.is_none() {
+        let app_handle = app.clone();
+        let watcher =
+            notify::recommended_watcher(move |res: Result<Event, notify::Error>| match res {
+                Ok(event) => {
+                    if let EventKind::Modify(_) = event.kind {
+                        for path_buf in event.paths {
+                            let path_str = path_buf.to_string_lossy().to_string();
+                            let _ = app_handle.emit("file-changed", path_str);
+                        }
+                    }
+                }
+                Err(e) => println!("watch error: {:?}", e),
+            })
+            .map_err(|e| e.to_string())?;
+        *watcher_lock = Some(watcher);
+    }
+
+    if let Some(watcher) = watcher_lock.as_mut() {
+        let path_obj = std::path::Path::new(&path);
+        if path_obj.exists() {
+            let _ = watcher.watch(path_obj, RecursiveMode::NonRecursive);
+        }
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+fn unwatch_file(state: State<'_, WatcherState>, path: String) -> Result<(), String> {
+    let mut watcher_lock = state.watcher.lock().map_err(|e| e.to_string())?;
+
+    if let Some(watcher) = watcher_lock.as_mut() {
+        let path_obj = std::path::Path::new(&path);
+        let _ = watcher.unwatch(path_obj);
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -73,8 +124,17 @@ fn save_file(path: String, content: String) -> Result<FileStat, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![open_file, save_file])
+        .manage(WatcherState {
+            watcher: Mutex::new(None),
+        })
+        .invoke_handler(tauri::generate_handler![
+            open_file,
+            save_file,
+            watch_file,
+            unwatch_file
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
