@@ -8,12 +8,7 @@ import './Sidebar.css';
 const Sidebar: React.FC = () => {
     const { tabs, activeTabId, setActiveTab, closeTab, addTab } = useAppStore();
 
-    // Debug: Add a tab if empty (only on first load)
-    React.useEffect(() => {
-        if (tabs.length === 0) {
-            // addTab(); 
-        }
-    }, [tabs.length, addTab]);
+
 
     const handleOpenFile = async () => {
         try {
