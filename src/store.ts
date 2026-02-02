@@ -42,7 +42,11 @@ interface AppState {
     expandedFolders: Record<string, boolean>;
     activeSidebarView: 'explorer' | 'search';
     searchExcludes: string[];
-    searchMaxFileSize: number; // Bytes
+    searchIncludes: string[]; // New
+    searchMaxFileSize: number;
+    searchCaseSensitive: boolean; // New
+    searchWholeWord: boolean; // New
+    searchRegex: boolean; // New
 
     // Actions
     addTab: (path?: string, content?: string, type?: 'editor' | 'settings') => string;
@@ -67,7 +71,11 @@ interface AppState {
     setFolderExpanded: (path: string, expanded: boolean) => void;
     setActiveSidebarView: (view: 'explorer' | 'search') => void;
     setSearchExcludes: (excludes: string[]) => void;
+    setSearchIncludes: (includes: string[]) => void; // New
     setSearchMaxFileSize: (size: number) => void;
+    setSearchCaseSensitive: (val: boolean) => void; // New
+    setSearchWholeWord: (val: boolean) => void; // New
+    setSearchRegex: (val: boolean) => void; // New
 }
 
 export const useAppStore = create<AppState>((set, _get) => ({
@@ -83,8 +91,12 @@ export const useAppStore = create<AppState>((set, _get) => ({
     projectRoot: null,
     expandedFolders: {},
     activeSidebarView: 'explorer',
-    searchExcludes: ['dist', 'build', 'out'], // Default overrides
-    searchMaxFileSize: 1024 * 1024, // 1MB Default
+    searchExcludes: ['dist', 'build', 'out'],
+    searchIncludes: [],
+    searchMaxFileSize: 1024 * 1024,
+    searchCaseSensitive: false,
+    searchWholeWord: false,
+    searchRegex: false,
 
     setTheme: (theme) => set({ theme }),
     setCursorPos: (pos) => set({ cursorPos: pos }),
@@ -265,5 +277,9 @@ export const useAppStore = create<AppState>((set, _get) => ({
 
     setActiveSidebarView: (view) => set({ activeSidebarView: view }),
     setSearchExcludes: (excludes) => set({ searchExcludes: excludes }),
+    setSearchIncludes: (includes) => set({ searchIncludes: includes }),
     setSearchMaxFileSize: (size) => set({ searchMaxFileSize: size }),
+    setSearchCaseSensitive: (val) => set({ searchCaseSensitive: val }),
+    setSearchWholeWord: (val) => set({ searchWholeWord: val }),
+    setSearchRegex: (val) => set({ searchRegex: val }),
 }));

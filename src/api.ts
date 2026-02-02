@@ -53,6 +53,24 @@ export interface SearchResult {
     line_content: string;
 }
 
-export async function searchFiles(query: string, path: string, excludes: string[] = [], max_file_size: number = 1024 * 1024): Promise<SearchResult[]> {
-    return invoke<SearchResult[]>('search_files', { query, path, excludes, maxFileSize: max_file_size });
+export async function searchFiles(
+    query: String,
+    path: String,
+    excludes: string[],
+    includes: string[],
+    max_file_size: number,
+    case_sensitive: boolean,
+    whole_word: boolean,
+    is_regex: boolean
+): Promise<SearchResult[]> {
+    return invoke<SearchResult[]>('search_files', {
+        query,
+        path,
+        excludes,
+        includes,
+        maxFileSize: max_file_size,
+        caseSensitive: case_sensitive,
+        wholeWord: whole_word,
+        isRegex: is_regex
+    });
 }

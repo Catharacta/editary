@@ -1,130 +1,166 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store';
-import { searchFiles, SearchResult, openFile, watchFile } from '../api';
-import './Sidebar.css'; // Re-use common sidebar styles
+import { searchFiles, SearchResult } from '../api';
+import './SearchView.css';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 const SearchView: React.FC = () => {
-    const { projectRoot, addTab, tabs, setActiveTab, setCursorPos, searchExcludes, searchMaxFileSize } = useAppStore();
+    const {
+        projectRoot,
+        addTab,
+        setCursorPos,
+        searchExcludes,
+        searchIncludes,
+        searchMaxFileSize,
+        searchCaseSensitive,
+        searchWholeWord,
+        searchRegex,
+        setSearchExcludes,
+        setSearchIncludes,
+        setSearchCaseSensitive,
+        setSearchWholeWord,
+        setSearchRegex
+    } = useAppStore();
+
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [showDetails, setShowDetails] = useState(false);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!projectRoot || !query.trim()) return;
+        if (!projectRoot || !query) return;
 
         setIsSearching(true);
+        setError(null);
+        setResults([]);
+
         try {
-            const res = await searchFiles(query, projectRoot, searchExcludes, searchMaxFileSize);
+            const res = await searchFiles(
+                query,
+                projectRoot,
+                searchExcludes,
+                searchIncludes,
+                searchMaxFileSize,
+                searchCaseSensitive,
+                searchWholeWord,
+                searchRegex
+            );
             setResults(res);
         } catch (err) {
-            console.error("Search failed:", err);
-            setResults([]);
+            setError(typeof err === 'string' ? err : 'Search failed');
+            console.error(err);
         } finally {
             setIsSearching(false);
         }
     };
 
-    const handleResultClick = async (result: SearchResult) => {
-        // Open file
-        // Check if already open
-        const existing = tabs.find(t => t.path === result.file_path);
-
-        if (existing) {
-            setActiveTab(existing.id);
-            setCursorPos({ line: result.line_number, col: 1 });
-        } else {
-            try {
-                const fileRes = await openFile(result.file_path);
-                const newTabId = addTab(result.file_path, fileRes.content);
-                await watchFile(result.file_path);
-                // We need to set cursor pos after tab is added. 
-                // Since state update might be async, we set it immediately 
-                // and rely on Editor component to pick it up or useEffect sync.
-                setCursorPos({ line: result.line_number, col: 1 });
-            } catch (err) {
-                console.error("Failed to open file from search:", err);
-            }
-        }
+    const handleResultClick = (res: SearchResult) => {
+        const id = addTab(res.file_path);
+        setCursorPos({ line: res.line_number, col: 1 });
     };
 
+    if (!projectRoot) {
+        return <div className="search-view-empty">Open a project to search</div>;
+    }
+
     return (
-        <div className="sidebar-view search-view" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div className="section-header">
-                <span className="header-title">SEARCH</span>
-            </div>
-
-            <div style={{ padding: '8px' }}>
+        <div className="search-view">
+            <div className="search-header">
                 <form onSubmit={handleSearch}>
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder={projectRoot ? "Search in project..." : "Open folder to search"}
-                        disabled={!projectRoot}
-                        style={{
-                            width: '100%',
-                            padding: '6px',
-                            backgroundColor: 'var(--bg-active)', // slightly lighter input
-                            border: '1px solid var(--border-color)',
-                            color: 'var(--text-primary)',
-                            borderRadius: '2px',
-                            fontSize: '12px'
-                        }}
-                    />
+                    <div className="search-input-container">
+                        <input
+                            type="text"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search in files..."
+                            className="search-input"
+                        />
+                        <div className="search-options">
+                            <button
+                                type="button"
+                                className={`option-btn ${searchCaseSensitive ? 'active' : ''}`}
+                                onClick={() => setSearchCaseSensitive(!searchCaseSensitive)}
+                                title="Match Case"
+                            >
+                                <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Aa</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`option-btn ${searchWholeWord ? 'active' : ''}`}
+                                onClick={() => setSearchWholeWord(!searchWholeWord)}
+                                title="Match Whole Word"
+                            >
+                                <span style={{ fontSize: '10px', fontWeight: 'bold' }}>ab</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`option-btn ${searchRegex ? 'active' : ''}`}
+                                onClick={() => setSearchRegex(!searchRegex)}
+                                title="Use Regular Expression"
+                            >
+                                <span style={{ fontSize: '10px', fontWeight: 'bold' }}>.*</span>
+                            </button>
+                        </div>
+                    </div>
                 </form>
+
+                <div className="search-details-toggle" onClick={() => setShowDetails(!showDetails)}>
+                    {showDetails ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    <span>files to include/exclude</span>
+                </div>
+
+                {showDetails && (
+                    <div className="search-details-panel">
+                        <div className="detail-row">
+                            <label>files to include</label>
+                            <input
+                                type="text"
+                                value={searchIncludes.join(', ')}
+                                onChange={(e) => setSearchIncludes(e.target.value.split(',').map(s => s.trim()))}
+                                placeholder="e.g. src/*.ts"
+                            />
+                        </div>
+                        <div className="detail-row">
+                            <label>files to exclude</label>
+                            <input
+                                type="text"
+                                value={searchExcludes.join(', ')}
+                                onChange={(e) => setSearchExcludes(e.target.value.split(',').map(s => s.trim()))}
+                                placeholder="e.g. node_modules, dist"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
-            <div className="section-content scrollable" style={{ flex: 1, overflowY: 'auto' }}>
-                {!projectRoot && (
-                    <div className="empty-explorer" style={{ padding: '20px' }}>
-                        No project opened.
-                    </div>
-                )}
+            <div className="search-results">
+                {isSearching && <div className="search-loading">Searching...</div>}
 
-                {projectRoot && results.length === 0 && query && !isSearching && (
-                    <div style={{ padding: '8px 16px', fontSize: '12px', opacity: 0.7 }}>
-                        No results found.
-                    </div>
-                )}
+                {error && <div className="search-error">{error}</div>}
 
-                {isSearching && (
-                    <div style={{ padding: '8px 16px', fontSize: '12px', opacity: 0.7 }}>
-                        Searching...
-                    </div>
-                )}
+                {results.map((res, i) => {
+                    const fileName = res.file_path.split(/[\\/]/).pop();
+                    const relativePath = res.file_path.replace(projectRoot, '').replace(/^[\\/]/, ''); // Strip leading slash?
+                    // Better path handling might be needed but good for now.
 
-                {results.length > 0 && (
-                    <div className="search-results">
-                        {results.map((res, idx) => {
-                            // Extract relative path calculation logic if needed, 
-                            // for now just show filename or partial path if desired, 
-                            // but user requirement said "grouped by file".
-                            // For MVP, just flat list is easier or grouping.
-                            // Let's optimize display a bit: Filename (Path) \n Line content
-                            const fileName = res.file_path.split(/[\\/]/).pop();
-                            const relativePath = projectRoot ? res.file_path.replace(projectRoot, '') : res.file_path;
+                    return (
+                        <div key={i} className="search-result-item" onClick={() => handleResultClick(res)}>
+                            <div className="result-file" title={res.file_path}>
+                                <span className="file-name">{fileName}</span>
+                                <span className="file-path">{relativePath}</span>
+                            </div>
+                            <div className="result-preview">
+                                <span className="line-num">{res.line_number}:</span>
+                                <span className="line-content">{res.line_content}</span>
+                            </div>
+                        </div>
+                    );
+                })}
 
-                            return (
-                                <div
-                                    key={idx}
-                                    className="file-item search-result-item"
-                                    style={{ flexDirection: 'column', alignItems: 'flex-start', height: 'auto', padding: '6px 16px' }}
-                                    onClick={() => handleResultClick(res)}
-                                >
-                                    <div style={{ fontWeight: 'bold', fontSize: '12px', display: 'flex', width: '100%' }}>
-                                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {fileName} <span style={{ opacity: 0.5, fontSize: '10px' }}>{relativePath}</span>
-                                        </span>
-                                        <span style={{ marginLeft: 'auto', fontSize: '10px', opacity: 0.8 }}>:{res.line_number}</span>
-                                    </div>
-                                    <div style={{ fontSize: '11px', opacity: 0.7, whiteSpace: 'pre', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', marginTop: '2px' }}>
-                                        {res.line_content}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                {!isSearching && results.length === 0 && query && (
+                    <div className="search-empty">No results found</div>
                 )}
             </div>
         </div>

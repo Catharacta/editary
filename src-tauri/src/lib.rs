@@ -179,18 +179,39 @@ fn search_files(
     query: String,
     path: String,
     excludes: Vec<String>,
+    includes: Vec<String>,
     max_file_size: u64,
+    case_sensitive: bool,
+    whole_word: bool,
+    is_regex: bool,
 ) -> Result<Vec<SearchResult>, String> {
     let mut results = Vec::new();
 
-    // Configure WalkBuilder (respects .gitignore by default)
+    // 0. Prepare Regex Pattern
+    let pattern = if is_regex {
+        query.clone()
+    } else {
+        regex::escape(&query)
+    };
+
+    let final_pattern = if whole_word {
+        format!(r"\b{}\b", pattern)
+    } else {
+        pattern
+    };
+
+    let re = regex::RegexBuilder::new(&final_pattern)
+        .case_insensitive(!case_sensitive)
+        .build()
+        .map_err(|e| format!("Invalid regex: {}", e))?;
+
+    // 1. Configure WalkBuilder (respects .gitignore by default)
     let mut builder = WalkBuilder::new(&path);
 
-    // Add default heavy directories and custom excludes to overrides
+    // 2. Overrides (Excludes & Includes)
     let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
 
-    // Always exclude these heavy/build dirs if not already handled by gitignore
-    // Negative patterns in OverrideBuilder mean "ignore this"
+    // Default heavy exclusions
     for e in &[
         "node_modules",
         ".git",
@@ -203,10 +224,20 @@ fn search_files(
         let _ = overrides.add(&format!("!**/{}/**", e));
     }
 
-    // Add user provided excludes
+    // Custom excludes (negative patterns)
     for e in excludes {
         if !e.trim().is_empty() {
             let _ = overrides.add(&format!("!**/{}/**", e.trim()));
+        }
+    }
+
+    // Custom includes (positive patterns)
+    // Note: If includes are specified, we might want to ONLY search them?
+    // ripgrep behavior: glob patterns act as filters.
+    // If we add "src/*.ts", it filters FOR that.
+    for i in includes {
+        if !i.trim().is_empty() {
+            let _ = overrides.add(&format!("**/{}", i.trim()));
         }
     }
 
@@ -225,30 +256,42 @@ fn search_files(
 
                 let path_obj = entry.path();
 
-                // 1. Check File Size (Skip > max_file_size)
+                // Check File Size
                 if let Ok(metadata) = entry.metadata() {
                     if metadata.len() > max_file_size {
                         continue;
                     }
                 }
 
-                // 2. Binary Check & Read
+                // Read and Search
                 if let Ok(file) = File::open(path_obj) {
                     let mut reader = BufReader::new(file);
-
                     let mut line_num = 1;
+                    let mut buf = String::new();
 
-                    // Reader.lines() handles utf-8 checks implictly (returns error if not valid utf8)
-                    for line_res in reader.lines() {
-                        match line_res {
-                            Ok(line) => {
-                                // If line is extremely long, skip it or truncate?
-                                if line.len() > 10000 {
+                    loop {
+                        buf.clear();
+                        // limit execution time?
+
+                        match reader.read_line(&mut buf) {
+                            Ok(0) => break, // EOF
+                            Ok(_) => {
+                                // Check for null byte -> binary -> skip file
+                                if buf.contains('\0') {
+                                    break;
+                                }
+
+                                // Skip super long lines to prevent regex DoS/hanging
+                                if buf.len() > 10000 {
+                                    line_num += 1;
                                     continue;
                                 }
 
-                                if line.contains(&query) {
-                                    let line_content = line.trim();
+                                // Trim newline for matching? Regex might want it, but usually standard is line-based.
+                                let line_str = buf.trim_end();
+
+                                if re.is_match(line_str) {
+                                    let line_content = line_str.trim();
                                     let display_content = if line_content.len() > 100 {
                                         format!("{}...", &line_content[0..100])
                                     } else {
@@ -266,10 +309,7 @@ fn search_files(
                                     }
                                 }
                             }
-                            Err(_) => {
-                                // Likely binary or non-utf8, stop reading this file
-                                break;
-                            }
+                            Err(_) => break, // Error (non-utf8 etc)
                         }
                         line_num += 1;
                     }
