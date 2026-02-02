@@ -1,0 +1,38 @@
+.activity-bar {
+    width: 48px;
+    height: 100%;
+    background-color: var(--bg-secondary);
+    /* or slightly darker/lighter if preferred */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.activity-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.activity-icon:hover {
+    color: var(--text-primary);
+    opacity: 1;
+}
+
+.activity-icon.active {
+    color: var(--accent-color);
+    opacity: 1;
+    border-left: 2px solid var(--accent-color);
+    /* Visual indicator */
+}

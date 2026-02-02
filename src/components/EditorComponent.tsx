@@ -192,6 +192,34 @@ const EditorComponent: React.FC<EditorComponentProps> = ({ paneId }) => {
         };
     }, [view, paneId]);
 
+    // 4. Cursor Position Sync (Store -> Editor)
+    // Used when search results or navigation sets the cursor
+    const { cursorPos } = useAppStore();
+    useEffect(() => {
+        if (!view || useAppStore.getState().activePaneId !== paneId || !activeTab) return;
+
+        // Convert Line/Col to Offset
+        const state = view.state;
+        // Ensure line is within bounds
+        const lineCount = state.doc.lines;
+        const safeLine = Math.max(1, Math.min(cursorPos.line, lineCount));
+        const lineInfo = state.doc.line(safeLine);
+        const safeCol = Math.max(1, Math.min(cursorPos.col, lineInfo.length + 1));
+        const offset = lineInfo.from + safeCol - 1;
+
+        // Check if cursor is already there (approx) to avoid loop/fight
+        const currentHead = state.selection.main.head;
+        if (currentHead === offset) return;
+
+        view.dispatch({
+            selection: { anchor: offset, head: offset },
+            effects: EditorView.scrollIntoView(offset, { y: 'center' })
+        });
+
+        // Focus if needed
+        view.contentDOM.focus();
+    }, [cursorPos, view, paneId, activeTab]);
+
     // --- Render ---
     if (!activeTab) {
         return (

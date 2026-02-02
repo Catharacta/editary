@@ -163,6 +163,125 @@ fn read_dir(path: String) -> Result<Vec<DirectoryEntry>, String> {
     Ok(entries)
 }
 
+#[derive(Serialize)]
+struct SearchResult {
+    file_path: String,
+    line_number: usize,
+    line_content: String,
+}
+
+use ignore::WalkBuilder;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
+#[tauri::command]
+fn search_files(
+    query: String,
+    path: String,
+    excludes: Vec<String>,
+    max_file_size: u64,
+) -> Result<Vec<SearchResult>, String> {
+    let mut results = Vec::new();
+
+    // Configure WalkBuilder (respects .gitignore by default)
+    let mut builder = WalkBuilder::new(&path);
+
+    // Add default heavy directories and custom excludes to overrides
+    let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
+
+    // Always exclude these heavy/build dirs if not already handled by gitignore
+    // Negative patterns in OverrideBuilder mean "ignore this"
+    for e in &[
+        "node_modules",
+        ".git",
+        "target",
+        "dist",
+        "build",
+        ".idea",
+        ".vscode",
+    ] {
+        let _ = overrides.add(&format!("!**/{}/**", e));
+    }
+
+    // Add user provided excludes
+    for e in excludes {
+        if !e.trim().is_empty() {
+            let _ = overrides.add(&format!("!**/{}/**", e.trim()));
+        }
+    }
+
+    if let Ok(ov) = overrides.build() {
+        builder.overrides(ov);
+    }
+
+    let walker = builder.build();
+
+    for result in walker {
+        match result {
+            Ok(entry) => {
+                if !entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
+                    continue;
+                }
+
+                let path_obj = entry.path();
+
+                // 1. Check File Size (Skip > max_file_size)
+                if let Ok(metadata) = entry.metadata() {
+                    if metadata.len() > max_file_size {
+                        continue;
+                    }
+                }
+
+                // 2. Binary Check & Read
+                if let Ok(file) = File::open(path_obj) {
+                    let mut reader = BufReader::new(file);
+
+                    let mut line_num = 1;
+
+                    // Reader.lines() handles utf-8 checks implictly (returns error if not valid utf8)
+                    for line_res in reader.lines() {
+                        match line_res {
+                            Ok(line) => {
+                                // If line is extremely long, skip it or truncate?
+                                if line.len() > 10000 {
+                                    continue;
+                                }
+
+                                if line.contains(&query) {
+                                    let line_content = line.trim();
+                                    let display_content = if line_content.len() > 100 {
+                                        format!("{}...", &line_content[0..100])
+                                    } else {
+                                        line_content.to_string()
+                                    };
+
+                                    results.push(SearchResult {
+                                        file_path: path_obj.to_string_lossy().to_string(),
+                                        line_number: line_num,
+                                        line_content: display_content,
+                                    });
+
+                                    if results.len() >= 500 {
+                                        return Ok(results);
+                                    }
+                                }
+                            }
+                            Err(_) => {
+                                // Likely binary or non-utf8, stop reading this file
+                                break;
+                            }
+                        }
+                        line_num += 1;
+                    }
+                }
+            }
+            Err(_) => continue,
+        }
+    }
+
+    Ok(results)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -177,7 +296,8 @@ pub fn run() {
             save_file,
             watch_file,
             unwatch_file,
-            read_dir
+            read_dir,
+            search_files
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

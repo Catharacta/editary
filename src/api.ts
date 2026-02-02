@@ -46,3 +46,13 @@ export interface DirectoryEntry {
 export async function readDir(path: string): Promise<DirectoryEntry[]> {
     return invoke<DirectoryEntry[]>('read_dir', { path });
 }
+
+export interface SearchResult {
+    file_path: string;
+    line_number: number;
+    line_content: string;
+}
+
+export async function searchFiles(query: string, path: string, excludes: string[] = [], max_file_size: number = 1024 * 1024): Promise<SearchResult[]> {
+    return invoke<SearchResult[]>('search_files', { query, path, excludes, maxFileSize: max_file_size });
+}

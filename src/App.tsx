@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 import Sidebar from './components/Sidebar';
+import ActivityBar from './components/ActivityBar';
 import PaneContainer from './components/PaneContainer';
 import StatusBar from './components/StatusBar';
 import Toast from './components/Toast';
 import Toolbar from './components/Toolbar';
-import SettingsModal from './components/SettingsModal';
 import { useAppStore } from './store';
 import { openFile } from './api';
 
 function App() {
-  const { tabs, reloadTabContent, theme, isSplit, panes } = useAppStore();
+  const { tabs, reloadTabContent, theme, isSplit, panes, addTab, setActiveTab } = useAppStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [changedFilePath, setChangedFilePath] = useState<string | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Apply Theme Logic
   useEffect(() => {
@@ -25,6 +24,7 @@ function App() {
     }
   }, [theme]);
 
+  // File Watcher Logic
   useEffect(() => {
     const unlisten = listen<string>('file-changed', (event) => {
       const path = event.payload;
@@ -61,11 +61,24 @@ function App() {
     setChangedFilePath(null);
   };
 
+  const handleOpenSettings = () => {
+    const existing = tabs.find(t => t.type === 'settings');
+    if (existing) {
+      setActiveTab(existing.id);
+    } else {
+      const id = addTab(undefined, undefined, 'settings');
+      setActiveTab(id);
+    }
+  };
+
   return (
     <div className="app-container">
-      <Toolbar onOpenSettings={() => setIsSettingsOpen(true)} />
+      <Toolbar onOpenSettings={handleOpenSettings} />
       <div className="content-area">
-        <Sidebar />
+        <ActivityBar />
+        <div style={{ width: '250px', display: 'flex', flexDirection: 'column' }}>
+          <Sidebar />
+        </div>
         <div className="main-area">
           {/* Global AddressBar removed, it's now per-pane */}
           <div className="input-area" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -93,10 +106,6 @@ function App() {
           onIgnore={handleIgnore}
         />
       )}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
     </div>
   );
 }

@@ -19,6 +19,7 @@ export interface Tab {
     contentVersion: number; // 0 for initial, increment on external reload
     internalContentVersion: number; // Increment on internal edits for sync
     editorState?: EditorState;
+    type: 'editor' | 'settings';
 }
 
 export interface CursorPos {
@@ -39,9 +40,12 @@ interface AppState {
     // Project State
     projectRoot: string | null;
     expandedFolders: Record<string, boolean>;
+    activeSidebarView: 'explorer' | 'search';
+    searchExcludes: string[];
+    searchMaxFileSize: number; // Bytes
 
     // Actions
-    addTab: (path?: string, content?: string) => string;
+    addTab: (path?: string, content?: string, type?: 'editor' | 'settings') => string;
     closeTab: (id: string, paneId?: PaneId) => void;
     setActiveTab: (id: string) => void;
     updateTabContent: (id: string, content: string, isDirty?: boolean) => void;
@@ -61,6 +65,9 @@ interface AppState {
     closeProject: () => void;
     toggleFolder: (path: string) => void;
     setFolderExpanded: (path: string, expanded: boolean) => void;
+    setActiveSidebarView: (view: 'explorer' | 'search') => void;
+    setSearchExcludes: (excludes: string[]) => void;
+    setSearchMaxFileSize: (size: number) => void;
 }
 
 export const useAppStore = create<AppState>((set, _get) => ({
@@ -75,15 +82,21 @@ export const useAppStore = create<AppState>((set, _get) => ({
     cursorPos: { line: 1, col: 1 },
     projectRoot: null,
     expandedFolders: {},
+    activeSidebarView: 'explorer',
+    searchExcludes: ['dist', 'build', 'out'], // Default overrides
+    searchMaxFileSize: 1024 * 1024, // 1MB Default
 
     setTheme: (theme) => set({ theme }),
     setCursorPos: (pos) => set({ cursorPos: pos }),
 
-    addTab: (path = undefined, content = '') => {
+    addTab: (path = undefined, content = '', type = 'editor') => {
         const id = uuidv4();
         let displayName = 'Untitled-1';
 
-        if (path) {
+        if (type === 'settings') {
+            displayName = 'Settings';
+            path = 'editary://settings';
+        } else if (path) {
             displayName = path.split(/[\\/]/).pop() || 'Unknown';
         } else {
             // Generate Untitled-N
@@ -109,6 +122,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
             isDirty: false,
             contentVersion: 0,
             internalContentVersion: 0,
+            type,
         };
 
         set((state) => {
@@ -248,4 +262,8 @@ export const useAppStore = create<AppState>((set, _get) => ({
             [path]: expanded
         }
     })),
+
+    setActiveSidebarView: (view) => set({ activeSidebarView: view }),
+    setSearchExcludes: (excludes) => set({ searchExcludes: excludes }),
+    setSearchMaxFileSize: (size) => set({ searchMaxFileSize: size }),
 }));
