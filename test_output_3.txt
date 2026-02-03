@@ -1,0 +1,29 @@
+
+> tauri-app@0.1.0 test:e2e
+> playwright test
+
+SyntaxError: C:\Users\atuya\Documents\develop\editary\tests\search.spec.ts: Missing semicolon. (20:34)
+
+[0m [90m 18 |[39m [32m            }[39m
+ [90m 19 |[39m [32m[39m
+[31m[1m>[22m[39m[90m 20 |[39m [32m            console.log(`[39m[[33mMockIPC[39m] [33mCommand[39m[33m:[39m ${ cmd } [32m`, payload);[39m
+ [90m    |[39m                                   [31m[1m^[22m[39m
+ [90m 21 |[39m [32m[39m
+ [90m 22 |[39m [32m            if (cmd === 'search_files') {[39m
+ [90m 23 |[39m [32m                const query = payload.query || '';[39m[0m
+
+   at search.spec.ts:20
+
+  18 |             }
+  19 | 
+> 20 |             console.log(`[MockIPC] Command: ${ cmd } `, payload);
+     |                                  ^
+  21 | 
+  22 |             if (cmd === 'search_files') {
+  23 |                 const query = payload.query || '';
+
+[1A[2K
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m
