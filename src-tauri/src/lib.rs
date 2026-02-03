@@ -198,6 +198,7 @@ fn search_files(
     case_sensitive: bool,
     whole_word: bool,
     is_regex: bool,
+    additional_paths: Vec<String>,
 ) -> Result<Vec<SearchResult>, String> {
     let mut results = Vec::new();
 
@@ -219,117 +220,151 @@ fn search_files(
         .build()
         .map_err(|e| format!("Invalid regex: {}", e))?;
 
-    // 1. Configure WalkBuilder (respects .gitignore by default)
-    let mut builder = WalkBuilder::new(&path);
-
-    // 2. Overrides (Excludes & Includes)
-    let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
-
-    // Default heavy exclusions
-    for e in &[
-        "node_modules",
-        ".git",
-        "target",
-        "dist",
-        "build",
-        ".idea",
-        ".vscode",
-    ] {
-        let _ = overrides.add(&format!("!**/{}/**", e));
-    }
-
-    // Custom excludes (negative patterns)
-    for e in excludes {
-        if !e.trim().is_empty() {
-            let _ = overrides.add(&format!("!**/{}/**", e.trim()));
+    // Helper function to search a single file
+    let search_file = |file_path: &std::path::Path,
+                       re: &regex::Regex,
+                       results: &mut Vec<SearchResult>,
+                       max_size: u64| {
+        if let Ok(metadata) = std::fs::metadata(file_path) {
+            if metadata.len() > max_size {
+                return;
+            }
         }
-    }
 
-    // Custom includes (positive patterns)
-    // Note: If includes are specified, we might want to ONLY search them?
-    // ripgrep behavior: glob patterns act as filters.
-    // If we add "src/*.ts", it filters FOR that.
-    for i in includes {
-        if !i.trim().is_empty() {
-            let _ = overrides.add(&format!("**/{}", i.trim()));
-        }
-    }
+        if let Ok(file) = File::open(file_path) {
+            let mut reader = BufReader::new(file);
+            let mut line_num = 1;
+            let mut buf = String::new();
 
-    if let Ok(ov) = overrides.build() {
-        builder.overrides(ov);
-    }
+            loop {
+                buf.clear();
+                match reader.read_line(&mut buf) {
+                    Ok(0) => break,
+                    Ok(_) => {
+                        if buf.contains('\0') {
+                            break;
+                        }
+                        if buf.len() > 10000 {
+                            line_num += 1;
+                            continue;
+                        }
 
-    let walker = builder.build();
+                        let line_str = buf.trim_end();
+                        if re.is_match(line_str) {
+                            let line_content = line_str.trim();
+                            let display_content = if line_content.len() > 100 {
+                                format!("{}...", &line_content[0..100])
+                            } else {
+                                line_content.to_string()
+                            };
 
-    for result in walker {
-        match result {
-            Ok(entry) => {
-                if !entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    continue;
+                            results.push(SearchResult {
+                                file_path: file_path.to_string_lossy().to_string(),
+                                line_number: line_num,
+                                line_content: display_content,
+                            });
+
+                            if results.len() >= 500 {
+                                return;
+                            }
+                        }
+                    }
+                    Err(_) => break,
                 }
+                line_num += 1;
+            }
+        }
+    };
 
-                let path_obj = entry.path();
+    // Track searched paths to avoid duplicates
+    let mut searched_paths: std::collections::HashSet<String> = std::collections::HashSet::new();
 
-                // Check File Size
-                if let Ok(metadata) = entry.metadata() {
-                    if metadata.len() > max_file_size {
+    // 1. Search project directory (if path is not empty)
+    if !path.is_empty() {
+        let mut builder = WalkBuilder::new(&path);
+        let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
+
+        // Default heavy exclusions
+        for e in &[
+            "node_modules",
+            ".git",
+            "target",
+            "dist",
+            "build",
+            ".idea",
+            ".vscode",
+        ] {
+            let _ = overrides.add(&format!("!**/{}/**", e));
+        }
+
+        // Custom excludes (negative patterns)
+        for e in &excludes {
+            if !e.trim().is_empty() {
+                let _ = overrides.add(&format!("!**/{}/**", e.trim()));
+            }
+        }
+
+        // Custom includes (positive patterns)
+        for i in &includes {
+            if !i.trim().is_empty() {
+                let _ = overrides.add(&format!("**/{}", i.trim()));
+            }
+        }
+
+        if let Ok(ov) = overrides.build() {
+            builder.overrides(ov);
+        }
+
+        let walker = builder.build();
+
+        for result in walker {
+            match result {
+                Ok(entry) => {
+                    if !entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
                         continue;
                     }
-                }
 
-                // Read and Search
-                if let Ok(file) = File::open(path_obj) {
-                    let mut reader = BufReader::new(file);
-                    let mut line_num = 1;
-                    let mut buf = String::new();
+                    let path_obj = entry.path();
+                    let path_str = path_obj.to_string_lossy().to_string();
 
-                    loop {
-                        buf.clear();
-                        // limit execution time?
-
-                        match reader.read_line(&mut buf) {
-                            Ok(0) => break, // EOF
-                            Ok(_) => {
-                                // Check for null byte -> binary -> skip file
-                                if buf.contains('\0') {
-                                    break;
-                                }
-
-                                // Skip super long lines to prevent regex DoS/hanging
-                                if buf.len() > 10000 {
-                                    line_num += 1;
-                                    continue;
-                                }
-
-                                // Trim newline for matching? Regex might want it, but usually standard is line-based.
-                                let line_str = buf.trim_end();
-
-                                if re.is_match(line_str) {
-                                    let line_content = line_str.trim();
-                                    let display_content = if line_content.len() > 100 {
-                                        format!("{}...", &line_content[0..100])
-                                    } else {
-                                        line_content.to_string()
-                                    };
-
-                                    results.push(SearchResult {
-                                        file_path: path_obj.to_string_lossy().to_string(),
-                                        line_number: line_num,
-                                        line_content: display_content,
-                                    });
-
-                                    if results.len() >= 500 {
-                                        return Ok(results);
-                                    }
-                                }
-                            }
-                            Err(_) => break, // Error (non-utf8 etc)
+                    // Check File Size
+                    if let Ok(metadata) = entry.metadata() {
+                        if metadata.len() > max_file_size {
+                            continue;
                         }
-                        line_num += 1;
+                    }
+
+                    // Mark as searched
+                    searched_paths.insert(path_str.clone());
+
+                    search_file(path_obj, &re, &mut results, max_file_size);
+
+                    if results.len() >= 500 {
+                        return Ok(results);
                     }
                 }
+                Err(_) => continue,
             }
-            Err(_) => continue,
+        }
+    }
+
+    // 2. Search additional paths (open files not in project)
+    for additional_path in additional_paths {
+        // Normalize path for comparison
+        let normalized = additional_path.replace("/", "\\");
+
+        // Skip if already searched (file is inside project)
+        if searched_paths.contains(&normalized) || searched_paths.contains(&additional_path) {
+            continue;
+        }
+
+        let path_obj = std::path::Path::new(&additional_path);
+        if path_obj.exists() && path_obj.is_file() {
+            search_file(path_obj, &re, &mut results, max_file_size);
+
+            if results.len() >= 500 {
+                return Ok(results);
+            }
         }
     }
 
@@ -348,6 +383,7 @@ fn replace_files(
     whole_word: bool,
     is_regex: bool,
     dry_run: bool,
+    additional_paths: Vec<String>,
 ) -> Result<Vec<ReplaceResult>, String> {
     let mut results = Vec::new();
 
@@ -369,107 +405,141 @@ fn replace_files(
         .build()
         .map_err(|e| format!("Invalid regex: {}", e))?;
 
-    // 1. Configure WalkBuilder
-    let mut builder = WalkBuilder::new(&path);
-    let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
+    // Helper function to process a single file for replacement
+    let process_file = |path_obj: &std::path::Path,
+                        re: &regex::Regex,
+                        replacement: &str,
+                        dry_run: bool,
+                        results: &mut Vec<ReplaceResult>|
+     -> Result<(), String> {
+        if let Ok(content) = fs::read_to_string(path_obj) {
+            if !re.is_match(&content) {
+                return Ok(());
+            }
 
-    // Default exclusions
-    for e in &[
-        "node_modules",
-        ".git",
-        "target",
-        "dist",
-        "build",
-        ".idea",
-        ".vscode",
-    ] {
-        let _ = overrides.add(&format!("!**/{}/**", e));
-    }
-
-    // Custom excludes
-    for e in excludes {
-        if !e.trim().is_empty() {
-            let _ = overrides.add(&format!("!**/{}/**", e.trim()));
-        }
-    }
-
-    // Custom includes
-    for i in includes {
-        if !i.trim().is_empty() {
-            let _ = overrides.add(&format!("**/{}", i.trim()));
-        }
-    }
-
-    if let Ok(ov) = overrides.build() {
-        builder.overrides(ov);
-    }
-
-    let walker = builder.build();
-
-    for result in walker {
-        match result {
-            Ok(entry) => {
-                if !entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
-                    continue;
+            if dry_run {
+                let mut matches = Vec::new();
+                let mut line_num = 1;
+                for line in content.lines() {
+                    if re.is_match(line) {
+                        let replaced_line = re.replace_all(line, replacement);
+                        matches.push(MatchPreview {
+                            line: line_num,
+                            original: line.trim().to_string(),
+                            replacement: replaced_line.trim().to_string(),
+                        });
+                    }
+                    line_num += 1;
                 }
 
-                let path_obj = entry.path();
-                if let Ok(metadata) = entry.metadata() {
-                    if metadata.len() > max_file_size {
-                        continue;
-                    }
+                if !matches.is_empty() {
+                    results.push(ReplaceResult {
+                        file_path: path_obj.to_string_lossy().to_string(),
+                        replaced_count: matches.len(),
+                        matches,
+                    });
                 }
-
-                if let Ok(content) = fs::read_to_string(path_obj) {
-                    // Check if file has matches
-                    if !re.is_match(&content) {
-                        continue;
+            } else {
+                let new_content = re.replace_all(&content, replacement);
+                if let std::borrow::Cow::Owned(owned_content) = new_content {
+                    if let Err(e) = fs::write(path_obj, owned_content) {
+                        return Err(format!(
+                            "Failed to write file {}: {}",
+                            path_obj.display(),
+                            e
+                        ));
                     }
-
-                    if dry_run {
-                        let mut matches = Vec::new();
-                        let mut line_num = 1;
-                        for line in content.lines() {
-                            if re.is_match(line) {
-                                let replaced_line = re.replace_all(line, replacement.as_str());
-                                matches.push(MatchPreview {
-                                    line: line_num,
-                                    original: line.trim().to_string(),
-                                    replacement: replaced_line.trim().to_string(),
-                                });
-                            }
-                            line_num += 1;
-                        }
-
-                        if !matches.is_empty() {
-                            results.push(ReplaceResult {
-                                file_path: path_obj.to_string_lossy().to_string(),
-                                replaced_count: matches.len(),
-                                matches,
-                            });
-                        }
-                    } else {
-                        // Perform replacement
-                        let new_content = re.replace_all(&content, replacement.as_str());
-                        if let std::borrow::Cow::Owned(owned_content) = new_content {
-                            // Only write if changes happened
-                            if let Err(e) = fs::write(path_obj, owned_content) {
-                                return Err(format!(
-                                    "Failed to write file {}: {}",
-                                    path_obj.display(),
-                                    e
-                                ));
-                            }
-                            results.push(ReplaceResult {
-                                file_path: path_obj.to_string_lossy().to_string(),
-                                matches: vec![],   // No preview on actual replace
-                                replaced_count: 1, // Just marking the file as changed
-                            });
-                        }
-                    }
+                    results.push(ReplaceResult {
+                        file_path: path_obj.to_string_lossy().to_string(),
+                        matches: vec![],
+                        replaced_count: 1,
+                    });
                 }
             }
-            Err(_) => continue,
+        }
+        Ok(())
+    };
+
+    // Track processed paths to avoid duplicates
+    let mut processed_paths: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    // 1. Process project directory (if path is not empty)
+    if !path.is_empty() {
+        let mut builder = WalkBuilder::new(&path);
+        let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
+
+        // Default exclusions
+        for e in &[
+            "node_modules",
+            ".git",
+            "target",
+            "dist",
+            "build",
+            ".idea",
+            ".vscode",
+        ] {
+            let _ = overrides.add(&format!("!**/{}/**", e));
+        }
+
+        // Custom excludes
+        for e in &excludes {
+            if !e.trim().is_empty() {
+                let _ = overrides.add(&format!("!**/{}/**", e.trim()));
+            }
+        }
+
+        // Custom includes
+        for i in &includes {
+            if !i.trim().is_empty() {
+                let _ = overrides.add(&format!("**/{}", i.trim()));
+            }
+        }
+
+        if let Ok(ov) = overrides.build() {
+            builder.overrides(ov);
+        }
+
+        let walker = builder.build();
+
+        for result in walker {
+            match result {
+                Ok(entry) => {
+                    if !entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
+                        continue;
+                    }
+
+                    let path_obj = entry.path();
+                    let path_str = path_obj.to_string_lossy().to_string();
+
+                    if let Ok(metadata) = entry.metadata() {
+                        if metadata.len() > max_file_size {
+                            continue;
+                        }
+                    }
+
+                    processed_paths.insert(path_str.clone());
+                    process_file(path_obj, &re, &replacement, dry_run, &mut results)?;
+                }
+                Err(_) => continue,
+            }
+        }
+    }
+
+    // 2. Process additional paths (open files not in project)
+    for additional_path in additional_paths {
+        let normalized = additional_path.replace("/", "\\");
+
+        if processed_paths.contains(&normalized) || processed_paths.contains(&additional_path) {
+            continue;
+        }
+
+        let path_obj = std::path::Path::new(&additional_path);
+        if path_obj.exists() && path_obj.is_file() {
+            if let Ok(metadata) = std::fs::metadata(path_obj) {
+                if metadata.len() <= max_file_size {
+                    process_file(path_obj, &re, &replacement, dry_run, &mut results)?;
+                }
+            }
         }
     }
 

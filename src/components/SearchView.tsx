@@ -7,6 +7,7 @@ import { ChevronRight, ArrowRight } from 'lucide-react'; // Added ArrowRight
 const SearchView: React.FC = () => {
     const {
         projectRoot,
+        tabs,
         addTab,
         setCursorPos,
         searchExcludes,
@@ -34,6 +35,13 @@ const SearchView: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [showDetails, setShowDetails] = useState(false);
 
+    // Collect open file paths (for searching files not in project)
+    const getOpenFilePaths = (): string[] => {
+        return tabs
+            .filter(t => t.type === 'editor' && t.path)
+            .map(t => t.path as string);
+    };
+
     // Helper to clear results when needed
     const clearResults = () => {
         setResults([]);
@@ -43,7 +51,11 @@ const SearchView: React.FC = () => {
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        if (!projectRoot || !query) return;
+        if (!query) return;
+
+        const openFilePaths = getOpenFilePaths();
+        // Need either a project or open files to search
+        if (!projectRoot && openFilePaths.length === 0) return;
 
         setIsSearching(true);
         clearResults();
@@ -51,13 +63,14 @@ const SearchView: React.FC = () => {
         try {
             const res = await searchFiles(
                 query,
-                projectRoot,
+                projectRoot || '',
                 searchExcludes,
                 searchIncludes,
                 searchMaxFileSize,
                 searchCaseSensitive,
                 searchWholeWord,
-                searchRegex
+                searchRegex,
+                openFilePaths
             );
             setResults(res);
         } catch (err) {
@@ -69,7 +82,11 @@ const SearchView: React.FC = () => {
     };
 
     const handleReplacePreview = async () => {
-        if (!projectRoot || !query) return;
+        if (!query) return;
+
+        const openFilePaths = getOpenFilePaths();
+        if (!projectRoot && openFilePaths.length === 0) return;
+
         setIsSearching(true);
         clearResults();
 
@@ -77,14 +94,15 @@ const SearchView: React.FC = () => {
             const res = await replaceFiles(
                 query,
                 replaceQuery,
-                projectRoot,
+                projectRoot || '',
                 searchExcludes,
                 searchIncludes,
                 searchMaxFileSize,
                 searchCaseSensitive,
                 searchWholeWord,
                 searchRegex,
-                true // Dry Run
+                true, // Dry Run
+                openFilePaths
             );
             setReplaceResults(res);
         } catch (err) {
@@ -95,7 +113,11 @@ const SearchView: React.FC = () => {
     };
 
     const handleReplaceExecute = async () => {
-        if (!projectRoot || !query) return;
+        if (!query) return;
+
+        const openFilePaths = getOpenFilePaths();
+        if (!projectRoot && openFilePaths.length === 0) return;
+
         if (!confirm('Are you sure you want to replace all occurrences? This currently cannot be undone easily.')) return;
 
         setIsSearching(true);
@@ -105,14 +127,15 @@ const SearchView: React.FC = () => {
             await replaceFiles(
                 query,
                 replaceQuery,
-                projectRoot,
+                projectRoot || '',
                 searchExcludes,
                 searchIncludes,
                 searchMaxFileSize,
                 searchCaseSensitive,
                 searchWholeWord,
                 searchRegex,
-                false // Execute
+                false, // Execute
+                openFilePaths
             );
             // Refresh search to show it's gone? or clear?
             // Let's clear and show success message or re-search
@@ -132,9 +155,11 @@ const SearchView: React.FC = () => {
         setCursorPos({ line, col: 1 });
     };
 
-    if (!projectRoot) {
-        return <div className="search-view-empty">Open a project to search</div>;
+    const openFilePaths = getOpenFilePaths();
+    if (!projectRoot && openFilePaths.length === 0) {
+        return <div className="search-view-empty">Open a file or project to search</div>;
     }
+
 
     return (
         <div className="search-view">
@@ -262,7 +287,7 @@ const SearchView: React.FC = () => {
                 {/* Normal Search Results */}
                 {!isReplaceMode && results.map((res, i) => {
                     const fileName = res.file_path.split(/[\\/]/).pop();
-                    const relativePath = res.file_path.replace(projectRoot, '').replace(/^[\\/]/, '');
+                    const relativePath = res.file_path.replace(projectRoot || '', '').replace(/^[\\/]/, '');
 
                     return (
                         <div key={i} className="search-result-item" onClick={() => handleResultClick(res.file_path, res.line_number)}>
@@ -287,7 +312,7 @@ const SearchView: React.FC = () => {
 
                 {isReplaceMode && replaceResults.map((res, i) => {
                     const fileName = res.file_path.split(/[\\/]/).pop();
-                    const relativePath = res.file_path.replace(projectRoot, '').replace(/^[\\/]/, '');
+                    const relativePath = res.file_path.replace(projectRoot || '', '').replace(/^[\\/]/, '');
 
                     return (
                         <div key={i} className="replace-result-group">
