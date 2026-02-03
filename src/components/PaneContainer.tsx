@@ -14,7 +14,7 @@ const PaneContainer: React.FC<PaneContainerProps> = ({ paneId }) => {
     const activeTab = activeTabId ? tabs.find(t => t.id === activeTabId) : null;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+        <div className="pane-container" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
             <AddressBar paneId={paneId} />
             <div style={{ flex: 1, overflow: 'hidden' }}>
                 {activeTab?.type === 'settings' ? (
