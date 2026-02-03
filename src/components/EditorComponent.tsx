@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditorState, Extension } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
-import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { searchKeymap, highlightSelectionMatches, search } from '@codemirror/search';
 import { markdown } from '@codemirror/lang-markdown';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { useAppStore, PaneId } from '../store';
@@ -80,6 +80,7 @@ const EditorComponent: React.FC<EditorComponentProps> = ({ paneId }) => {
             highlightActiveLine(),
             history(),
             highlightSelectionMatches(),
+            search({ top: true }),
             markdown(),
             themeCompartment.of(theme === 'dark' ? oneDark : []),
             keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),

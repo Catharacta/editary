@@ -61,7 +61,8 @@ export async function searchFiles(
     max_file_size: number,
     case_sensitive: boolean,
     whole_word: boolean,
-    is_regex: boolean
+    is_regex: boolean,
+    additional_paths: string[] = []
 ): Promise<SearchResult[]> {
     return invoke<SearchResult[]>('search_files', {
         query,
@@ -71,7 +72,8 @@ export async function searchFiles(
         maxFileSize: max_file_size,
         caseSensitive: case_sensitive,
         wholeWord: whole_word,
-        isRegex: is_regex
+        isRegex: is_regex,
+        additionalPaths: additional_paths
     });
 }
 
@@ -97,7 +99,8 @@ export async function replaceFiles(
     case_sensitive: boolean,
     whole_word: boolean,
     is_regex: boolean,
-    dry_run: boolean
+    dry_run: boolean,
+    additional_paths: string[] = []
 ): Promise<ReplaceResult[]> {
     return invoke<ReplaceResult[]>('replace_files', {
         query,
@@ -109,6 +112,7 @@ export async function replaceFiles(
         caseSensitive: case_sensitive,
         wholeWord: whole_word,
         isRegex: is_regex,
-        dryRun: dry_run
+        dryRun: dry_run,
+        additionalPaths: additional_paths
     });
 }
