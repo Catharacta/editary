@@ -1,0 +1,61 @@
+
+> tauri-app@0.1.0 test:e2e
+> playwright test
+
+
+Running 4 tests using 4 workers
+
+[1A[2K[1/4] [chromium] 窶ｺ tests\app.spec.ts:36:1 窶ｺ App should render and editor should be visible
+[1A[2K[2/4] [chromium] 窶ｺ tests\split.spec.ts:15:1 窶ｺ Split View should toggle panes
+[1A[2K[3/4] [chromium] 窶ｺ tests\settings.spec.ts:48:1 窶ｺ Settings View should open, switch sections, and toggle theme
+[1A[2K[4/4] [chromium] 窶ｺ tests\search.spec.ts:81:1 窶ｺ Search Panel should open and execute search
+[1A[2K[chromium] 窶ｺ tests\search.spec.ts:81:1 窶ｺ Search Panel should open and execute search
+PAGE LOG: [MockIPC] Initialized mocks. __TAURI_INTERNALS__: true
+
+[1A[2KPAGE LOG: [vite] connecting...
+
+[1A[2KPAGE LOG: [vite] connected.
+
+[1A[2KPAGE LOG: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+
+[1A[2KPAGE LOG: [MockIPC] Command: plugin:dialog|open {options: Object}
+
+[1A[2KPAGE LOG: [MockIPC] Command: read_dir {path: c:/mock/project}
+
+[1A[2KPAGE LOG: [MockIPC] Command: read_dir {path: c:/mock/project}
+
+[1A[2KPAGE LOG: [MockIPC] Command: search_files {query: test, path: c:/mock/project, excludes: Array(3), includes: Array(0), maxFileSize: 1048576}
+
+[1A[2K  1) [chromium] 窶ｺ tests\split.spec.ts:15:1 窶ｺ Split View should toggle panes 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.pane-container')
+    Expected: [32m1[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.pane-container')[22m
+    [2m    9 ﾃ・locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      18 |     // 1. Initial State
+      19 |     // Should have only one pane-container (primary)
+    > 20 |     await expect(page.locator('.pane-container')).toHaveCount(1);
+         |                                                   ^
+      21 |
+      22 |     // 2. Enable Split
+      23 |     const splitButton = page.getByTitle('Split Editor');
+        at C:\Users\atuya\Documents\develop\editary\tests\split.spec.ts:20:51
+
+    Error Context: test-results\split-Split-View-should-toggle-panes-chromium\error-context.md
+
+
+[1A[2K  1 failed
+    [chromium] 窶ｺ tests\split.spec.ts:15:1 窶ｺ Split View should toggle panes 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+  3 passed (9.0s)
+
+[36m  Serving HTML report at http://localhost:57988. Press Ctrl+C to quit.[39m

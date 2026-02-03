@@ -1,0 +1,61 @@
+
+> tauri-app@0.1.0 test:e2e
+> playwright test
+
+
+Running 2 tests using 2 workers
+
+[1A[2K[1/2] [chromium] 窶ｺ tests\app.spec.ts:36:1 窶ｺ App should render and editor should be visible
+[1A[2K[2/2] [chromium] 窶ｺ tests\search.spec.ts:39:1 窶ｺ Search Panel should open and execute search
+[1A[2K[chromium] 窶ｺ tests\search.spec.ts:39:1 窶ｺ Search Panel should open and execute search
+PAGE LOG: [vite] connecting...
+
+[1A[2KPAGE LOG: [vite] connected.
+
+[1A[2KPAGE LOG: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+
+[1A[2KPAGE LOG: Failed to open folder: TypeError: Cannot read properties of undefined (reading 'invoke')
+    at invoke (http://localhost:1420/node_modules/.vite/deps/chunk-NA6K5ZA7.js?v=49c23b40:109:37)
+    at open (http://localhost:1420/node_modules/.vite/deps/@tauri-apps_plugin-dialog.js?v=49c23b40:28:16)
+    at handleOpenFolder (http://localhost:1420/src/components/ExplorerView.tsx:73:30)
+    at executeDispatch (http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:13622:11)
+    at runWithFiberInDEV (http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:997:72)
+    at processDispatchQueue (http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:13658:37)
+    at http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:14071:11
+    at batchedUpdates$1 (http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:2626:42)
+    at dispatchEventForPluginEventSystem (http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:13763:9)
+    at dispatchEvent (http://localhost:1420/node_modules/.vite/deps/react-dom_client.js?v=49c23b40:16784:13)
+
+[1A[2KDEBUG: Search View is still empty state
+
+[1A[2K  1) [chromium] 窶ｺ tests\search.spec.ts:39:1 窶ｺ Search Panel should open and execute search 笏笏笏笏笏笏笏笏笏笏
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByPlaceholder('Search')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByPlaceholder('Search')[22m
+
+
+      66 |     }
+      67 |
+    > 68 |     await expect(searchInput).toBeVisible();
+         |                               ^
+      69 |
+      70 |     // 4. Type Query
+      71 |     await searchInput.fill('test');
+        at C:\Users\atuya\Documents\develop\editary\tests\search.spec.ts:68:31
+
+    Error Context: test-results\search-Search-Panel-should-open-and-execute-search-chromium\error-context.md
+
+
+[1A[2K  1 failed
+    [chromium] 窶ｺ tests\search.spec.ts:39:1 窶ｺ Search Panel should open and execute search 笏笏笏笏笏笏笏笏笏笏笏
+  1 passed (8.7s)
+
+[36m  Serving HTML report at http://localhost:56168. Press Ctrl+C to quit.[39m

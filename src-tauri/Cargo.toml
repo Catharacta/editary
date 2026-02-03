@@ -27,4 +27,6 @@ chardetng = "0.1.17"
 notify = "8.2.0"
 tauri-plugin-dialog = "2"
 tauri-plugin-store = "2"
+ignore = "0.4"
+regex = "1.12.2"
 

@@ -19,6 +19,7 @@ export interface Tab {
     contentVersion: number; // 0 for initial, increment on external reload
     internalContentVersion: number; // Increment on internal edits for sync
     editorState?: EditorState;
+    type: 'editor' | 'settings';
 }
 
 export interface CursorPos {
@@ -36,8 +37,19 @@ interface AppState {
     theme: 'dark' | 'light';
     cursorPos: CursorPos;
 
+    // Project State
+    projectRoot: string | null;
+    expandedFolders: Record<string, boolean>;
+    activeSidebarView: 'explorer' | 'search';
+    searchExcludes: string[];
+    searchIncludes: string[]; // New
+    searchMaxFileSize: number;
+    searchCaseSensitive: boolean; // New
+    searchWholeWord: boolean; // New
+    searchRegex: boolean; // New
+
     // Actions
-    addTab: (path?: string, content?: string) => string;
+    addTab: (path?: string, content?: string, type?: 'editor' | 'settings') => string;
     closeTab: (id: string, paneId?: PaneId) => void;
     setActiveTab: (id: string) => void;
     updateTabContent: (id: string, content: string, isDirty?: boolean) => void;
@@ -51,6 +63,19 @@ interface AppState {
     enableSplit: () => void;
     disableSplit: () => void;
     setActivePane: (paneId: PaneId) => void;
+
+    // Project Actions
+    openProject: (path: string) => void;
+    closeProject: () => void;
+    toggleFolder: (path: string) => void;
+    setFolderExpanded: (path: string, expanded: boolean) => void;
+    setActiveSidebarView: (view: 'explorer' | 'search') => void;
+    setSearchExcludes: (excludes: string[]) => void;
+    setSearchIncludes: (includes: string[]) => void; // New
+    setSearchMaxFileSize: (size: number) => void;
+    setSearchCaseSensitive: (val: boolean) => void; // New
+    setSearchWholeWord: (val: boolean) => void; // New
+    setSearchRegex: (val: boolean) => void; // New
 }
 
 export const useAppStore = create<AppState>((set, _get) => ({
@@ -63,15 +88,27 @@ export const useAppStore = create<AppState>((set, _get) => ({
     isSplit: false,
     theme: 'dark',
     cursorPos: { line: 1, col: 1 },
+    projectRoot: null,
+    expandedFolders: {},
+    activeSidebarView: 'explorer',
+    searchExcludes: ['dist', 'build', 'out'],
+    searchIncludes: [],
+    searchMaxFileSize: 1024 * 1024,
+    searchCaseSensitive: false,
+    searchWholeWord: false,
+    searchRegex: false,
 
     setTheme: (theme) => set({ theme }),
     setCursorPos: (pos) => set({ cursorPos: pos }),
 
-    addTab: (path = undefined, content = '') => {
+    addTab: (path = undefined, content = '', type = 'editor') => {
         const id = uuidv4();
         let displayName = 'Untitled-1';
 
-        if (path) {
+        if (type === 'settings') {
+            displayName = 'Settings';
+            path = 'editary://settings';
+        } else if (path) {
             displayName = path.split(/[\\/]/).pop() || 'Unknown';
         } else {
             // Generate Untitled-N
@@ -97,6 +134,7 @@ export const useAppStore = create<AppState>((set, _get) => ({
             isDirty: false,
             contentVersion: 0,
             internalContentVersion: 0,
+            type,
         };
 
         set((state) => {
@@ -219,4 +257,29 @@ export const useAppStore = create<AppState>((set, _get) => ({
     })),
 
     setActivePane: (paneId) => set({ activePaneId: paneId }),
+
+    openProject: (path) => set({ projectRoot: path, expandedFolders: {} }),
+    closeProject: () => set({ projectRoot: null, expandedFolders: {} }),
+
+    toggleFolder: (path) => set((state) => ({
+        expandedFolders: {
+            ...state.expandedFolders,
+            [path]: !state.expandedFolders[path]
+        }
+    })),
+
+    setFolderExpanded: (path, expanded) => set((state) => ({
+        expandedFolders: {
+            ...state.expandedFolders,
+            [path]: expanded
+        }
+    })),
+
+    setActiveSidebarView: (view) => set({ activeSidebarView: view }),
+    setSearchExcludes: (excludes) => set({ searchExcludes: excludes }),
+    setSearchIncludes: (includes) => set({ searchIncludes: includes }),
+    setSearchMaxFileSize: (size) => set({ searchMaxFileSize: size }),
+    setSearchCaseSensitive: (val) => set({ searchCaseSensitive: val }),
+    setSearchWholeWord: (val) => set({ searchWholeWord: val }),
+    setSearchRegex: (val) => set({ searchRegex: val }),
 }));
