@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store';
-import { searchFiles, SearchResult } from '../api';
+import { searchFiles, replaceFiles, SearchResult, ReplaceResult } from '../api';
 import './SearchView.css';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ArrowRight } from 'lucide-react'; // Added ArrowRight
 
 const SearchView: React.FC = () => {
     const {
@@ -19,22 +19,34 @@ const SearchView: React.FC = () => {
         setSearchIncludes,
         setSearchCaseSensitive,
         setSearchWholeWord,
-        setSearchRegex
+        setSearchRegex,
+        // Replace State
+        replaceQuery,
+        isReplaceMode,
+        setReplaceQuery,
+        setIsReplaceMode
     } = useAppStore();
 
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
+    const [replaceResults, setReplaceResults] = useState<ReplaceResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showDetails, setShowDetails] = useState(false);
 
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // Helper to clear results when needed
+    const clearResults = () => {
+        setResults([]);
+        setReplaceResults([]);
+        setError(null);
+    };
+
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!projectRoot || !query) return;
 
         setIsSearching(true);
-        setError(null);
-        setResults([]);
+        clearResults();
 
         try {
             const res = await searchFiles(
@@ -56,9 +68,68 @@ const SearchView: React.FC = () => {
         }
     };
 
-    const handleResultClick = (res: SearchResult) => {
-        const id = addTab(res.file_path);
-        setCursorPos({ line: res.line_number, col: 1 });
+    const handleReplacePreview = async () => {
+        if (!projectRoot || !query) return;
+        setIsSearching(true);
+        clearResults();
+
+        try {
+            const res = await replaceFiles(
+                query,
+                replaceQuery,
+                projectRoot,
+                searchExcludes,
+                searchIncludes,
+                searchMaxFileSize,
+                searchCaseSensitive,
+                searchWholeWord,
+                searchRegex,
+                true // Dry Run
+            );
+            setReplaceResults(res);
+        } catch (err) {
+            setError(typeof err === 'string' ? err : 'Preview failed');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleReplaceExecute = async () => {
+        if (!projectRoot || !query) return;
+        if (!confirm('Are you sure you want to replace all occurrences? This currently cannot be undone easily.')) return;
+
+        setIsSearching(true);
+        // Clean results but maybe keep preview? nah, refresh.
+
+        try {
+            await replaceFiles(
+                query,
+                replaceQuery,
+                projectRoot,
+                searchExcludes,
+                searchIncludes,
+                searchMaxFileSize,
+                searchCaseSensitive,
+                searchWholeWord,
+                searchRegex,
+                false // Execute
+            );
+            // Refresh search to show it's gone? or clear?
+            // Let's clear and show success message or re-search
+            clearResults();
+            setError("Replacement complete!");
+            // Re-run search to verify? 
+            // handleSearch(); // Might be empty now
+        } catch (err) {
+            setError(typeof err === 'string' ? err : 'Replace failed');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleResultClick = (filePath: string, line: number) => {
+        addTab(filePath);
+        setCursorPos({ line, col: 1 });
     };
 
     if (!projectRoot) {
@@ -68,67 +139,116 @@ const SearchView: React.FC = () => {
     return (
         <div className="search-view">
             <div className="search-header">
+                <div className="search-title-bar">
+                    <span className="search-title">SEARCH</span>
+                </div>
+
                 <form onSubmit={handleSearch}>
-                    <div className="search-input-container">
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search in files..."
-                            className="search-input"
-                        />
-                        <div className="search-options">
+                    <button type="submit" style={{ display: 'none' }} />
+                    <div className="search-container">
+                        <div className="search-box-row">
                             <button
                                 type="button"
-                                className={`option-btn ${searchCaseSensitive ? 'active' : ''}`}
-                                onClick={() => setSearchCaseSensitive(!searchCaseSensitive)}
-                                title="Match Case"
+                                className={`toggle-replace-icon ${isReplaceMode ? 'expanded' : ''}`}
+                                onClick={() => setIsReplaceMode(!isReplaceMode)}
+                                title="Toggle Replace"
                             >
-                                <span style={{ fontSize: '10px', fontWeight: 'bold' }}>Aa</span>
+                                <ChevronRight size={14} />
                             </button>
-                            <button
-                                type="button"
-                                className={`option-btn ${searchWholeWord ? 'active' : ''}`}
-                                onClick={() => setSearchWholeWord(!searchWholeWord)}
-                                title="Match Whole Word"
-                            >
-                                <span style={{ fontSize: '10px', fontWeight: 'bold' }}>ab</span>
-                            </button>
-                            <button
-                                type="button"
-                                className={`option-btn ${searchRegex ? 'active' : ''}`}
-                                onClick={() => setSearchRegex(!searchRegex)}
-                                title="Use Regular Expression"
-                            >
-                                <span style={{ fontSize: '10px', fontWeight: 'bold' }}>.*</span>
-                            </button>
+
+                            <div className="input-field-wrapper">
+                                <input
+                                    type="text"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSearch(e);
+                                    }}
+                                    placeholder="Search"
+                                    className="search-input"
+                                />
+                                <div className="input-actions">
+                                    <button
+                                        type="button"
+                                        className={`action-icon ${searchCaseSensitive ? 'active' : ''}`}
+                                        onClick={() => setSearchCaseSensitive(!searchCaseSensitive)}
+                                        title="Match Case (Alt+C)"
+                                    >
+                                        <span className="icon-text">Aa</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`action-icon ${searchWholeWord ? 'active' : ''}`}
+                                        onClick={() => setSearchWholeWord(!searchWholeWord)}
+                                        title="Match Whole Word (Alt+W)"
+                                    >
+                                        <span className="icon-text">ab</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`action-icon ${searchRegex ? 'active' : ''}`}
+                                        onClick={() => setSearchRegex(!searchRegex)}
+                                        title="Use Regular Expression (Alt+R)"
+                                    >
+                                        <span className="icon-text">.*</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
+                        {isReplaceMode && (
+                            <div className="search-box-row replace-box-row">
+                                <div className="spacer-icon"></div>
+                                <div className="input-field-wrapper">
+                                    <input
+                                        type="text"
+                                        value={replaceQuery}
+                                        onChange={(e) => setReplaceQuery(e.target.value)}
+                                        placeholder="Replace"
+                                        className="search-input"
+                                    />
+                                    <div className="input-actions">
+                                        <button
+                                            type="button"
+                                            className="action-icon"
+                                            onClick={handleReplaceExecute}
+                                            title="Replace All (Ctrl+Alt+Enter)"
+                                        >
+                                            <span className="icon-text">All</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </form>
 
-                <div className="search-details-toggle" onClick={() => setShowDetails(!showDetails)}>
-                    {showDetails ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    <span>files to include/exclude</span>
+                <div className="details-section">
+                    <div className="search-details-toggle" onClick={() => setShowDetails(!showDetails)}>
+                        <span className="dots-icon">...</span>
+                    </div>
                 </div>
 
                 {showDetails && (
                     <div className="search-details-panel">
-                        <div className="detail-row">
+                        <div className="detail-group">
                             <label>files to include</label>
                             <input
                                 type="text"
                                 value={searchIncludes.join(', ')}
                                 onChange={(e) => setSearchIncludes(e.target.value.split(',').map(s => s.trim()))}
                                 placeholder="e.g. src/*.ts"
+                                className="detail-input"
                             />
                         </div>
-                        <div className="detail-row">
+                        <div className="detail-group">
                             <label>files to exclude</label>
                             <input
                                 type="text"
                                 value={searchExcludes.join(', ')}
                                 onChange={(e) => setSearchExcludes(e.target.value.split(',').map(s => s.trim()))}
-                                placeholder="e.g. node_modules, dist"
+                                placeholder="e.g. node_modules"
+                                className="detail-input"
                             />
                         </div>
                     </div>
@@ -136,17 +256,16 @@ const SearchView: React.FC = () => {
             </div>
 
             <div className="search-results">
-                {isSearching && <div className="search-loading">Searching...</div>}
-
+                {isSearching && <div className="search-loading">Processing...</div>}
                 {error && <div className="search-error">{error}</div>}
 
-                {results.map((res, i) => {
+                {/* Normal Search Results */}
+                {!isReplaceMode && results.map((res, i) => {
                     const fileName = res.file_path.split(/[\\/]/).pop();
-                    const relativePath = res.file_path.replace(projectRoot, '').replace(/^[\\/]/, ''); // Strip leading slash?
-                    // Better path handling might be needed but good for now.
+                    const relativePath = res.file_path.replace(projectRoot, '').replace(/^[\\/]/, '');
 
                     return (
-                        <div key={i} className="search-result-item" onClick={() => handleResultClick(res)}>
+                        <div key={i} className="search-result-item" onClick={() => handleResultClick(res.file_path, res.line_number)}>
                             <div className="result-file" title={res.file_path}>
                                 <span className="file-name">{fileName}</span>
                                 <span className="file-path">{relativePath}</span>
@@ -159,7 +278,39 @@ const SearchView: React.FC = () => {
                     );
                 })}
 
-                {!isSearching && results.length === 0 && query && (
+                {/* Replace Preview Results */}
+                {isReplaceMode && replaceResults.length === 0 && !isSearching && query && (
+                    <div className="preview-hint">
+                        <button onClick={handleReplacePreview}>Show Preview</button>
+                    </div>
+                )}
+
+                {isReplaceMode && replaceResults.map((res, i) => {
+                    const fileName = res.file_path.split(/[\\/]/).pop();
+                    const relativePath = res.file_path.replace(projectRoot, '').replace(/^[\\/]/, '');
+
+                    return (
+                        <div key={i} className="replace-result-group">
+                            <div className="result-file header" title={res.file_path}>
+                                <span className="file-name">{fileName}</span>
+                                <span className="file-path">{relativePath}</span>
+                                <span className="badge">{res.matches.length}</span>
+                            </div>
+                            {res.matches.map((match, j) => (
+                                <div key={j} className="search-result-item replace-preview-item" onClick={() => handleResultClick(res.file_path, match.line)}>
+                                    <div className="line-num">{match.line}:</div>
+                                    <div className="replace-diff">
+                                        <div className="original">{match.original}</div>
+                                        <div className="arrow"><ArrowRight size={12} /></div>
+                                        <div className="replacement">{match.replacement}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })}
+
+                {!isSearching && results.length === 0 && replaceResults.length === 0 && query && (
                     <div className="search-empty">No results found</div>
                 )}
             </div>

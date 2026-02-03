@@ -7,6 +7,16 @@ Editaryの次期バージョンに向けた機能拡張計画です。
 ### 1. 画面分割 (Split View) [完了]
 *   左右（または上下）にエディタを分割し、複数のファイルを同時に参照・編集できる機能。
 
+## インフラストラクチャ & 品質保証 (v1.2.0 - Completed)
+### E2Eテスト基盤 (Playwright) [完了]
+*   **技術**: Playwright, Tauri IPC Mocking.
+*   **範囲**:
+    *   アプリ起動 (Smoke Test)
+    *   エディタ基本操作 (入力, Undo/Redo)
+    *   検索パネルフロー (Search)
+    *   設定画面 (Settings, Theme)
+    *   画面分割 (Split View)
+
 ## フェーズ 2: プロジェクト管理と検索 (v1.2 - Next)
 
 ### 2. プロジェクトモード (Hybrid Mode)

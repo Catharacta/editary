@@ -38,6 +38,18 @@ npm install
 npm run tauri dev
 ```
 
+### テスト (E2E)
+
+Playwright を使用した End-to-End テストを実行するには:
+
+```bash
+# E2Eテストの実行 (Headless Mode)
+npm run test:e2e
+
+# UIモードでの実行 (デバッグ用)
+npx playwright test --ui
+```
+
 ## ビルド
 
 配布用インストーラー（.msi）を作成する場合：
