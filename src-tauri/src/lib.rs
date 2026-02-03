@@ -170,6 +170,20 @@ struct SearchResult {
     line_content: String,
 }
 
+#[derive(Serialize)]
+struct MatchPreview {
+    line: usize,
+    original: String,
+    replacement: String,
+}
+
+#[derive(Serialize)]
+struct ReplaceResult {
+    file_path: String,
+    matches: Vec<MatchPreview>,
+    replaced_count: usize,
+}
+
 use ignore::WalkBuilder;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -322,6 +336,146 @@ fn search_files(
     Ok(results)
 }
 
+#[tauri::command]
+fn replace_files(
+    query: String,
+    replacement: String,
+    path: String,
+    excludes: Vec<String>,
+    includes: Vec<String>,
+    max_file_size: u64,
+    case_sensitive: bool,
+    whole_word: bool,
+    is_regex: bool,
+    dry_run: bool,
+) -> Result<Vec<ReplaceResult>, String> {
+    let mut results = Vec::new();
+
+    // 0. Prepare Regex Pattern
+    let pattern = if is_regex {
+        query.clone()
+    } else {
+        regex::escape(&query)
+    };
+
+    let final_pattern = if whole_word {
+        format!(r"\b{}\b", pattern)
+    } else {
+        pattern
+    };
+
+    let re = regex::RegexBuilder::new(&final_pattern)
+        .case_insensitive(!case_sensitive)
+        .build()
+        .map_err(|e| format!("Invalid regex: {}", e))?;
+
+    // 1. Configure WalkBuilder
+    let mut builder = WalkBuilder::new(&path);
+    let mut overrides = ignore::overrides::OverrideBuilder::new(&path);
+
+    // Default exclusions
+    for e in &[
+        "node_modules",
+        ".git",
+        "target",
+        "dist",
+        "build",
+        ".idea",
+        ".vscode",
+    ] {
+        let _ = overrides.add(&format!("!**/{}/**", e));
+    }
+
+    // Custom excludes
+    for e in excludes {
+        if !e.trim().is_empty() {
+            let _ = overrides.add(&format!("!**/{}/**", e.trim()));
+        }
+    }
+
+    // Custom includes
+    for i in includes {
+        if !i.trim().is_empty() {
+            let _ = overrides.add(&format!("**/{}", i.trim()));
+        }
+    }
+
+    if let Ok(ov) = overrides.build() {
+        builder.overrides(ov);
+    }
+
+    let walker = builder.build();
+
+    for result in walker {
+        match result {
+            Ok(entry) => {
+                if !entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
+                    continue;
+                }
+
+                let path_obj = entry.path();
+                if let Ok(metadata) = entry.metadata() {
+                    if metadata.len() > max_file_size {
+                        continue;
+                    }
+                }
+
+                if let Ok(content) = fs::read_to_string(path_obj) {
+                    // Check if file has matches
+                    if !re.is_match(&content) {
+                        continue;
+                    }
+
+                    if dry_run {
+                        let mut matches = Vec::new();
+                        let mut line_num = 1;
+                        for line in content.lines() {
+                            if re.is_match(line) {
+                                let replaced_line = re.replace_all(line, replacement.as_str());
+                                matches.push(MatchPreview {
+                                    line: line_num,
+                                    original: line.trim().to_string(),
+                                    replacement: replaced_line.trim().to_string(),
+                                });
+                            }
+                            line_num += 1;
+                        }
+
+                        if !matches.is_empty() {
+                            results.push(ReplaceResult {
+                                file_path: path_obj.to_string_lossy().to_string(),
+                                replaced_count: matches.len(),
+                                matches,
+                            });
+                        }
+                    } else {
+                        // Perform replacement
+                        let new_content = re.replace_all(&content, replacement.as_str());
+                        if let std::borrow::Cow::Owned(owned_content) = new_content {
+                            // Only write if changes happened
+                            if let Err(e) = fs::write(path_obj, owned_content) {
+                                return Err(format!(
+                                    "Failed to write file {}: {}",
+                                    path_obj.display(),
+                                    e
+                                ));
+                            }
+                            results.push(ReplaceResult {
+                                file_path: path_obj.to_string_lossy().to_string(),
+                                matches: vec![],   // No preview on actual replace
+                                replaced_count: 1, // Just marking the file as changed
+                            });
+                        }
+                    }
+                }
+            }
+            Err(_) => continue,
+        }
+    }
+
+    Ok(results)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -337,7 +491,8 @@ pub fn run() {
             watch_file,
             unwatch_file,
             read_dir,
-            search_files
+            search_files,
+            replace_files
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

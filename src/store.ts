@@ -76,6 +76,12 @@ interface AppState {
     setSearchCaseSensitive: (val: boolean) => void; // New
     setSearchWholeWord: (val: boolean) => void; // New
     setSearchRegex: (val: boolean) => void; // New
+
+    // Replace Actions
+    replaceQuery: string;
+    isReplaceMode: boolean;
+    setReplaceQuery: (val: string) => void;
+    setIsReplaceMode: (val: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set, _get) => ({
@@ -282,4 +288,10 @@ export const useAppStore = create<AppState>((set, _get) => ({
     setSearchCaseSensitive: (val) => set({ searchCaseSensitive: val }),
     setSearchWholeWord: (val) => set({ searchWholeWord: val }),
     setSearchRegex: (val) => set({ searchRegex: val }),
+
+    // Replace State
+    replaceQuery: '',
+    isReplaceMode: false,
+    setReplaceQuery: (val: string) => set({ replaceQuery: val }),
+    setIsReplaceMode: (val: boolean) => set({ isReplaceMode: val }),
 }));
