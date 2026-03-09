@@ -50,15 +50,28 @@ async function getDirectoryEntries(dirPath: string): Promise<FileEntry[]> {
     return entries;
 }
 
+import { Utils } from "electrobun/bun";
+
 /**
  * File operation handlers for RPC requests from the Webview.
  */
 export const handleFileOperations = {
     openFolder: async () => {
-        // ElectroBun does not have a built-in folder dialog yet.
-        // For now, we return null and will integrate native dialog later.
-        // TODO: Integrate native folder picker dialog when available
-        return null;
+        try {
+            const paths = await Utils.openFileDialog({
+                canChooseFiles: false,
+                canChooseDirectory: true,
+                allowsMultipleSelection: false,
+            });
+            // openFileDialog returns an array of paths, sometimes an empty array if cancelled
+            if (paths && paths.length > 0 && paths[0] !== "") {
+                return paths[0];
+            }
+            return null;
+        } catch (error) {
+            console.error("Failed to open folder dialog:", error);
+            return null;
+        }
     },
 
     readDirectory: async ({ dirPath }: { dirPath: string }) => {
