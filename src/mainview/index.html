@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editary</title>
+    <script src="views://mainview/index.js"></script>
+    <link rel="stylesheet" href="views://mainview/index.css" />
+  </head>
+  <body>
+    <!-- Custom Titlebar (Draggable) -->
+    <div id="titlebar" class="titlebar electrobun-webkit-app-region-drag">
+      <div class="titlebar-title">Editary</div>
+      <div class="titlebar-controls electrobun-webkit-app-region-no-drag">
+        <button id="minimizeBtn" class="titlebar-btn titlebar-btn--minimize" aria-label="最小化">
+          <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
+        </button>
+        <button id="maximizeBtn" class="titlebar-btn titlebar-btn--maximize" aria-label="最大化">
+          <svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" stroke="currentColor" fill="none" stroke-width="1"/></svg>
+        </button>
+        <button id="closeBtn" class="titlebar-btn titlebar-btn--close" aria-label="閉じる">
+          <svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="app" class="app-container">
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <button id="openFolderBtn" class="neo-btn">
+            📂 フォルダを開く
+          </button>
+        </div>
+        <div id="fileTree" class="file-tree">
+          <div class="file-tree-empty">
+            フォルダを開いてください
+          </div>
+        </div>
+      </aside>
+
+      <!-- Editor Area -->
+      <main id="editorContainer" class="editor-container">
+        <div id="editor" class="editor">
+          <!-- Tiptap editor will be mounted here -->
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "editary",
+  "version": "0.1.0",
+  "description": "A Typora-like Markdown editor with neobrutalism design built on ElectroBun",
+  "private": true,
+  "dependencies": {
+    "electrobun": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "start": "bun run build:dev && electrobun dev",
+    "build:dev": "bun install && electrobun build",
+    "build:stable": "bun install && electrobun build --env=stable"
+  }
+}
