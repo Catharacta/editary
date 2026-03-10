@@ -13,6 +13,7 @@ type TabState = {
     filePath: string;
     isDirty: boolean;
     isUntitled?: boolean;
+    cachedContent?: string; // HTML content cached in memory for tab switching
 };
 const openTabs: Map<string, TabState> = new Map();
 let untitledCount = 0;
@@ -364,30 +365,25 @@ async function closeTab(filePath: string) {
 async function switchToTab(filePath: string) {
     if (currentFilePath === filePath) return;
 
-    // Save current editor state
+    // Cache current editor content before switching (non-blocking, no confirm)
     if (currentFilePath) {
         const curTab = openTabs.get(currentFilePath);
-        if (curTab?.isDirty) {
-            const fileName = curTab.isUntitled ? curTab.filePath : currentFilePath;
-            const ans = confirm(`ファイル ${fileName} に変更があります。保存してから切り替えますか？`);
-            if (ans) {
-                await saveFile(currentFilePath);
-            } else {
-                curTab.isDirty = false;
-            }
+        if (curTab) {
+            curTab.cachedContent = getEditorHTML(editor);
         }
     }
 
     try {
         const targetTab = openTabs.get(filePath);
-        if (targetTab?.isUntitled) {
-            // For untitled files, we just empty the editor (or load from a local cache if we had one)
-            // Currently, switching away from an untitled file drops its content if not saved,
-            // because our MVP doesn't cache unsaved content per tab. 
-            // The user is prompted to save above, so if they arrive here, it's either saved or discarded.
+
+        if (targetTab?.cachedContent !== undefined) {
+            // Restore from in-memory cache
+            setEditorContent(editor, targetTab.cachedContent);
+        } else if (targetTab?.isUntitled) {
+            // Brand-new untitled tab with no cached content yet
             setEditorContent(editor, "");
         } else {
-            // Load from disk
+            // Load from disk (first open)
             const content = await electroview.rpc?.request.readFile({ filePath });
             const html = markdownToHtml(content ?? "");
             setEditorContent(editor, html);
@@ -395,8 +391,6 @@ async function switchToTab(filePath: string) {
 
         editor.setEditable(true);
         currentFilePath = filePath;
-
-        if (targetTab) targetTab.isDirty = false;
 
         updateTitleBar();
         renderOpenTabs();
@@ -438,7 +432,6 @@ async function saveFile(filePath: string) {
             return; // Exit early if dialog times out
         }
 
-        console.log("[saveFile] Dialog returned:", JSON.stringify(manualPath));
         if (!manualPath) return; // cancelled
 
         targetPath = manualPath;
@@ -450,7 +443,6 @@ async function saveFile(filePath: string) {
     try {
         const html = getEditorHTML(editor);
         const markdown = htmlToMarkdown(html);
-        console.log(`[saveFile] Writing to: "${targetPath}" (content length: ${markdown.length})`);
 
         // Write the file to disk
         const success = await electroview.rpc?.request.writeFile({
@@ -458,7 +450,6 @@ async function saveFile(filePath: string) {
             content: markdown,
         });
 
-        console.log(`[saveFile] writeFile result: ${success}`);
 
         if (success) {
             if (tab.isUntitled && targetPath !== filePath) {
@@ -466,17 +457,17 @@ async function saveFile(filePath: string) {
                 openTabs.delete(filePath);
                 openTabs.set(targetPath, { filePath: targetPath, isDirty: false, isUntitled: false });
                 currentFilePath = targetPath;
-                // Optional: refresh folder tree if it falls in the current folder
-                if (currentFolderPath && targetPath.startsWith(currentFolderPath)) {
-                    await loadFileTree(currentFolderPath);
-                }
             } else {
                 tab.isDirty = false;
+            }
+            // Refresh file tree if the saved file is within the workspace
+            if (currentFolderPath) {
+                await loadFileTree(currentFolderPath);
             }
             updateTitleBar();
             renderOpenTabs();
         } else {
-            console.error("[saveFile] writeFile returned false — file was NOT saved.");
+            console.error("[saveFile] writeFile returned false — file was NOT saved. Path:", targetPath);
         }
     } catch (error) {
         console.error("Failed to save file:", error);

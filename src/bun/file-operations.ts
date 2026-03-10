@@ -101,12 +101,10 @@ export const handleFileOperations = {
         content: string;
     }) => {
         try {
-            console.log(`[writeFile] Path: "${filePath}" (length: ${filePath.length}, charCodes: ${[...filePath].slice(0, 5).map(c => c.charCodeAt(0).toString(16)).join(',')})`);
             // Ensure parent directory exists
             const dir = dirname(filePath);
             await mkdir(dir, { recursive: true });
             await writeFile(filePath, content, "utf-8");
-            console.log(`[writeFile] Success: ${filePath}`);
             return true;
         } catch (error) {
             console.error(`[writeFile] Failed: ${filePath}`, error);
@@ -197,7 +195,6 @@ export const handleFileOperations = {
             const output = await new Response(ps.stdout).text();
             // Remove BOM (U+FEFF) and stray whitespace/newlines
             const resultPath = output.replace(/^\uFEFF/, '').replace(/[\r\n]+/g, '').trim();
-            console.log(`[showSaveFileDialog] Raw output length: ${output.length}, cleaned path: "${resultPath}" (length: ${resultPath.length})`);
             if (resultPath) {
                 return resultPath;
             }
@@ -237,7 +234,6 @@ export const handleFileOperations = {
             const output = await new Response(ps.stdout).text();
             // Remove BOM (U+FEFF) and stray whitespace/newlines
             const resultPath = output.replace(/^\uFEFF/, '').replace(/[\r\n]+/g, '').trim();
-            console.log(`[showFolderBrowserDialog] Raw output length: ${output.length}, cleaned path: "${resultPath}" (length: ${resultPath.length})`);
             if (resultPath) {
                 return resultPath;
             }

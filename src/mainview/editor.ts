@@ -16,6 +16,8 @@ export function createEditor(element: HTMLElement): Editor {
         element,
         extensions: [
             StarterKit.configure({
+                // Disable Link from StarterKit — we configure it separately below
+                link: false,
                 heading: {
                     levels: [1, 2, 3, 4, 5, 6],
                 },
