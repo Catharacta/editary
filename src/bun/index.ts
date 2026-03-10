@@ -4,7 +4,7 @@ import { handleFileOperations } from "./file-operations";
 
 // Define RPC handlers for the main process
 const rpc = BrowserView.defineRPC<EditaryRPCType>({
-    maxRequestTime: 10000,
+    maxRequestTime: 300000, // 5 minutes (to allow time for native dialogs like SaveFileDialog)
     handlers: {
         requests: {
             openFolder: handleFileOperations.openFolder,
@@ -12,6 +12,9 @@ const rpc = BrowserView.defineRPC<EditaryRPCType>({
             readFile: handleFileOperations.readFile,
             writeFile: handleFileOperations.writeFile,
             createFile: handleFileOperations.createFile,
+            createDirectory: handleFileOperations.createDirectory,
+            showSaveFileDialog: handleFileOperations.showSaveFileDialog,
+            showFolderBrowserDialog: handleFileOperations.showFolderBrowserDialog,
         },
         messages: {
             closeWindow: () => win.close(),

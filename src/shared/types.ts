@@ -42,6 +42,21 @@ export type EditaryRPCType = {
                 params: { dirPath: string; fileName: string };
                 response: string;
             };
+            /** Create a new directory */
+            createDirectory: {
+                params: { dirPath: string; dirName: string };
+                response: string;
+            };
+            /** Show native save file dialog */
+            showSaveFileDialog: {
+                params: { defaultPath?: string; title?: string; filter?: string };
+                response: string | null;
+            };
+            /** Show native folder browser dialog */
+            showFolderBrowserDialog: {
+                params: { defaultPath?: string; title?: string };
+                response: string | null;
+            };
         };
         messages: {
             /** Window control: close */
