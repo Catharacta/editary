@@ -1,11 +1,21 @@
 import MarkdownIt from "markdown-it";
+import taskLists from "markdown-it-task-lists";
+import TurndownService from "turndown";
+import { gfm } from "turndown-plugin-gfm";
 
+// ========================================
+// Markdown → HTML  (for loading into Tiptap)
+// ========================================
 const md = new MarkdownIt({
     html: false,
     linkify: true,
     typographer: true,
     breaks: true,
 });
+
+// Enable GFM tables (built-in to markdown-it) — already enabled by default.
+// Enable task-list checkboxes: `- [x] done` / `- [ ] todo`
+md.use(taskLists, { enabled: true, label: true, labelAfter: true });
 
 /**
  * Convert a Markdown string to HTML for loading into Tiptap.
@@ -14,72 +24,50 @@ export function markdownToHtml(markdown: string): string {
     return md.render(markdown);
 }
 
+// ========================================
+// HTML → Markdown  (for saving to disk)
+// ========================================
+const turndown = new TurndownService({
+    headingStyle: "atx",          // # Heading
+    hr: "---",
+    bulletListMarker: "-",
+    codeBlockStyle: "fenced",     // ```code```
+    emDelimiter: "*",
+    strongDelimiter: "**",
+});
+
+// Enable GFM support: tables, task lists, strikethrough
+turndown.use(gfm);
+
+// Custom rule: preserve task-list checkboxes
+// markdown-it-task-lists renders <input type="checkbox"> inside <li>
+turndown.addRule("taskListItem", {
+    filter: (node) => {
+        return (
+            node.nodeName === "LI" &&
+            node.parentElement?.getAttribute("class")?.includes("contains-task-list") === true
+        );
+    },
+    replacement: (content, node) => {
+        const li = node as HTMLLIElement;
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        const checked = checkbox?.hasAttribute("checked") ?? false;
+        // Strip the rendered checkbox text and clean up content
+        const cleanContent = content
+            .replace(/^\s*\[[ x]\]\s*/i, "")  // Remove any already-converted checkbox markers
+            .replace(/^\s+/, "")               // Trim leading whitespace
+            .trim();
+        return `- [${checked ? "x" : " "}] ${cleanContent}\n`;
+    },
+});
+
 /**
- * Convert HTML back to a simplified Markdown string.
- * This is a basic implementation; for production use,
- * consider turndown or a more robust HTML-to-MD library.
+ * Convert HTML back to Markdown string.
+ * Uses Turndown with GFM plugin for reliable roundtrip conversion.
  */
 export function htmlToMarkdown(html: string): string {
-    let md = html;
-
-    // Headings
-    md = md.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1\n\n");
-    md = md.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1\n\n");
-    md = md.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1\n\n");
-    md = md.replace(/<h4[^>]*>(.*?)<\/h4>/gi, "#### $1\n\n");
-    md = md.replace(/<h5[^>]*>(.*?)<\/h5>/gi, "##### $1\n\n");
-    md = md.replace(/<h6[^>]*>(.*?)<\/h6>/gi, "###### $1\n\n");
-
-    // Bold / Italic / Strike
-    md = md.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
-    md = md.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
-    md = md.replace(/<s[^>]*>(.*?)<\/s>/gi, "~~$1~~");
-
-    // Inline code
-    md = md.replace(/<code[^>]*>(.*?)<\/code>/gi, "`$1`");
-
-    // Code blocks
-    md = md.replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gis, "```\n$1\n```\n\n");
-
-    // Blockquotes
-    md = md.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gis, (_, content) => {
-        const lines = content.replace(/<\/?p[^>]*>/gi, "").trim().split("\n");
-        return lines.map((l: string) => `> ${l.trim()}`).join("\n") + "\n\n";
-    });
-
-    // Lists
-    md = md.replace(/<ul[^>]*>(.*?)<\/ul>/gis, (_, content) => {
-        return content.replace(/<li[^>]*>(.*?)<\/li>/gis, "- $1\n") + "\n";
-    });
-    md = md.replace(/<ol[^>]*>(.*?)<\/ol>/gis, (_, content) => {
-        let index = 0;
-        return (
-            content.replace(/<li[^>]*>(.*?)<\/li>/gis, () => {
-                index++;
-                return `${index}. ${arguments[1]}\n`;
-            }) + "\n"
-        );
-    });
-
-    // Links
-    md = md.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, "[$2]($1)");
-
-    // Images
-    md = md.replace(/<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*\/?>/gi, "![$2]($1)");
-
-    // Horizontal rule
-    md = md.replace(/<hr[^>]*\/?>/gi, "---\n\n");
-
-    // Paragraphs and line breaks
-    md = md.replace(/<p[^>]*>(.*?)<\/p>/gis, "$1\n\n");
-    md = md.replace(/<br[^>]*\/?>/gi, "\n");
-
-    // Strip remaining tags
-    md = md.replace(/<[^>]+>/g, "");
-
-    // Clean up whitespace
-    md = md.replace(/\n{3,}/g, "\n\n");
-    md = md.trim();
-
-    return md;
+    let markdown = turndown.turndown(html);
+    // Clean up excessive blank lines
+    markdown = markdown.replace(/\n{3,}/g, "\n\n");
+    return markdown.trim();
 }

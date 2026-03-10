@@ -506,6 +506,100 @@ body {
   box-shadow: var(--neo-shadow);
 }
 
+/* ---------- Table ---------- */
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  border: var(--neo-border-width) solid var(--neo-border);
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 2px solid var(--neo-border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+  min-width: 80px;
+}
+
+.ProseMirror th {
+  background: var(--neo-highlight);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+.ProseMirror td {
+  background: var(--neo-bg);
+}
+
+.ProseMirror tr:nth-child(even) td {
+  background: var(--neo-bg-alt);
+}
+
+/* ---------- Task List ---------- */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 8px;
+  margin: 0.5em 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0.3em 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label>input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: var(--neo-border-width) solid var(--neo-border);
+  background: var(--neo-bg);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label>input[type="checkbox"]:checked {
+  background: var(--neo-success);
+}
+
+.ProseMirror ul[data-type="taskList"] li>label>input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: solid var(--neo-bg);
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.ProseMirror ul[data-type="taskList"] li>div {
+  flex: 1;
+}
+
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"]>div {
+  text-decoration: line-through;
+  color: var(--neo-text-muted);
+}
+
 /* ---------- Placeholder ---------- */
 .ProseMirror p.is-editor-empty:first-child::before {
   content: "ここに Markdown を書き始めてください...";

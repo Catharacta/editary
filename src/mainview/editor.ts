@@ -4,6 +4,9 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Typography from "@tiptap/extension-typography";
+import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 
 /**
  * Initialize the Tiptap editor with Markdown-friendly extensions.
@@ -54,6 +57,38 @@ export function createEditor(element: HTMLElement): Editor {
                 },
             }),
             Typography,
+
+            // Table extensions
+            Table.configure({
+                resizable: false,
+                HTMLAttributes: {
+                    class: "neo-table",
+                },
+            }),
+            TableRow,
+            TableCell.configure({
+                HTMLAttributes: {
+                    class: "neo-table-cell",
+                },
+            }),
+            TableHeader.configure({
+                HTMLAttributes: {
+                    class: "neo-table-header",
+                },
+            }),
+
+            // Task list extensions
+            TaskList.configure({
+                HTMLAttributes: {
+                    class: "neo-task-list",
+                },
+            }),
+            TaskItem.configure({
+                nested: true,
+                HTMLAttributes: {
+                    class: "neo-task-item",
+                },
+            }),
         ],
         content: "",
         editorProps: {
