@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Editary</title>
   <link rel="stylesheet" href="views://mainview/index.css" />
+  <!-- KaTeX CSS for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous">
 </head>
 
 <body>
@@ -147,6 +149,34 @@
     <main id="editorContainer" class="editor-container">
       <div id="editor" class="editor">
         <!-- Tiptap editor will be mounted here -->
+      </div>
+      
+      <!-- Search & Replace Panel -->
+      <div id="searchPanel" class="search-panel hidden">
+        <div class="search-panel-row">
+          <input type="text" id="searchInput" class="search-input neo-input" placeholder="検索..." />
+          <span id="searchResultCount" class="search-count">0/0</span>
+          <button id="searchPrevBtn" class="search-btn" title="前へ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="18 15 12 9 6 15" /></svg>
+          </button>
+          <button id="searchNextBtn" class="search-btn" title="次へ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="6 9 12 15 18 9" /></svg>
+          </button>
+          <button id="searchCloseBtn" class="search-btn search-close" title="閉じる">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        
+        <div class="search-panel-row search-replace-row" id="replaceRowContainer">
+          <input type="text" id="replaceInput" class="search-input neo-input" placeholder="置換..." />
+          <button id="replaceBtn" class="search-text-btn" title="置換">置換</button>
+          <button id="replaceAllBtn" class="search-text-btn" title="すべて置換">すべて</button>
+        </div>
+        
+        <button id="toggleReplaceBtn" class="toggle-replace-btn" title="置換を切り替え">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="6 9 12 15 18 9" /></svg>
+          <span style="font-size: 10px; margin-left: 4px;">置換</span>
+        </button>
       </div>
     </main>
   </div>

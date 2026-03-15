@@ -16,3 +16,14 @@ declare module "markdown-it-task-lists" {
     function taskLists(md: MarkdownIt, options?: TaskListsOptions): void;
     export = taskLists;
 }
+
+declare module "markdown-it-katex" {
+    import MarkdownIt from "markdown-it";
+    interface KatexOptions {
+        throwOnError?: boolean;
+        errorColor?: string;
+        [key: string]: any;
+    }
+    function markdownItKatex(md: MarkdownIt, options?: KatexOptions): void;
+    export = markdownItKatex;
+}

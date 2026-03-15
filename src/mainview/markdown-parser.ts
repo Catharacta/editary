@@ -2,6 +2,7 @@ import MarkdownIt from "markdown-it";
 import taskLists from "markdown-it-task-lists";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
+import markdownItKatex from "markdown-it-katex";
 
 // ========================================
 // Markdown → HTML  (for loading into Tiptap)
@@ -16,6 +17,21 @@ const md = new MarkdownIt({
 // Enable GFM tables (built-in to markdown-it) — already enabled by default.
 // Enable task-list checkboxes: `- [x] done` / `- [ ] todo`
 md.use(taskLists, { enabled: true, label: true, labelAfter: true });
+
+// Enable math parsing ($ inline $, $$ block $$)
+md.use(markdownItKatex);
+
+// Override math renderers to output custom HTML for Tiptap instead of rendered KaTeX
+md.renderer.rules.math_inline = (tokens, idx) => {
+    const latex = tokens[idx].content;
+    return `<span data-type="math-inline" data-latex="${md.utils.escapeHtml(latex)}"></span>`;
+};
+md.renderer.rules.math_block = (tokens, idx) => {
+    return `<div data-type="math-block">${md.utils.escapeHtml(tokens[idx].content)}</div>`;
+};
+
+// Mermaid fences are handled as standard <pre><code class="language-mermaid">
+// by markdown-it's default fence renderer — no override needed.
 
 /**
  * Convert a Markdown string to HTML for loading into Tiptap.
@@ -60,6 +76,24 @@ turndown.addRule("taskListItem", {
         return `- [${checked ? "x" : " "}] ${cleanContent}\n`;
     },
 });
+
+turndown.addRule("mathInline", {
+    filter: (node) => node.nodeName === "SPAN" && node.getAttribute("data-type") === "math-inline",
+    replacement: (content, node) => {
+        const latex = (node as HTMLElement).getAttribute("data-latex") || node.textContent || "";
+        return `$${latex}$`;
+    },
+});
+
+turndown.addRule("mathBlock", {
+    filter: (node) => node.nodeName === "DIV" && node.getAttribute("data-type") === "math-block",
+    replacement: (content, node) => {
+        return `\n\n$$\n${node.textContent}\n$$\n\n`;
+    },
+});
+
+// Mermaid blocks use standard <pre><code class="language-mermaid"> —
+// Turndown handles these natively as fenced code blocks.
 
 /**
  * Convert HTML back to Markdown string.

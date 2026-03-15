@@ -4,6 +4,7 @@
   "description": "A Typora-like Markdown editor with neobrutalism design built on ElectroBun",
   "private": true,
   "dependencies": {
+    "@sereneinserenade/tiptap-search-and-replace": "^0.1.1",
     "@tiptap/core": "^3.20.1",
     "@tiptap/extension-code-block": "^3.20.1",
     "@tiptap/extension-horizontal-rule": "^3.20.1",
@@ -20,13 +21,17 @@
     "@tiptap/pm": "^3.20.1",
     "@tiptap/starter-kit": "^3.20.1",
     "electrobun": "latest",
+    "katex": "^0.16.38",
     "markdown-it": "^14.1.1",
+    "markdown-it-katex": "^2.0.3",
     "markdown-it-task-lists": "^2.1.1",
+    "mermaid": "^11.13.0",
     "turndown": "^7.2.2",
     "turndown-plugin-gfm": "^1.0.2"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/katex": "^0.16.8",
     "@types/markdown-it": "^14.1.2",
     "@types/turndown": "^5.0.6",
     "typescript": "^5.0.0"

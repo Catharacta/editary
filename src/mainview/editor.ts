@@ -7,6 +7,10 @@ import Typography from "@tiptap/extension-typography";
 import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import SearchAndReplace from "@sereneinserenade/tiptap-search-and-replace";
+import { MathBlock } from "./extensions/math-block";
+import { MathInline } from "./extensions/math-inline";
+import { EditaryCodeBlock } from "./extensions/mermaid-block";
 
 /**
  * Initialize the Tiptap editor with Markdown-friendly extensions.
@@ -18,16 +22,16 @@ export function createEditor(element: HTMLElement): Editor {
     const editor = new Editor({
         element,
         extensions: [
+            MathBlock,
+            MathInline,
+            EditaryCodeBlock,
             StarterKit.configure({
                 // Disable Link from StarterKit — we configure it separately below
                 link: false,
+                // Disable StarterKit's CodeBlock — EditaryCodeBlock replaces it
+                codeBlock: false,
                 heading: {
                     levels: [1, 2, 3, 4, 5, 6],
-                },
-                codeBlock: {
-                    HTMLAttributes: {
-                        class: "neo-code-block",
-                    },
                 },
                 blockquote: {
                     HTMLAttributes: {
@@ -88,6 +92,9 @@ export function createEditor(element: HTMLElement): Editor {
                 HTMLAttributes: {
                     class: "neo-task-item",
                 },
+            }),
+            SearchAndReplace.configure({
+                searchResultClass: 'search-result',
             }),
         ],
         content: "",

@@ -500,29 +500,170 @@ function highlightActiveFile(filePath: string) {
     }
 }
 
+// Initialize UI
+updateSidebarVisibility();
+
 // ========================================
-// Keyboard Shortcuts
+// Search & Replace Panel Logic
 // ========================================
+const searchPanel = document.getElementById("searchPanel");
+const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+const replaceInput = document.getElementById("replaceInput") as HTMLInputElement;
+const searchResultCount = document.getElementById("searchResultCount");
+const searchPrevBtn = document.getElementById("searchPrevBtn");
+const searchNextBtn = document.getElementById("searchNextBtn");
+const searchCloseBtn = document.getElementById("searchCloseBtn");
+const replaceRowContainer = document.getElementById("replaceRowContainer");
+const toggleReplaceBtn = document.getElementById("toggleReplaceBtn");
+const replaceBtn = document.getElementById("replaceBtn");
+const replaceAllBtn = document.getElementById("replaceAllBtn");
+
+let isSearchPanelVisible = false;
+
+function toggleSearchPanel(showReplace = false) {
+    if (!searchPanel) return;
+    
+    // If not visible, show it
+    if (searchPanel.classList.contains("hidden")) {
+        searchPanel.classList.remove("hidden");
+        isSearchPanelVisible = true;
+    }
+    
+    // Toggle replace row if specified
+    if (showReplace) {
+        replaceRowContainer?.classList.add("show");
+        toggleReplaceBtn?.classList.add("expanded");
+        replaceInput?.focus();
+    } else {
+        searchInput?.focus();
+    }
+    
+    // Trigger search immediately if there's text
+    if (searchInput?.value) {
+        performSearch();
+    }
+}
+
+function closeSearchPanel() {
+    if (!searchPanel) return;
+    searchPanel.classList.add("hidden");
+    isSearchPanelVisible = false;
+    // Clear search in editor
+    editor.commands.setSearchTerm("");
+}
+
+function performSearch() {
+    const term = searchInput?.value || "";
+    if (term) {
+        editor.commands.setSearchTerm(term);
+        updateSearchCount();
+    } else {
+        editor.commands.setSearchTerm("");
+        if (searchResultCount) searchResultCount.textContent = "0/0";
+    }
+}
+
+function updateSearchCount() {
+    // Note: The sereneinserenade extension provides state via React natively, but via vanilla TS we can check its storage.
+    // If the storage metadata exists we can read results, else we just skip the count.
+    const searchState = (editor.storage as any).searchAndReplace;
+    if (searchState && searchResultCount) {
+        const total = searchState.results?.length || 0;
+        const current = total === 0 ? 0 : searchState.resultIndex + 1;
+        searchResultCount.textContent = `${current}/${total}`;
+    }
+}
+
+// Bind search panel events
+searchInput?.addEventListener("input", performSearch);
+searchInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        if (e.shiftKey) {
+            editor.commands.previousSearchResult();
+        } else {
+            editor.commands.nextSearchResult();
+        }
+        updateSearchCount();
+    } else if (e.key === "Escape") {
+        closeSearchPanel();
+        editor.commands.focus();
+    }
+});
+
+replaceInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        editor.commands.replace();
+        updateSearchCount();
+    } else if (e.key === "Escape") {
+        closeSearchPanel();
+        editor.commands.focus();
+    }
+});
+
+searchCloseBtn?.addEventListener("click", closeSearchPanel);
+
+searchNextBtn?.addEventListener("click", () => {
+    editor.commands.nextSearchResult();
+    updateSearchCount();
+});
+
+searchPrevBtn?.addEventListener("click", () => {
+    editor.commands.previousSearchResult();
+    updateSearchCount();
+});
+
+toggleReplaceBtn?.addEventListener("click", () => {
+    const isExpanded = toggleReplaceBtn.classList.contains("expanded");
+    if (isExpanded) {
+        toggleReplaceBtn.classList.remove("expanded");
+        replaceRowContainer?.classList.remove("show");
+    } else {
+        toggleReplaceBtn.classList.add("expanded");
+        replaceRowContainer?.classList.add("show");
+        replaceInput?.focus();
+    }
+});
+
+replaceBtn?.addEventListener("click", () => {
+    editor.commands.replace();
+    updateSearchCount();
+});
+
+replaceAllBtn?.addEventListener("click", () => {
+    editor.commands.replaceAll();
+    updateSearchCount();
+});
+
+// Update keyboard shortcuts for Search(Ctrl+F) and Replace(Ctrl+H)
 document.addEventListener("keydown", (e) => {
-    // Ctrl+S: Save
+    // Ctrl+F: Search
+    if (e.ctrlKey && e.key === "f") {
+        e.preventDefault();
+        toggleSearchPanel(false);
+    }
+    
+    // Ctrl+H: Replace
+    if (e.ctrlKey && e.key === "h") {
+        e.preventDefault();
+        toggleSearchPanel(true);
+    }
+    
+    // Existing Ctrl+S, Ctrl+O, Ctrl+N, Ctrl+B...
     if (e.ctrlKey && e.key === "s") {
         e.preventDefault();
         if (currentFilePath) saveFile(currentFilePath);
     }
 
-    // Ctrl+O: Open Folder
     if (e.ctrlKey && e.key === "o") {
         e.preventDefault();
         openFolder();
     }
 
-    // Ctrl+N: New File
     if (e.ctrlKey && e.key === "n") {
         e.preventDefault();
         createNewFile();
     }
 
-    // Ctrl+B: Toggle Sidebar
     if (e.ctrlKey && e.key === "b") {
         e.preventDefault();
         const sidebar = document.getElementById("sidebar");
@@ -532,6 +673,3 @@ document.addEventListener("keydown", (e) => {
         }
     }
 });
-
-// Initialize UI
-updateSidebarVisibility();
