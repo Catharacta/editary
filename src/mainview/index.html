@@ -13,7 +13,17 @@
 <body>
   <!-- Custom Titlebar (Draggable) -->
   <div id="titlebar" class="titlebar electrobun-webkit-app-region-drag">
-    <div class="titlebar-title">Editary</div>
+    <div class="titlebar-left">
+      <div class="titlebar-title">Editary</div>
+      <div class="titlebar-menu electrobun-webkit-app-region-no-drag">
+        <div class="dropdown">
+          <button id="helpMenuBtn" class="titlebar-menu-btn" aria-haspopup="true" aria-expanded="false">ヘルプ</button>
+          <div id="helpDropdown" class="dropdown-content hidden">
+            <button id="showLicenseBtn" class="dropdown-item">ライセンス情報...</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="titlebar-controls electrobun-webkit-app-region-no-drag">
       <button id="minimizeBtn" class="titlebar-btn titlebar-btn--minimize" aria-label="最小化">
         <svg width="10" height="1" viewBox="0 0 10 1">
@@ -195,6 +205,27 @@
         <div class="status-item" id="statusEncoding">UTF-8</div>
       </footer>
     </main>
+  </div>
+
+  <!-- License Modal -->
+  <div id="licenseModal" class="modal-overlay hidden">
+    <div class="license-modal neo-modal">
+      <div class="modal-header">
+        <h2>オープンソースライセンス</h2>
+        <button id="closeLicenseModalBtn" class="modal-close-btn" aria-label="閉じる">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-content">
+        <p class="license-intro">Editary は以下の素晴らしいオープンソースソフトウェアを利用して構築されています。</p>
+        <div id="licenseList" class="license-list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="views://mainview/index.js"></script>

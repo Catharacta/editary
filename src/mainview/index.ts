@@ -715,3 +715,121 @@ document.addEventListener("keydown", (e) => {
         }
     }
 });
+
+// ========================================
+// Help Menu & License Modal Logic
+// ========================================
+
+const helpMenuBtn = document.getElementById('helpMenuBtn');
+const helpDropdown = document.getElementById('helpDropdown');
+const showLicenseBtn = document.getElementById('showLicenseBtn');
+const licenseModal = document.getElementById('licenseModal');
+const closeLicenseModalBtn = document.getElementById('closeLicenseModalBtn');
+const licenseListContainer = document.getElementById('licenseList');
+
+// Toggle dropdown
+helpMenuBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isExpanded = helpMenuBtn.getAttribute('aria-expanded') === 'true';
+    
+    if (isExpanded) {
+        helpMenuBtn.setAttribute('aria-expanded', 'false');
+        helpDropdown?.classList.add('hidden');
+    } else {
+        helpMenuBtn.setAttribute('aria-expanded', 'true');
+        helpDropdown?.classList.remove('hidden');
+    }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (helpDropdown && !helpDropdown.classList.contains('hidden')) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.dropdown')) {
+            helpMenuBtn?.setAttribute('aria-expanded', 'false');
+            helpDropdown.classList.add('hidden');
+        }
+    }
+});
+
+// License Data
+const OSS_LICENSES = [
+    {
+        name: "ElectroBun",
+        license: "MIT",
+        url: "https://github.com/blackboardsh/electrobun",
+        copyright: "Copyright (c) 2024 Blackboard"
+    },
+    {
+        name: "Tiptap",
+        license: "MIT",
+        url: "https://tiptap.dev/",
+        copyright: "Copyright (c) 2023 Überdosis"
+    },
+    {
+        name: "KaTeX",
+        license: "MIT",
+        url: "https://katex.org/",
+        copyright: "Copyright (c) 2014-2021 Khan Academy and other contributors"
+    },
+    {
+        name: "Markdown-It",
+        license: "MIT",
+        url: "https://github.com/markdown-it/markdown-it",
+        copyright: "Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin"
+    },
+    {
+        name: "Mermaid",
+        license: "MIT",
+        url: "https://mermaid.js.org/",
+        copyright: "Copyright (c) 2014-2022 Knut Sveidqvist"
+    },
+    {
+        name: "Turndown",
+        license: "MIT",
+        url: "https://github.com/mixmark-io/turndown",
+        copyright: "Copyright (c) 2017 Dom Christie"
+    },
+    {
+        name: "Bun",
+        license: "MIT",
+        url: "https://bun.sh/",
+        copyright: "Copyright (c) 2023 oven.sh"
+    }
+];
+
+// Show License Modal
+showLicenseBtn?.addEventListener('click', () => {
+    // Close dropdown
+    helpMenuBtn?.setAttribute('aria-expanded', 'false');
+    helpDropdown?.classList.add('hidden');
+    
+    // Render licenses if not already rendered
+    if (licenseListContainer && licenseListContainer.childElementCount === 0) {
+        licenseListContainer.innerHTML = OSS_LICENSES.map(pkg => `
+            <div class="license-item">
+                <div class="license-header">
+                    <span class="license-name">${pkg.name}</span>
+                    <span class="license-type">${pkg.license}</span>
+                </div>
+                <a href="${pkg.url}" target="_blank" class="license-url">${pkg.url}</a>
+                <div class="license-copyright">${pkg.copyright}</div>
+            </div>
+        `).join('');
+    }
+    
+    // Show modal
+    licenseModal?.classList.remove('hidden');
+});
+
+// Close License Modal
+closeLicenseModalBtn?.addEventListener('click', () => {
+    licenseModal?.classList.add('hidden');
+});
+
+// Close modal when clicking overlay bg
+licenseModal?.addEventListener('click', (e) => {
+    if (e.target === licenseModal) {
+        licenseModal.classList.add('hidden');
+    }
+});
