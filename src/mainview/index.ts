@@ -757,44 +757,234 @@ const OSS_LICENSES = [
     {
         name: "ElectroBun",
         license: "MIT",
-        url: "https://github.com/blackboardsh/electrobun",
-        copyright: "Copyright (c) 2024 Blackboard"
+        copyright: "Copyright (c) 2024 Blackboard",
+        fullText: `MIT License
+
+Copyright (c) 2024 Blackboard Technologies inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`
     },
     {
         name: "Tiptap",
         license: "MIT",
-        url: "https://tiptap.dev/",
-        copyright: "Copyright (c) 2023 Überdosis"
+        copyright: "Copyright (c) 2023 Überdosis",
+        fullText: `MIT License
+
+Copyright (c) 2025, Tiptap GmbH
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`
     },
     {
         name: "KaTeX",
         license: "MIT",
-        url: "https://katex.org/",
-        copyright: "Copyright (c) 2014-2021 Khan Academy and other contributors"
+        copyright: "Copyright (c) 2014-2021 Khan Academy and other contributors",
+        fullText: `The MIT License (MIT)
+
+Copyright (c) 2013-2020 Khan Academy and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`
     },
     {
         name: "Markdown-It",
         license: "MIT",
-        url: "https://github.com/markdown-it/markdown-it",
-        copyright: "Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin"
+        copyright: "Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin",
+        fullText: `Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin.
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.`
     },
     {
         name: "Mermaid",
         license: "MIT",
-        url: "https://mermaid.js.org/",
-        copyright: "Copyright (c) 2014-2022 Knut Sveidqvist"
+        copyright: "Copyright (c) 2014-2022 Knut Sveidqvist",
+        fullText: `The MIT License (MIT)
+
+Copyright (c) 2014 - 2022 Knut Sveidqvist
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`
     },
     {
         name: "Turndown",
         license: "MIT",
-        url: "https://github.com/mixmark-io/turndown",
-        copyright: "Copyright (c) 2017 Dom Christie"
+        copyright: "Copyright (c) 2017 Dom Christie",
+        fullText: `MIT License
+
+Copyright (c) 2017 Dom Christie
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`
     },
     {
         name: "Bun",
         license: "MIT",
-        url: "https://bun.sh/",
-        copyright: "Copyright (c) 2023 oven.sh"
+        copyright: "Copyright (c) 2023 oven.sh",
+        fullText: `Bun itself is MIT-licensed.
+
+## JavaScriptCore
+Bun statically links JavaScriptCore (and WebKit) which is LGPL-2 licensed. WebCore files from WebKit are also licensed under LGPL2. Per LGPL2:
+
+> (1) If you statically link against an LGPL’d library, you must also provide your application in an object (not necessarily source) format, so that a user has the opportunity to modify the library and relink the application.
+
+You can find the patched version of WebKit used by Bun here: https://github.com/oven-sh/webkit. If you would like to relink Bun with changes:
+
+- \`git submodule update --init --recursive\`
+- \`make jsc\`
+- \`zig build\`
+
+This compiles JavaScriptCore, compiles Bun’s \`.cpp\` bindings for JavaScriptCore (which are the object files using JavaScriptCore) and outputs a new \`bun\` binary with your changes.
+
+## Linked libraries
+Bun statically links these libraries:
+
+| Library | License |
+|---------|---------|
+| \`boringssl\` | several licenses |
+| \`brotli\` | MIT |
+| \`libarchive\` | several licenses |
+| \`lol-html\` | BSD 3-Clause |
+| \`mimalloc\` | MIT |
+| \`picohttp\` | dual-licensed under the Perl License or the MIT License |
+| \`zstd\` | dual-licensed under the BSD License or GPLv2 license |
+| \`simdutf\` | Apache 2.0 |
+| \`tinycc\` | LGPL v2.1 |
+| \`uSockets\` | Apache 2.0 |
+| \`zlib-cloudflare\` | zlib |
+| \`c-ares\` | MIT licensed |
+| \`libicu\` 72 | license here |
+| \`libbase64\` | BSD 2-Clause |
+| \`libuv\` (on Windows) | MIT |
+| \`libdeflate\` | MIT |
+| \`uucode\` | MIT |
+| A fork of \`uWebsockets\` | Apache 2.0 licensed |
+| Parts of Tigerbeetle's IO code | Apache 2.0 licensed |
+
+## Polyfills
+For compatibility reasons, the following packages are embedded into Bun's binary and injected if imported.
+
+| Package | License |
+|---------|---------|
+| \`assert\` | MIT |
+| \`browserify-zlib\` | MIT |
+| \`buffer\` | MIT |
+| \`constants-browserify\` | MIT |
+| \`crypto-browserify\` | MIT |
+| \`domain-browser\` | MIT |
+| \`events\` | MIT |
+| \`https-browserify\` | MIT |
+| \`os-browserify\` | MIT |
+| \`path-browserify\` | MIT |
+| \`process\` | MIT |
+| \`punycode\` | MIT |
+| \`querystring-es3\` | MIT |
+| \`stream-browserify\` | MIT |
+| \`stream-http\` | MIT |
+| \`string_decoder\` | MIT |
+| \`timers-browserify\` | MIT |
+| \`tty-browserify\` | MIT |
+| \`url\` | MIT |
+| \`util\` | MIT |
+| \`vm-browserify\` | MIT |
+
+## Additional credits
+- Bun's JS transpiler, CSS lexer, and Node.js module resolver source code is a Zig port of @evanw’s esbuild project.
+- Credit to @kipply for the name "Bun"!`
     }
 ];
 
@@ -812,8 +1002,8 @@ showLicenseBtn?.addEventListener('click', () => {
                     <span class="license-name">${pkg.name}</span>
                     <span class="license-type">${pkg.license}</span>
                 </div>
-                <a href="${pkg.url}" target="_blank" class="license-url">${pkg.url}</a>
                 <div class="license-copyright">${pkg.copyright}</div>
+                <pre class="license-text">${pkg.fullText}</pre>
             </div>
         `).join('');
     }

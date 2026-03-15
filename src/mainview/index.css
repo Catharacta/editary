@@ -1150,17 +1150,18 @@ body {
   color: #fff;
 }
 
-.license-url {
-  font-size: 12px;
-  display: inline-block;
-  margin-bottom: 8px;
-  color: var(--neo-info);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.license-url:hover {
-  text-decoration: underline;
+.license-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--neo-bg-alt);
+  padding: 8px;
+  margin-top: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid var(--neo-border);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--neo-text-muted);
 }
 
 .license-copyright {
