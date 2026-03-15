@@ -21,6 +21,7 @@
     "@tiptap/extension-typography": "^3.20.1",
     "@tiptap/pm": "^3.20.1",
     "@tiptap/starter-kit": "^3.20.1",
+    "dompurify": "^3.3.3",
     "electrobun": "latest",
     "katex": "^0.16.38",
     "markdown-it": "^14.1.1",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/dompurify": "^3.2.0",
     "@types/katex": "^0.16.8",
     "@types/markdown-it": "^14.1.2",
     "@types/turndown": "^5.0.6",

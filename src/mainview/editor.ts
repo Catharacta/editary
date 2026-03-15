@@ -12,6 +12,8 @@ import CharacterCount from "@tiptap/extension-character-count";
 import { MathBlock } from "./extensions/math-block";
 import { MathInline } from "./extensions/math-inline";
 import { EditaryCodeBlock } from "./extensions/mermaid-block";
+import { Kbd, MarkTag, Underline, Details, Summary, Ruby, Rt, RawHtml } from "./extensions/html-tags";
+import { htmlToMarkdown, markdownToHtml } from "./markdown-parser";
 
 /**
  * Initialize the Tiptap editor with Markdown-friendly extensions.
@@ -26,6 +28,14 @@ export function createEditor(element: HTMLElement): Editor {
             MathBlock,
             MathInline,
             EditaryCodeBlock,
+            Kbd,
+            MarkTag,
+            Underline,
+            Details,
+            Summary,
+            Ruby,
+            Rt,
+            RawHtml,
             StarterKit.configure({
                 // Disable Link from StarterKit — we configure it separately below
                 link: false,
@@ -138,8 +148,27 @@ export function getEditorHTML(editor: Editor): string {
 }
 
 /**
- * Get the editor content as plain text.
+ * Force a re-parse of the editor content.
+ * Converts current HTML to Markdown, then back to HTML.
+ * This ensures hand-typed HTML tags are processed as Tiptap nodes.
  */
+export function reparseContent(editor: Editor): { success: boolean; message: string } {
+    try {
+        const currentHtml = editor.getHTML();
+        const markdown = htmlToMarkdown(currentHtml);
+        const newHtml = markdownToHtml(markdown);
+        
+        editor.commands.setContent(newHtml);
+        
+        // Basic check: if dompurify removed something, we might want to know
+        // (Though technically we don't have a direct comparison for "removed" items here without complex diffing)
+        return { success: true, message: "シンタックスを更新しました" };
+    } catch (e) {
+        console.error("Reparse failed:", e);
+        return { success: false, message: "同期に失敗しました" };
+    }
+}
+
 export function getEditorText(editor: Editor): string {
     return editor.getText();
 }

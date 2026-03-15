@@ -3,12 +3,13 @@ import taskLists from "markdown-it-task-lists";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 import markdownItKatex from "markdown-it-katex";
+import DOMPurify from "dompurify";
 
 // ========================================
 // Markdown → HTML  (for loading into Tiptap)
 // ========================================
 const md = new MarkdownIt({
-    html: false,
+    html: true,
     linkify: true,
     typographer: true,
     breaks: true,
@@ -37,7 +38,11 @@ md.renderer.rules.math_block = (tokens, idx) => {
  * Convert a Markdown string to HTML for loading into Tiptap.
  */
 export function markdownToHtml(markdown: string): string {
-    return md.render(markdown);
+    const rawHtml = md.render(markdown);
+    return DOMPurify.sanitize(rawHtml, {
+        ADD_TAGS: ["details", "summary", "kbd", "mark", "ruby", "rt", "rp"],
+        ADD_ATTR: ["align", "color", "style"], // Minimum style/attr support
+    });
 }
 
 // ========================================
@@ -89,6 +94,23 @@ turndown.addRule("mathBlock", {
     filter: (node) => node.nodeName === "DIV" && node.getAttribute("data-type") === "math-block",
     replacement: (content, node) => {
         return `\n\n$$\n${node.textContent}\n$$\n\n`;
+    },
+});
+
+// Keep specific HTML tags in Markdown output if they are intentionally used
+turndown.addRule("keepHtml", {
+    filter: ["details", "summary", "kbd", "mark", "ruby", "rt", "rp", "u", "span", "div"],
+    replacement: (content, node) => {
+        const el = node as HTMLElement;
+        const tagName = el.tagName.toLowerCase();
+        
+        // Construct opening tag with essential attributes
+        let attrs = "";
+        if (el.hasAttribute("align")) attrs += ` align="${el.getAttribute("align")}"`;
+        if (el.hasAttribute("style")) attrs += ` style="${el.getAttribute("style")}"`;
+        if (el.hasAttribute("color")) attrs += ` color="${el.getAttribute("color")}"`;
+
+        return `<${tagName}${attrs}>${content}</${tagName}>`;
     },
 });
 
