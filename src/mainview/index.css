@@ -801,6 +801,46 @@ body {
   background: #fff;
   transition: box-shadow 0.2s, transform 0.2s;
   overflow: hidden;
+  position: relative;
+}
+
+.neo-block-toggle-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: var(--neo-bg);
+  border: 2px solid var(--neo-border);
+  box-shadow: 2px 2px 0px var(--neo-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--neo-text-muted);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.05s, box-shadow 0.05s, background 0.1s;
+  z-index: 10;
+}
+
+.neo-math-block:hover .neo-block-toggle-btn,
+.neo-mermaid-block:hover .neo-block-toggle-btn,
+.neo-block-toggle-btn.is-active {
+  opacity: 1;
+}
+
+.neo-block-toggle-btn:hover {
+  background: var(--neo-bg-alt);
+  color: var(--neo-text);
+}
+
+.neo-block-toggle-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--neo-border);
+}
+
+.neo-editor-hidden {
+  display: none !important;
 }
 
 .neo-math-block.ProseMirror-selectednode,

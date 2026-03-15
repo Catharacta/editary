@@ -59,6 +59,38 @@ export const EditaryCodeBlock = CodeBlock.extend({
             const previewArea = document.createElement("div");
             previewArea.classList.add("neo-mermaid-preview");
 
+            // Toggle button
+            const toggleBtn = document.createElement("button");
+            toggleBtn.className = "neo-block-toggle-btn";
+            toggleBtn.title = "コードを表示/非表示";
+            // Eye icon (open)
+            const iconEyeOpen = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+            // Eye icon (closed)/code
+            const iconEyeClosed = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+            toggleBtn.innerHTML = iconEyeOpen;
+
+            let isSourceHidden = false;
+            // Handle toggle click
+            toggleBtn.addEventListener("mousedown", (e) => {
+                // Prevent selection loss in ProseMirror
+                e.preventDefault();
+            });
+            toggleBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                isSourceHidden = !isSourceHidden;
+                if (isSourceHidden) {
+                    editorArea.classList.add("neo-editor-hidden");
+                    toggleBtn.innerHTML = iconEyeClosed;
+                    toggleBtn.classList.add("is-active");
+                } else {
+                    editorArea.classList.remove("neo-editor-hidden");
+                    toggleBtn.innerHTML = iconEyeOpen;
+                    toggleBtn.classList.remove("is-active");
+                }
+            });
+
+            dom.appendChild(toggleBtn);
+
             dom.appendChild(editorArea);
             dom.appendChild(previewArea);
 
