@@ -114,6 +114,13 @@
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
               </svg>
             </button>
+            <button class="section-action-btn" id="closeWorkspaceBtn" title="ワークスペースを閉じる">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="12" x2="15" y2="18"></line>
+                <line x1="15" y1="12" x2="9" y2="18"></line>
+              </svg>
+            </button>
             <button class="section-action-btn" id="collapseAllBtn" title="フォルダを折りたたむ">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
@@ -178,6 +185,15 @@
           <span style="font-size: 10px; margin-left: 4px;">置換</span>
         </button>
       </div>
+      
+      <!-- Status Bar -->
+      <footer id="statusBar" class="status-bar hidden">
+        <div class="status-item" id="statusLines">行: 0</div>
+        <div class="status-item" id="statusWords">単語数: 0</div>
+        <div class="status-item" id="statusChars">文字数: 0</div>
+        <div class="status-spacer"></div>
+        <div class="status-item" id="statusEncoding">UTF-8</div>
+      </footer>
     </main>
   </div>
 

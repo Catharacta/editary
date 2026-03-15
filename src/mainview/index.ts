@@ -1,6 +1,6 @@
 import { Electroview } from "electrobun/view";
 import { type EditaryRPCType, type FileEntry } from "../shared/types";
-import { createEditor, setEditorContent, getEditorHTML } from "./editor";
+import { createEditor, setEditorContent, getEditorHTML, getEditorText } from "./editor";
 import { markdownToHtml, htmlToMarkdown } from "./markdown-parser";
 
 // ========================================
@@ -63,6 +63,7 @@ editor.on("update", () => {
             updateTitleBar();
         }
     }
+    updateStatusBar();
 });
 
 // ========================================
@@ -127,6 +128,11 @@ async function openFolder() {
             await loadFileTree(folderPath);
             return;
         }
+        
+        // if user cancelled the natived dialog, folderPath will be null, so exit.
+        if (folderPath === null) {
+            return;
+        }
     } catch (error) {
         console.error("openFolder RPC failed (likely FFI timeout on Windows):", error);
     }
@@ -154,6 +160,12 @@ document.getElementById("newFileBtn")?.addEventListener("click", createNewFile);
 document.getElementById("newFolderBtn")?.addEventListener("click", createNewFolder);
 document.getElementById("refreshBtn")?.addEventListener("click", () => {
     if (currentFolderPath) loadFileTree(currentFolderPath);
+});
+document.getElementById("closeWorkspaceBtn")?.addEventListener("click", () => {
+    currentFolderPath = null;
+    const container = document.getElementById("fileTree");
+    if (container) container.innerHTML = "";
+    updateSidebarVisibility();
 });
 document.getElementById("collapseAllBtn")?.addEventListener("click", () => {
     // Implement tree collapse if needed
@@ -356,6 +368,7 @@ async function closeTab(filePath: string) {
             updateTitleBar();
             renderOpenTabs();
             highlightActiveFile("");
+            updateStatusBar();
         }
     } else {
         renderOpenTabs();
@@ -396,6 +409,7 @@ async function switchToTab(filePath: string) {
         renderOpenTabs();
         highlightActiveFile(filePath);
         editor.commands.focus("start");
+        updateStatusBar();
     } catch (error) {
         console.error("Failed to load tab:", error);
     }
@@ -498,6 +512,34 @@ function highlightActiveFile(filePath: string) {
             .querySelector(`.file-tree-item[data-path="${CSS.escape(filePath)}"]`)
             ?.classList.add("file-tree-item--active");
     }
+}
+
+// ========================================
+// Status Bar Updates
+// ========================================
+const statusBar = document.getElementById("statusBar");
+const statusLines = document.getElementById("statusLines");
+const statusWords = document.getElementById("statusWords");
+const statusChars = document.getElementById("statusChars");
+
+function updateStatusBar() {
+    if (!currentFilePath) {
+        statusBar?.classList.add("hidden");
+        return;
+    }
+    
+    statusBar?.classList.remove("hidden");
+    
+    const countChars = editor.storage.characterCount.characters();
+    const countWords = editor.storage.characterCount.words();
+    
+    // Line count: based on plain text length
+    const text = getEditorText(editor);
+    const lines = text === "" ? 1 : text.split(/\r\n|\r|\n/).length;
+    
+    if (statusLines) statusLines.textContent = `行: ${lines}`;
+    if (statusWords) statusWords.textContent = `単語数: ${countWords}`;
+    if (statusChars) statusChars.textContent = `文字数: ${countChars}`;
 }
 
 // Initialize UI

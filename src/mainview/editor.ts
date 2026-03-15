@@ -8,6 +8,7 @@ import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import SearchAndReplace from "@sereneinserenade/tiptap-search-and-replace";
+import CharacterCount from "@tiptap/extension-character-count";
 import { MathBlock } from "./extensions/math-block";
 import { MathInline } from "./extensions/math-inline";
 import { EditaryCodeBlock } from "./extensions/mermaid-block";
@@ -96,6 +97,7 @@ export function createEditor(element: HTMLElement): Editor {
             SearchAndReplace.configure({
                 searchResultClass: 'search-result',
             }),
+            CharacterCount,
         ],
         content: "",
         editorProps: {
