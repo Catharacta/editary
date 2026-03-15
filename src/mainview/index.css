@@ -51,6 +51,8 @@ body {
   font-size: 14px;
   color: var(--neo-text);
   background: var(--neo-bg);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------- Custom Titlebar ---------- */
@@ -65,6 +67,7 @@ body {
   user-select: none;
   -webkit-user-select: none;
   z-index: 100;
+  flex-shrink: 0;
 }
 
 .titlebar-left {
@@ -184,7 +187,8 @@ body {
 /* ---------- App Layout ---------- */
 .app-container {
   display: flex;
-  height: calc(100vh - var(--titlebar-height));
+  flex: 1;
+  min-height: 0;
 }
 
 /* ---------- Sidebar ---------- */
@@ -1017,6 +1021,7 @@ body {
   gap: 16px;
   z-index: 50;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .status-bar.hidden {
