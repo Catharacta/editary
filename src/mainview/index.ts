@@ -46,11 +46,13 @@ const electroview = new Electroview({ rpc });
 // Initialize Tiptap Editor
 // ========================================
 const editorElement = document.getElementById("editor");
+const tableBubbleMenu = document.getElementById("tableBubbleMenu");
+
 if (!editorElement) {
     throw new Error("Editor element not found");
 }
 
-const editor = createEditor(editorElement);
+const editor = createEditor(editorElement, tableBubbleMenu);
 editor.setEditable(false); // Disable until a file is opened
 
 // Track changes for dirty state
@@ -1190,3 +1192,96 @@ licenseModal?.addEventListener('click', (e) => {
         licenseModal.classList.add('hidden');
     }
 });
+
+// ========================================
+// Table Insert Grid Picker Logic
+// ========================================
+const tableInsertBtn = document.getElementById("tableInsertBtn");
+const tableGridPicker = document.getElementById("tableGridPicker");
+const tableGridInfo = document.getElementById("tableGridInfo");
+const tableGridContainer = document.getElementById("tableGridContainer");
+
+let currentGridHover = { row: 3, col: 3 };
+
+function closeTableGridPicker() {
+    tableInsertBtn?.setAttribute("aria-expanded", "false");
+    tableGridPicker?.classList.add("hidden");
+}
+
+function highlightGrid(rows: number, cols: number) {
+    currentGridHover = { row: rows, col: cols };
+    if (tableGridInfo) {
+        tableGridInfo.textContent = `${rows} x ${cols}`;
+    }
+    
+    if (tableGridContainer) {
+        const cells = tableGridContainer.querySelectorAll('.table-grid-cell');
+        cells.forEach(cell => {
+            const r = parseInt((cell as HTMLElement).dataset.row || "1", 10);
+            const c = parseInt((cell as HTMLElement).dataset.col || "1", 10);
+            if (r <= rows && c <= cols) {
+                cell.classList.add('selected');
+            } else {
+                cell.classList.remove('selected');
+            }
+        });
+    }
+}
+
+// Setup 10x10 Grid
+if (tableGridContainer) {
+    for (let row = 1; row <= 10; row++) {
+        for (let col = 1; col <= 10; col++) {
+            const cell = document.createElement("div");
+            cell.className = "table-grid-cell";
+            cell.dataset.row = row.toString();
+            cell.dataset.col = col.toString();
+            
+            cell.addEventListener("mouseenter", () => {
+                highlightGrid(row, col);
+            });
+            
+            cell.addEventListener("click", () => {
+                editor.chain().focus().insertTable({ rows: row, cols: col, withHeaderRow: true }).run();
+                closeTableGridPicker();
+            });
+            
+            tableGridContainer.appendChild(cell);
+        }
+    }
+}
+
+tableInsertBtn?.addEventListener("click", (e) => {
+    e.stopPropagation(); // prevent document click from closing it immediately
+    const isExpanded = tableInsertBtn.getAttribute("aria-expanded") === "true";
+    
+    if (isExpanded) {
+        closeTableGridPicker();
+    } else {
+        tableInsertBtn.setAttribute("aria-expanded", "true");
+        tableGridPicker?.classList.remove("hidden");
+        highlightGrid(3, 3); // default highlight
+    }
+});
+
+// Bubble Menu Bindings
+document.getElementById("tb-addRowBefore")?.addEventListener("click", () => editor.chain().focus().addRowBefore().run());
+document.getElementById("tb-addRowAfter")?.addEventListener("click", () => editor.chain().focus().addRowAfter().run());
+document.getElementById("tb-deleteRow")?.addEventListener("click", () => editor.chain().focus().deleteRow().run());
+document.getElementById("tb-addColumnBefore")?.addEventListener("click", () => editor.chain().focus().addColumnBefore().run());
+document.getElementById("tb-addColumnAfter")?.addEventListener("click", () => editor.chain().focus().addColumnAfter().run());
+document.getElementById("tb-deleteColumn")?.addEventListener("click", () => editor.chain().focus().deleteColumn().run());
+document.getElementById("tb-mergeCells")?.addEventListener("click", () => editor.chain().focus().mergeCells().run());
+document.getElementById("tb-deleteTable")?.addEventListener("click", () => editor.chain().focus().deleteTable().run());
+
+// Append to document click listener (added logic to close picker)
+const existingDocClick = document.addEventListener;
+document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (tableGridPicker && !tableGridPicker.classList.contains("hidden")) {
+        if (!target.closest(".toolbar-dropdown")) {
+            closeTableGridPicker();
+        }
+    }
+});
+

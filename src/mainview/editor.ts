@@ -15,17 +15,17 @@ import { EditaryCodeBlock } from "./extensions/mermaid-block";
 import { Kbd, MarkTag, Underline, Details, Summary, Ruby, Rt, RawHtml } from "./extensions/html-tags";
 import { htmlToMarkdown, markdownToHtml } from "./markdown-parser";
 
+import BubbleMenu from "@tiptap/extension-bubble-menu";
+
 /**
  * Initialize the Tiptap editor with Markdown-friendly extensions.
  * Uses StarterKit as a base (includes Heading, Bold, Italic, Strike,
  * Code, CodeBlock, Blockquote, BulletList, OrderedList, ListItem,
  * HorizontalRule, HardBreak, History).
  */
-export function createEditor(element: HTMLElement): Editor {
-    const editor = new Editor({
-        element,
-        extensions: [
-            MathBlock,
+export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement | null = null): Editor {
+    const extensions: any[] = [
+        MathBlock,
             MathInline,
             EditaryCodeBlock,
             Kbd,
@@ -75,7 +75,7 @@ export function createEditor(element: HTMLElement): Editor {
 
             // Table extensions
             Table.configure({
-                resizable: false,
+                resizable: true,
                 HTMLAttributes: {
                     class: "neo-table",
                 },
@@ -108,7 +108,30 @@ export function createEditor(element: HTMLElement): Editor {
                 searchResultClass: 'search-result',
             }),
             CharacterCount,
-        ],
+    ];
+
+    if (tableBubbleMenu) {
+        extensions.push(
+            BubbleMenu.configure({
+                pluginKey: "tableBubbleMenu",
+                element: tableBubbleMenu,
+                shouldShow: ({ editor, state }) => {
+                    return editor.isActive("table");
+                },
+                // @ts-ignore: tippyOptions is valid but may not be available in types
+                tippyOptions: {
+                    duration: 100,
+                    placement: "bottom",
+
+                    interactive: true,
+                },
+            })
+        );
+    }
+
+    const editor = new Editor({
+        element,
+        extensions,
         content: "",
         editorProps: {
             attributes: {
