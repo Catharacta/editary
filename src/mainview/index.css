@@ -679,6 +679,7 @@ body {
   text-transform: uppercase;
   font-size: 0.85em;
   letter-spacing: 0.5px;
+  vertical-align: middle;
 }
 
 .ProseMirror td {
@@ -687,6 +688,22 @@ body {
 
 .ProseMirror tr:nth-child(even) td {
   background: var(--neo-bg-alt);
+}
+
+.ProseMirror th p,
+.ProseMirror td p,
+.ProseMirror .neo-table-header p,
+.ProseMirror .neo-table-cell p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  min-height: 1.2em !important;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  height: 1px;
+  vertical-align: middle;
 }
 
 /* ---------- Task List ---------- */
@@ -897,7 +914,7 @@ body {
 
 .bubble-divider {
   width: 2px;
-  height: 16px;
+  height: 20px;
   background: var(--neo-border);
   margin: 0 4px;
 }

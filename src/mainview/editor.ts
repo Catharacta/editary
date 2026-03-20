@@ -5,13 +5,16 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Typography from "@tiptap/extension-typography";
 import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
+import { TextAlign } from "@tiptap/extension-text-align";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import SearchAndReplace from "@sereneinserenade/tiptap-search-and-replace";
+import { Extension, InputRule } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
 import { MathBlock } from "./extensions/math-block";
 import { MathInline } from "./extensions/math-inline";
 import { EditaryCodeBlock } from "./extensions/mermaid-block";
+import { TextSelection } from "@tiptap/pm/state";
 import { Kbd, MarkTag, Underline, Details, Summary, Ruby, Rt, RawHtml } from "./extensions/html-tags";
 import { htmlToMarkdown, markdownToHtml } from "./markdown-parser";
 
@@ -53,6 +56,61 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
                     HTMLAttributes: {
                         class: "neo-hr",
                     },
+                },
+            }),
+            TextAlign.configure({
+                types: ["tableCell", "tableHeader"],
+                alignments: ["left", "center", "right"],
+            }),
+            Extension.create({
+                name: "slashCommands",
+                addInputRules() {
+                    return [
+                        new InputRule({
+                            find: /(?:^|\s)\/table\s$/,
+                            handler: ({ state, range }) => {
+                                const { tr } = state;
+                                const { schema } = state;
+
+                                // Deleting the "/table " command
+                                tr.delete(range.from, range.to);
+
+                                // Create the table structure logically
+                                const table = schema.nodes.table.create({}, [
+                                    schema.nodes.tableRow.create({}, [
+                                        schema.nodes.tableHeader.create({}, [schema.nodes.paragraph.create()]),
+                                        schema.nodes.tableHeader.create({}, [schema.nodes.paragraph.create()]),
+                                    ]),
+                                    schema.nodes.tableRow.create({}, [
+                                        schema.nodes.tableCell.create({}, [schema.nodes.paragraph.create()]),
+                                        schema.nodes.tableCell.create({}, [schema.nodes.paragraph.create()]),
+                                    ]),
+                                    schema.nodes.tableRow.create({}, [
+                                        schema.nodes.tableCell.create({}, [schema.nodes.paragraph.create()]),
+                                        schema.nodes.tableCell.create({}, [schema.nodes.paragraph.create()]),
+                                    ]),
+                                ]);
+
+                                // Insert at the command's position
+                                tr.insert(range.from, table);
+
+                                // Set selection precisely to the head of the first cell
+                                // Position: range.from (table start) + 1 (row start) + 1 (cell start) + 1 (paragraph start)
+                                const firstCellPos = range.from + 3;
+                                const $pos = tr.doc.resolve(firstCellPos);
+                                tr.setSelection(TextSelection.near($pos));
+                                
+                                this.editor.view.dispatch(tr);
+
+                                // Fix for BubbleMenu (Table Menu) appearing at (0,0) top-left.
+                                // We wait for the next animation frame to ensure the DOM has rendered the new table
+                                // before refocusing, which triggers the menu's position calculation at the correct coordinates.
+                                window.requestAnimationFrame(() => {
+                                    this.editor.commands.focus(firstCellPos);
+                                });
+                            },
+                        }),
+                    ];
                 },
             }),
             Placeholder.configure({
