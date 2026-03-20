@@ -50,33 +50,62 @@ async function getDirectoryEntries(dirPath: string): Promise<FileEntry[]> {
     return entries;
 }
 
-import { Utils } from "electrobun/bun";
+// @ts-ignore
+import * as nfd from "nativefiledialog-for-bun";
+import { BrowserWindow, Utils } from "electrobun/bun";
+import { withDpiContext, getWindowHandle } from "./platform-dpi";
+
+// バンドル環境での DLL 探索パスを設定（ユーザーによる 0.3.2 での追加機能）
+if (process.platform === 'win32') {
+    // 実行ファイル (Resources/app/bun/index.js) から見た相対パス
+    // electrobun.config.ts で DLL を bin/win32/x64/nfd.dll にコピーしているため、
+    // そのフォルダを指定する。 import.meta.dir は Resources/app/bun を指す。
+    const libPath = join(import.meta.dir, '..', 'bin', 'win32', 'x64');
+    // @ts-ignore
+    nfd.setLibraryPath(libPath);
+    console.log(`[nfd] Library path set to: ${libPath} (Mode: ${nfd.getBackendName()})`);
+}
+
+let mainWindow: BrowserWindow | null = null;
+let mainWindowHwnd: any = null;
+
+function getHwnd(): any {
+    if (mainWindowHwnd) return mainWindowHwnd;
+    if (mainWindow) {
+        mainWindowHwnd = getWindowHandle(mainWindow.title);
+    }
+    return mainWindowHwnd;
+}
+
+/**
+ * メインウィンドウの参照を設定します。
+ * ダイアログを表示する際の親ウィンドウ（HWND）として使用されます。
+ */
+export function setMainWindow(win: BrowserWindow) {
+    mainWindow = win;
+}
 
 /**
  * File operation handlers for RPC requests from the Webview.
  */
 export const handleFileOperations = {
+    setMainWindow,
+
     openFolder: async () => {
         console.log("[openFolder] Starting native folder dialog...");
-        try {
-            console.log("[openFolder] Calling Utils.openFileDialog...");
-            const paths = await Utils.openFileDialog({
-                canChooseFiles: false,
-                canChooseDirectory: true,
-                allowsMultipleSelection: false,
-            });
-            console.log("[openFolder] Result:", JSON.stringify(paths));
-            // openFileDialog returns an array of paths, sometimes an empty array if cancelled
-            if (paths && paths.length > 0 && paths[0] !== "") {
-                console.log("[openFolder] Selected folder:", paths[0]);
-                return paths[0];
+        return await withDpiContext(async () => {
+            try {
+                console.log("[openFolder] Calling nfd.pickFolder...");
+                const folderPath = await nfd.pickFolder({
+                    parentWindow: getHwnd()
+                });
+                console.log("[openFolder] Result:", folderPath);
+                return folderPath;
+            } catch (error) {
+                console.error("[openFolder] Error:", error);
+                return null;
             }
-            console.log("[openFolder] No folder selected (cancelled or empty)");
-            return null;
-        } catch (error) {
-            console.error("[openFolder] Error:", error);
-            return null;
-        }
+        });
     },
 
     readDirectory: async ({ dirPath }: { dirPath: string }) => {
@@ -152,95 +181,67 @@ export const handleFileOperations = {
     },
 
     showSaveFileDialog: async (params: { defaultPath?: string; title?: string; filter?: string }) => {
-        const { spawn } = await import("bun");
-        const { dirname, basename } = await import("node:path");
-        const defaultPath = params.defaultPath || "";
-        const title = params.title || "ファイルを保存";
-        const filter = params.filter || "Markdown Files (*.md)|*.md|All Files (*.*)|*.*";
+        const fullDefaultPath = params.defaultPath || "";
+        let defaultPath = "";
+        let defaultName = "";
 
-        let dirPath = "";
-        let fileName = "";
-        if (defaultPath) {
-            dirPath = dirname(defaultPath);
-            fileName = basename(defaultPath);
+        if (fullDefaultPath) {
+            // If it's a directory, use it as defaultPath. If it has a filename, split it.
+            if (fullDefaultPath.endsWith("/") || fullDefaultPath.endsWith("\\")) {
+                defaultPath = fullDefaultPath;
+            } else {
+                defaultPath = dirname(fullDefaultPath);
+                defaultName = basename(fullDefaultPath);
+            }
         }
 
-        // Escape single quotes for PowerShell string
-        const safeDirPath = dirPath.replace(/'/g, "''");
-        const safeFileName = fileName.replace(/'/g, "''");
-        const safeFilter = filter.replace(/'/g, "''");
-        const safeTitle = title.replace(/'/g, "''");
+        // Note: filters format is [{ name: 'Markdown', extensions: ['md'] }]
+        const filters = params.filter ? 
+            params.filter.split('|').filter((_, i) => i % 2 === 0).map(s => {
+                const name = s.split('(')[0].trim();
+                const ext = s.match(/\*\.([a-zA-Z0-9]+)/)?.[1] || "";
+                return { name, extensions: [ext] };
+            }).filter(f => f.extensions[0] !== "") :
+            [{ name: "Markdown Files", extensions: ["md"] }];
 
-        const script = `
-            [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-            Add-Type -AssemblyName System.Windows.Forms
-            $dialog = New-Object System.Windows.Forms.SaveFileDialog
-            $dialog.Filter = '${safeFilter}'
-            $dialog.Title = '${safeTitle}'
-            if ('${safeDirPath}') {
-                $dialog.InitialDirectory = '${safeDirPath}'
-            }
-            if ('${safeFileName}') {
-                $dialog.FileName = '${safeFileName}'
-            }
-            $result = $dialog.ShowDialog()
-            if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-                Write-Output $dialog.FileName
-            }
-        `;
-
-        try {
-            console.log("[showSaveFileDialog] Spawning PowerShell...");
-            const ps = spawn(["powershell.exe", "-NoProfile", "-Sta", "-Command", script]);
-            const output = await new Response(ps.stdout).text();
-            // Remove BOM (U+FEFF) and stray whitespace/newlines
-            const resultPath = output.replace(/^\uFEFF/, '').replace(/[\r\n]+/g, '').trim();
-            if (resultPath) {
+        return await withDpiContext(async () => {
+            try {
+                console.log("[showSaveFileDialog] Calling nfd.saveFile...");
+                const resultPath = await nfd.saveFile({
+                    defaultPath,
+                    defaultName,
+                    filters,
+                    parentWindow: getHwnd()
+                });
+                
+                console.log("[showSaveFileDialog] Result:", resultPath);
                 return resultPath;
+            } catch (err) {
+                console.error("[showSaveFileDialog] NFD Error:", err);
+                return null;
             }
-            return null;
-        } catch (err) {
-            console.error("[showSaveFileDialog] PowerShell Error:", err);
-            return null;
-        }
+        });
     },
 
     showFolderBrowserDialog: async (params: { defaultPath?: string; title?: string }) => {
-        const { spawn } = await import("bun");
-        const defaultPath = params.defaultPath || "C:\\Users";
-        const title = params.title || "フォルダを選択";
+        const defaultPath = params.defaultPath || "";
 
-        // Escape single quotes
-        const safePath = defaultPath.replace(/'/g, "''");
-        const safeTitle = title.replace(/'/g, "''");
-
-        const script = `
-            [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-            Add-Type -AssemblyName System.Windows.Forms
-            $dialog = New-Object System.Windows.Forms.FolderBrowserDialog
-            $dialog.Description = '${safeTitle}'
-            if ('${safePath}') {
-                $dialog.SelectedPath = '${safePath}'
-            }
-            $result = $dialog.ShowDialog()
-            if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-                Write-Output $dialog.SelectedPath
-            }
-        `;
-
-        try {
-            console.log("[showFolderBrowserDialog] Spawning PowerShell...");
-            const ps = spawn(["powershell.exe", "-NoProfile", "-Sta", "-Command", script]);
-            const output = await new Response(ps.stdout).text();
-            // Remove BOM (U+FEFF) and stray whitespace/newlines
-            const resultPath = output.replace(/^\uFEFF/, '').replace(/[\r\n]+/g, '').trim();
-            if (resultPath) {
+        return await withDpiContext(async () => {
+            try {
+                console.log("[showFolderBrowserDialog] Calling nfd.pickFolder...");
+                const resultPath = await nfd.pickFolder({
+                    defaultPath,
+                    parentWindow: getHwnd()
+                });
+                
+                console.log("[showFolderBrowserDialog] Result:", resultPath);
                 return resultPath;
+            } catch (err) {
+                console.error("[showFolderBrowserDialog] NFD Error:", err);
+                return null;
             }
-            return null;
-        } catch (err) {
-            console.error("[showFolderBrowserDialog] PowerShell Error:", err);
-            return null;
-        }
+        });
     },
 };
+
+

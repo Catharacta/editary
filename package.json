@@ -28,6 +28,7 @@
     "markdown-it-katex": "^2.0.3",
     "markdown-it-task-lists": "^2.1.1",
     "mermaid": "^11.13.0",
+    "nativefiledialog-for-bun": "^0.3.2",
     "turndown": "^7.2.2",
     "turndown-plugin-gfm": "^1.0.2"
   },

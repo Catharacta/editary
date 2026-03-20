@@ -1,3 +1,7 @@
+import { initializeDpiAwareness } from "./platform-dpi";
+// 初期化: アプリケーションとダイアログの解像度（DPI）を決定します
+initializeDpiAwareness();
+
 import { BrowserWindow, BrowserView } from "electrobun/bun";
 import { type EditaryRPCType } from "../shared/types";
 import { handleFileOperations } from "./file-operations";
@@ -43,3 +47,6 @@ const win = new BrowserWindow({
     titleBarStyle: "hidden",
     rpc,
 });
+
+// Windows のダイアログぼやけ防止のため、ハンドルを登録
+handleFileOperations.setMainWindow(win);
