@@ -1273,6 +1273,9 @@ document.getElementById("tb-addColumnAfter")?.addEventListener("click", () => ed
 document.getElementById("tb-deleteColumn")?.addEventListener("click", () => editor.chain().focus().deleteColumn().run());
 document.getElementById("tb-mergeCells")?.addEventListener("click", () => editor.chain().focus().mergeCells().run());
 document.getElementById("tb-deleteTable")?.addEventListener("click", () => editor.chain().focus().deleteTable().run());
+document.getElementById("tb-alignLeft")?.addEventListener("click", () => editor.chain().focus().setTextAlign("left").run());
+document.getElementById("tb-alignCenter")?.addEventListener("click", () => editor.chain().focus().setTextAlign("center").run());
+document.getElementById("tb-alignRight")?.addEventListener("click", () => editor.chain().focus().setTextAlign("right").run());
 
 // Append to document click listener (added logic to close picker)
 const existingDocClick = document.addEventListener;
