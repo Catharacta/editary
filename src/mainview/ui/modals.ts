@@ -6,6 +6,7 @@ export function setupModals() {
     setupExportModal();
     setupSettingsModal();
     setupAboutAndHelp();
+    setupUtilityModals();
 }
 
 function setupExportModal() {
@@ -18,7 +19,7 @@ function setupExportModal() {
 
     exportBtn?.addEventListener("click", () => {
         if (!state.currentFilePath && (!state.editor || !state.editor.getText())) {
-            alert("エクスポートする内容がありません。");
+            showAlert("通知", "エクスポートする内容がありません。");
             return;
         }
         exportModal?.classList.remove("hidden");
@@ -71,14 +72,14 @@ async function performSaveExport(defaultName: string, content: string) {
                 content: content
             });
             if (success) {
-                alert("エクスポートが完了しました。");
+                showAlert("完了", "エクスポートが完了しました。");
             } else {
-                alert("ファイルの保存に失敗しました。");
+                showAlert("エラー", "ファイルの保存に失敗しました。");
             }
         }
     } catch (error) {
         console.error("Export failed:", error);
-        alert("エクスポート中にエラーが発生しました。");
+        showAlert("エラー", "エクスポート中にエラーが発生しました。");
     }
 }
 
@@ -265,5 +266,76 @@ function setupAboutAndHelp() {
     closeLicenseModalBtn?.addEventListener('click', () => licenseModal?.classList.add('hidden'));
     licenseModal?.addEventListener('click', (e) => {
         if (e.target === licenseModal) licenseModal.classList.add('hidden');
+    });
+}
+
+/**
+ * Utility Alert / Confirm Modals
+ */
+
+let unsavedChangesResolver: ((value: 'save' | 'discard' | 'cancel') => void) | null = null;
+let utilityAlertResolver: (() => void) | null = null;
+
+function setupUtilityModals() {
+    const unsavedModal = document.getElementById("unsavedChangesModal");
+    const saveAndCloseBtn = document.getElementById("saveAndCloseBtn");
+    const discardAndCloseBtn = document.getElementById("discardAndCloseBtn");
+    const cancelCloseBtn = document.getElementById("cancelCloseBtn");
+    const closeUnsavedModal = document.getElementById("closeUnsavedModal");
+
+    const utilityAlertModal = document.getElementById("utilityAlertModal");
+    const utilityAlertOkBtn = document.getElementById("utilityAlertOkBtn");
+    const closeUtilityAlert = document.getElementById("closeUtilityAlert");
+
+    // Unsaved Changes
+    const resolveUnsaved = (result: 'save' | 'discard' | 'cancel') => {
+        unsavedModal?.classList.add("hidden");
+        if (unsavedChangesResolver) {
+            unsavedChangesResolver(result);
+            unsavedChangesResolver = null;
+        }
+    };
+    saveAndCloseBtn?.addEventListener("click", () => resolveUnsaved('save'));
+    discardAndCloseBtn?.addEventListener("click", () => resolveUnsaved('discard'));
+    cancelCloseBtn?.addEventListener("click", () => resolveUnsaved('cancel'));
+    closeUnsavedModal?.addEventListener("click", () => resolveUnsaved('cancel'));
+
+    // Utility Alert
+    const resolveAlert = () => {
+        utilityAlertModal?.classList.add("hidden");
+        if (utilityAlertResolver) {
+            utilityAlertResolver();
+            utilityAlertResolver = null;
+        }
+    };
+    utilityAlertOkBtn?.addEventListener("click", resolveAlert);
+    closeUtilityAlert?.addEventListener("click", resolveAlert);
+}
+
+export function showUnsavedChangesModal(fileName: string): Promise<'save' | 'discard' | 'cancel'> {
+    return new Promise((resolve) => {
+        const unsavedModal = document.getElementById("unsavedChangesModal");
+        const unsavedMessage = document.getElementById("unsavedChangesMessage");
+        
+        if (unsavedMessage) {
+            unsavedMessage.innerText = `ファイル 「${fileName}」 に未保存の変更があります。変更を保存して閉じますか？`;
+        }
+        
+        unsavedChangesResolver = resolve;
+        unsavedModal?.classList.remove("hidden");
+    });
+}
+
+export function showAlert(title: string, message: string): Promise<void> {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("utilityAlertModal");
+        const titleEl = document.getElementById("utilityAlertTitle");
+        const messageEl = document.getElementById("utilityAlertMessage");
+
+        if (titleEl) titleEl.innerText = title;
+        if (messageEl) messageEl.innerText = message;
+
+        utilityAlertResolver = resolve;
+        modal?.classList.remove("hidden");
     });
 }

@@ -172,7 +172,6 @@
                 <line x1="9" y1="3" x2="9" y2="21"/>
                 <line x1="15" y1="3" x2="15" y2="21"/>
               </svg>
-              <span>テーブル</span>
             </button>
             <div id="tableGridPicker" class="table-grid-picker hidden">
               <div class="table-grid-info" id="tableGridInfo">3 x 3</div>
@@ -186,7 +185,6 @@
               <polyline points="23 4 23 10 17 10" />
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
             </svg>
-            <span>更新 (Sync)</span>
           </button>
           <div class="toolbar-divider"></div>
           <button id="exportBtn" class="toolbar-btn" data-tooltip="エクスポート (PDF/HTML)">
@@ -307,7 +305,7 @@
           </svg>
         </button>
       </div>
-      <div class="modal-content">
+      <div class="modal-content" style="flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 20px;">
         <div id="licenseList" class="license-list">
           <!-- Rendered by JS -->
         </div>
@@ -524,6 +522,42 @@
     </div>
   </div>
 
+
+  <!-- Unsaved Changes Modal -->
+  <div id="unsavedChangesModal" class="modal-overlay hidden">
+    <div class="neo-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">未保存の変更</h2>
+        <button id="closeUnsavedModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="unsavedChangesMessage"></p>
+      </div>
+      <div class="modal-footer modal-footer--column">
+        <button id="saveAndCloseBtn" class="neo-btn primary neo-btn--full">保存して閉じる</button>
+        <div class="flex-container gap-8 w-full" style="display: flex;">
+          <button id="discardAndCloseBtn" class="neo-btn secondary flex-1">保存せずに閉じる</button>
+          <button id="cancelCloseBtn" class="neo-btn secondary flex-1">キャンセル</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Utility Alert Modal -->
+  <div id="utilityAlertModal" class="modal-overlay hidden">
+    <div class="neo-modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="utilityAlertTitle">通知</h2>
+        <button id="closeUtilityAlert" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="utilityAlertMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="utilityAlertOkBtn" class="neo-btn primary">OK</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Custom Tooltip -->
   <div id="tooltip" class="tooltip hidden"></div>

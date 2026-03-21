@@ -566,6 +566,23 @@ input:disabled + .neo-toggle-slider {
   border-top: 2px solid var(--neo-border);
 }
 
+.modal-footer--column {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.w-full {
+  width: 100%;
+}
+
 .modal-footer .neo-btn {
   width: auto;
   min-width: 120px;
@@ -681,13 +698,15 @@ input:disabled + .neo-toggle-slider {
   max-height: 85vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* 子要素のスクロールを正しく制御 */
 }
 
 .license-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 60vh;
+  flex: 1; /* 親要素内で一杯に広がる */
+  min-height: 0; /* flex子要素でスクロールを有効にするために必須 */
   overflow-y: auto;
   padding: 8px;
   border: 2px solid var(--neo-border);

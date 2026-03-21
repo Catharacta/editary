@@ -5,6 +5,7 @@ import { markdownToHtml, htmlToMarkdown } from "../markdown-parser";
 import { updateTitleBar, highlightActiveFile } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { loadFileTree } from "./file-tree";
+import { showUnsavedChangesModal } from "../ui/modals";
 
 export async function createNewFile() {
     state.untitledCount++;
@@ -79,19 +80,27 @@ export async function closeTab(filePath: string) {
     const tab = state.openTabs.get(filePath);
     if (!tab) return;
 
-    if (tab.isDirty && state.currentFilePath === filePath) {
-        switchToTab(filePath);
-        const fileName = tab.isUntitled ? tab.filePath : filePath;
-        const confirmed = confirm(`ファイル ${fileName} に未保存の変更があります。保存しますか？`);
-        if (confirmed) {
-            await saveFile(filePath);
+    if (tab.isDirty) {
+        // Switch to the tab to show what's being closed
+        if (state.currentFilePath !== filePath) {
+            await switchToTab(filePath);
         }
-    }
 
-    if (tab.isDirty && state.currentFilePath === filePath) {
-        if (state.openTabs.get(filePath)?.isDirty) {
-            const forceClose = confirm("保存されませんでした。変更を破棄してタブを閉じますか？");
-            if (!forceClose) return;
+        const fileName = filePath.split(/[/\\]/).pop() || "untitled";
+        const result = await showUnsavedChangesModal(fileName);
+
+        if (result === 'save') {
+            await saveFile(filePath);
+            const updatedTab = state.openTabs.get(filePath);
+            if (updatedTab?.isDirty) {
+                // Save was cancelled or failed
+                return;
+            }
+        } else if (result === 'discard') {
+            // Proceed to close without saving
+        } else {
+            // Cancel
+            return;
         }
     }
 
