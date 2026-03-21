@@ -1,7 +1,7 @@
 import { state } from "../state/workspace";
 import { electroview } from "../ipc";
 import { setEditorContent, getEditorHTML, getEditorText } from "../editor";
-import { markdownToHtml, htmlToMarkdown } from "../markdown-parser";
+import { markdownToHtml, htmlToMarkdown, resolveRelativeImages } from "../markdown-parser";
 import { updateTitleBar, highlightActiveFile } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { loadFileTree } from "./file-tree";
@@ -144,7 +144,9 @@ export async function switchToTab(filePath: string) {
             setEditorContent(state.editor, "");
         } else {
             const content = await electroview.rpc?.request.readFile({ filePath });
-            const html = markdownToHtml(content ?? "");
+            let html = markdownToHtml(content ?? "");
+            const baseDir = filePath.replace(/[\\/][^\\/]*$/, "") || ".";
+            html = await resolveRelativeImages(html, baseDir, electroview.rpc);
             setEditorContent(state.editor, html);
         }
 
@@ -207,6 +209,10 @@ export async function saveFile(filePath: string) {
             return;
         }
 
+        // Process images before saving to Markdown (convert Base64 to Local)
+        const targetDir = targetPath.replace(/[\\/][^\\/]*$/, "") || ".";
+        html = await processEditorImages(html, targetDir);
+
         const markdown = htmlToMarkdown(html);
 
         const success = await electroview.rpc?.request.writeFile({
@@ -250,4 +256,60 @@ export async function closeAllTabs() {
     for (const path of paths) {
         await closeTab(path);
     }
+}
+
+/**
+ * Scan HTML for Base64 images and save them as local files in targetDir/assets/.
+ */
+async function processEditorImages(html: string, targetDir: string): Promise<string> {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const images = Array.from(doc.querySelectorAll("img"));
+    let changed = false;
+
+    for (const img of images) {
+        const originalSrc = img.getAttribute("data-original-src");
+        if (originalSrc) {
+            // Restore original relative path and remove preview data URL
+            img.setAttribute("src", originalSrc);
+            img.removeAttribute("data-original-src");
+            changed = true;
+            continue;
+        }
+
+        const src = img.getAttribute("src");
+        if (src && src.startsWith("data:image/")) {
+            // This is a newly pasted or dropped image (not yet saved to assets)
+            // Extract a possible filename or default to timestamped name
+            const fileName = `image-${Date.now()}.png`;
+            
+            try {
+                const response = await electroview.rpc?.request.saveImage({
+                    targetDir,
+                    fileName,
+                    base64Data: src
+                });
+
+                if (response?.success) {
+                    img.setAttribute("src", response.relativePath);
+                    changed = true;
+                }
+            } catch (error) {
+                console.error("[processEditorImages] RPC failed:", error);
+            }
+        }
+    }
+
+    if (changed) {
+        const newHtml = doc.body.innerHTML;
+        // Update editor content if it's the active tab
+        if (state.editor && state.openTabs.has(state.currentFilePath || "")) {
+            // We use setContent here, it will trigger an update event and mark as dirty again,
+            // but since we're in the middle of saveFile, the caller will set isDirty = false after this.
+            setEditorContent(state.editor, newHtml);
+        }
+        return newHtml;
+    }
+
+    return html;
 }

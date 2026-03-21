@@ -62,6 +62,28 @@ export type EditaryRPCType = {
                 params: {};
                 response: any[];
             };
+            /** Save an image from a base64 string or buffer to a specific path */
+            saveImage: {
+                params: { 
+                    targetDir: string; 
+                    fileName: string; 
+                    base64Data: string; 
+                };
+                response: { success: boolean; relativePath: string; error?: string };
+            };
+            /** Copy an existing image file to the assets directory */
+            copyImage: {
+                params: { 
+                    targetDir: string; 
+                    sourcePath: string; 
+                };
+                response: { success: boolean; relativePath: string; error?: string };
+            };
+            /** Read an image and return it as a data URL for preview */
+            readImageAsDataUrl: {
+                params: { filePath: string };
+                response: { dataUrl: string | null };
+            };
         };
         messages: {
             /** Window control: close */

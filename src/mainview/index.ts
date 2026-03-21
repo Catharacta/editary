@@ -20,6 +20,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Keyboard & App
     setupKeyboardShortcuts();
     setupEditorInstance();
+
+    // Prevent default browser behavior for drag & drop navigation
+    window.addEventListener("dragover", (e) => {
+        e.preventDefault();
+    }, false);
+    window.addEventListener("drop", (e) => {
+        e.preventDefault();
+    }, false);
 });
 
 // Fallback for debugging and RPC internals if needed

@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile, mkdir, stat } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, stat, copyFile } from "node:fs/promises";
 import { join, extname, basename, dirname } from "node:path";
 import type { FileEntry } from "../shared/types";
 
@@ -260,6 +260,58 @@ export const handleFileOperations = {
                 return null;
             }
         });
+    },
+
+    saveImage: async ({ targetDir, fileName, base64Data }: { targetDir: string; fileName: string; base64Data: string }) => {
+        try {
+            const assetsDir = join(targetDir, "assets");
+            await ensureDir(assetsDir);
+
+            // Strip base64 prefix if exists (data:image/png;base64,...)
+            const base64Content = base64Data.replace(/^data:image\/\w+;base64,/, "");
+            const buffer = Buffer.from(base64Content, 'base64');
+            
+            const uniqueFileName = `${Date.now()}-${fileName}`;
+            const filePath = join(assetsDir, uniqueFileName);
+            await writeFile(filePath, buffer);
+            
+            // Return URL-friendly relative path (always using / even on Windows)
+            return { success: true, relativePath: "assets/" + uniqueFileName };
+        } catch (error: any) {
+            console.error("[saveImage] Failed:", error);
+            return { success: false, relativePath: "", error: error.message };
+        }
+    },
+
+    copyImage: async ({ targetDir, sourcePath }: { targetDir: string; sourcePath: string }) => {
+        try {
+            const assetsDir = join(targetDir, "assets");
+            await ensureDir(assetsDir);
+
+            const fileName = `${Date.now()}-${basename(sourcePath)}`;
+            const destPath = join(assetsDir, fileName);
+            
+            await copyFile(sourcePath, destPath);
+            
+            // Return URL-friendly relative path (always using / even on Windows)
+            return { success: true, relativePath: "assets/" + fileName };
+        } catch (error: any) {
+            console.error("[copyImage] Failed:", error);
+            return { success: false, relativePath: "", error: error.message };
+        }
+    },
+
+    readImageAsDataUrl: async ({ filePath }: { filePath: string }) => {
+        try {
+            const data = await readFile(filePath);
+            const ext = filePath.split('.').pop()?.toLowerCase() || 'png';
+            const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`;
+            const base64 = Buffer.from(data).toString('base64');
+            return { dataUrl: `data:${mimeType};base64,${base64}` };
+        } catch (error) {
+            console.error("Error reading image as data URL:", error);
+            return { dataUrl: null };
+        }
     },
 
     getLicenses: async () => {

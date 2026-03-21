@@ -1,4 +1,6 @@
-import { Editor } from "@tiptap/core";
+import { Editor, Extension } from "@tiptap/core";
+import { Plugin } from "@tiptap/pm/state";
+import { EditorView } from "@tiptap/pm/view";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
@@ -9,16 +11,63 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import SearchAndReplace from "@sereneinserenade/tiptap-search-and-replace";
-import { Extension, InputRule } from "@tiptap/core";
+import { InputRule } from "@tiptap/core";
 import CharacterCount from "@tiptap/extension-character-count";
 import { MathBlock } from "./extensions/math-block";
 import { MathInline } from "./extensions/math-inline";
 import { EditaryCodeBlock } from "./extensions/mermaid-block";
 import { TextSelection } from "@tiptap/pm/state";
 import { Kbd, MarkTag, Underline, Details, Summary, Ruby, Rt, RawHtml } from "./extensions/html-tags";
-import { htmlToMarkdown, markdownToHtml } from "./markdown-parser";
+import { htmlToMarkdown, markdownToHtml, resolveRelativeImages } from "./markdown-parser";
+import { electroview } from "./ipc";
+import { state } from "./state/workspace";
 
 import BubbleMenu from "@tiptap/extension-bubble-menu";
+
+/**
+ * Tiptap Extension to handle drag and drop / paste for images.
+ */
+const ImageHandler = Extension.create({
+    name: "imageHandler",
+    addProseMirrorPlugins() {
+        return [
+            new Plugin({
+                props: {
+                    // @ts-ignore: Tiptap types might not include all ProseMirror props
+                    handleDragOver: (view: EditorView, event: DragEvent) => {
+                        event.preventDefault();
+                        return false;
+                    },
+                    handleDrop: (view: EditorView, event: DragEvent) => {
+                        if (event.dataTransfer?.files?.length) {
+                            const file = event.dataTransfer.files[0];
+                            if (file.type.startsWith("image/")) {
+                                handleImageInsert(this.editor, file);
+                                return true;
+                            }
+                        }
+                        return false;
+                    },
+                    handlePaste: (view: EditorView, event: ClipboardEvent) => {
+                        const items = event.clipboardData?.items;
+                        if (items) {
+                            for (let i = 0; i < items.length; i++) {
+                                if (items[i].type.startsWith("image/")) {
+                                    const file = items[i].getAsFile();
+                                    if (file) {
+                                        handleImageInsert(this.editor, file);
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        return false;
+                    },
+                },
+            }),
+        ];
+    },
+});
 
 /**
  * Initialize the Tiptap editor with Markdown-friendly extensions.
@@ -66,6 +115,26 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
                 name: "slashCommands",
                 addInputRules() {
                     return [
+                        new InputRule({
+                            find: /(?:^|\s)\/image\s$/,
+                            handler: ({ state, range }) => {
+                                const { tr } = state;
+                                tr.delete(range.from, range.to);
+                                this.editor.view.dispatch(tr);
+
+                                // Trigger file picker
+                                const input = document.createElement("input");
+                                input.type = "file";
+                                input.accept = "image/*";
+                                input.onchange = (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0];
+                                    if (file) {
+                                        handleImageInsert(this.editor, file);
+                                    }
+                                };
+                                input.click();
+                            },
+                        }),
                         new InputRule({
                             find: /(?:^|\s)\/table\s$/,
                             handler: ({ state, range }) => {
@@ -122,7 +191,25 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
                     class: "neo-link",
                 },
             }),
-            Image.configure({
+            Image.extend({
+                addAttributes() {
+                    return {
+                        ...this.parent?.(),
+                        "data-original-src": {
+                            default: null,
+                            parseHTML: (element) => element.getAttribute("data-original-src"),
+                            renderHTML: (attributes) => {
+                                if (!attributes["data-original-src"]) {
+                                    return {};
+                                }
+                                return {
+                                    "data-original-src": attributes["data-original-src"],
+                                };
+                            },
+                        },
+                    };
+                },
+            }).configure({
                 inline: false,
                 allowBase64: true,
                 HTMLAttributes: {
@@ -166,6 +253,7 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
                 searchResultClass: 'search-result',
             }),
             CharacterCount,
+            ImageHandler,
     ];
 
     if (tableBubbleMenu) {
@@ -233,12 +321,17 @@ export function getEditorHTML(editor: Editor): string {
  * Converts current HTML to Markdown, then back to HTML.
  * This ensures hand-typed HTML tags are processed as Tiptap nodes.
  */
-export function reparseContent(editor: Editor): { success: boolean; message: string } {
+export async function reparseContent(editor: Editor): Promise<{ success: boolean; message: string }> {
     try {
         const currentHtml = editor.getHTML();
         const markdown = htmlToMarkdown(currentHtml);
-        const newHtml = markdownToHtml(markdown);
+        let newHtml = markdownToHtml(markdown);
         
+        if (state.currentFilePath) {
+            const baseDir = state.currentFilePath.replace(/[\\/][^\\/]*$/, "") || ".";
+            newHtml = await resolveRelativeImages(newHtml, baseDir, electroview);
+        }
+
         editor.commands.setContent(newHtml);
         
         // Basic check: if dompurify removed something, we might want to know
@@ -252,4 +345,43 @@ export function reparseContent(editor: Editor): { success: boolean; message: str
 
 export function getEditorText(editor: Editor): string {
     return editor.getText();
+}
+
+/**
+ * Handle image file insertion (Drop or Paste).
+ * If a file path exists, save to assets/. If not (Untitled), keep as Base64.
+ */
+
+export async function handleImageInsert(editor: Editor, file: File) {
+    const reader = new FileReader();
+    reader.onload = async () => {
+        const base64Data = reader.result as string;
+
+        if (state.currentFilePath && electroview.rpc) {
+            // Document has a path - save to assets/
+            const targetDir = state.currentFilePath.replace(/[\\/][^\\/]*$/, "") || ".";
+            const response = await electroview.rpc.request.saveImage({
+                targetDir,
+                fileName: file.name,
+                base64Data
+            });
+
+            if (response.success) {
+                // Use base64 for immediate preview, but store relative path for saving
+                editor.chain().focus().setImage({ 
+                    src: base64Data,
+                    // @ts-ignore: custom attribute
+                    "data-original-src": response.relativePath 
+                }).run();
+            } else {
+                console.error("Failed to save image:", response.error);
+                // Fallback to Base64 if saving fails
+                editor.chain().focus().setImage({ src: base64Data }).run();
+            }
+        } else {
+            // Untitled document - keep as Base64 for now
+            editor.chain().focus().setImage({ src: base64Data }).run();
+        }
+    };
+    reader.readAsDataURL(file);
 }

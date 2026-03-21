@@ -1,5 +1,5 @@
 import { state } from "../state/workspace";
-import { reparseContent } from "../editor";
+import { reparseContent, handleImageInsert } from "../editor";
 
 export function setupToolbar() {
     const updateBtn = document.getElementById("updateContentBtn");
@@ -8,10 +8,26 @@ export function setupToolbar() {
     const statusIconInfo = document.getElementById("statusIconInfo");
     const statusIconWarning = document.getElementById("statusIconWarning");
 
-    updateBtn?.addEventListener("click", () => {
+    updateBtn?.addEventListener("click", async () => {
         if (state.editor) {
-            const result = reparseContent(state.editor);
+            const result = await reparseContent(state.editor);
             showSyntaxStatus(result.message, result.success ? "info" : "warning");
+        }
+    });
+
+    const imageInsertBtn = document.getElementById("imageInsertBtn");
+    const imageInput = document.getElementById("imageInput") as HTMLInputElement;
+
+    imageInsertBtn?.addEventListener("click", () => {
+        imageInput?.click();
+    });
+
+    imageInput?.addEventListener("change", (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file && state.editor) {
+            handleImageInsert(state.editor, file);
+            // Clear input so the same file can be selected again if needed
+            imageInput.value = "";
         }
     });
 
