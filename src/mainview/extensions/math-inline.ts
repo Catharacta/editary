@@ -50,7 +50,7 @@ export const MathInline = Node.create({
         return [
             // Match $...$ (non-greedy, at least 1 char inside)
             new InputRule({
-                find: /\$([^$]+)\$$/,
+                find: /$([^$]+)$$/,
                 handler: ({ state, range, match }) => {
                     const latex = match[1];
                     if (!latex) return;

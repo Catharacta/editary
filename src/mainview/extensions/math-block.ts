@@ -43,7 +43,7 @@ export const MathBlock = Node.create({
         return [
             // Type "$$ " at the start of a line → create an empty math block
             new InputRule({
-                find: /^\$\$\s$/,
+                find: /^$$\s$/,
                 handler: ({ state, range }) => {
                     const { tr } = state;
                     const $from = state.doc.resolve(range.from);

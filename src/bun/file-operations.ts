@@ -261,6 +261,29 @@ export const handleFileOperations = {
             }
         });
     },
+
+    getLicenses: async () => {
+        return [
+            {
+                name: "Electrobun",
+                type: "Apache-2.0",
+                copyright: "Copyright (c) 2024 Blackboard Software Inc.",
+                text: "Licensed under the Apache License, Version 2.0 (the \"License\")..."
+            },
+            {
+                name: "Tiptap",
+                type: "MIT",
+                copyright: "Copyright (c) 2023-present Tiptap UG",
+                text: "Permission is hereby granted, free of charge, to any person obtaining a copy..."
+            },
+            {
+                name: "Lucide",
+                type: "ISC",
+                copyright: "Copyright (c) 2016 - present, Lucide Contributors",
+                text: "Permission to use, copy, modify, and/or distribute this software for any purpose..."
+            }
+        ];
+    },
 };
 
 

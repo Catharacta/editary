@@ -19,6 +19,7 @@ const rpc = BrowserView.defineRPC<EditaryRPCType>({
             createDirectory: handleFileOperations.createDirectory,
             showSaveFileDialog: handleFileOperations.showSaveFileDialog,
             showFolderBrowserDialog: handleFileOperations.showFolderBrowserDialog,
+            getLicenses: handleFileOperations.getLicenses,
         },
         messages: {
             closeWindow: () => win.close(),

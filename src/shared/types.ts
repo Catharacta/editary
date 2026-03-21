@@ -57,6 +57,11 @@ export type EditaryRPCType = {
                 params: { defaultPath?: string; title?: string };
                 response: string | null;
             };
+            /** Retrieve the list of module licenses */
+            getLicenses: {
+                params: {};
+                response: any[];
+            };
         };
         messages: {
             /** Window control: close */

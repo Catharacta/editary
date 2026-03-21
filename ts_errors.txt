@@ -1,0 +1,11 @@
+node_modules/electrobun/dist/api/bun/core/Updater.ts(148,26): error TS2554: Expected 1 arguments, but got 2.
+node_modules/electrobun/dist/api/bun/core/Updater.ts(898,40): error TS2554: Expected 1 arguments, but got 2.
+node_modules/electrobun/dist/api/bun/core/Updater.ts(923,32): error TS2554: Expected 1 arguments, but got 2.
+node_modules/electrobun/dist/api/bun/index.ts(32,24): error TS7016: Could not find a declaration file for module 'three'. 'C:/Users/atuya/Documents/develop/editary/node_modules/three/build/three.module.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/three` if it exists or add a new declaration (.d.ts) file containing `declare module 'three';`
+src/mainview/ipc/index.ts(4,32): error TS2307: Cannot find module '../workspace/tabs' or its corresponding type declarations.
+src/mainview/keyboard.ts(1,23): error TS2307: Cannot find module '../state/workspace' or its corresponding type declarations.
+src/mainview/keyboard.ts(2,58): error TS2307: Cannot find module '../workspace/file-ops' or its corresponding type declarations.
+src/mainview/keyboard.ts(3,28): error TS2307: Cannot find module '../ui/sidebar' or its corresponding type declarations.
+src/mainview/ui/modals.ts(236,69): error TS2339: Property 'getLicenses' does not exist on type '(<M extends "openFolder" | "readDirectory" | "readFile" | "writeFile" | "createFile" | "createDirectory" | "showSaveFileDialog" | "showFolderBrowserDialog">(method: M, ...args: "params" extends keyof { ...; }[M] ? undefined extends { ...; }[M][keyof { ...; }[M] & "params"] ? [params?: ...] : [params: ...] : []) => P...'.
+src/mainview/ui/sidebar.ts(34,56): error TS2339: Property 'showFolderDialog' does not exist on type '(<M extends "openFolder" | "readDirectory" | "readFile" | "writeFile" | "createFile" | "createDirectory" | "showSaveFileDialog" | "showFolderBrowserDialog">(method: M, ...args: "params" extends keyof { ...; }[M] ? undefined extends { ...; }[M][keyof { ...; }[M] & "params"] ? [params?: ...] : [params: ...] : []) => P...'.

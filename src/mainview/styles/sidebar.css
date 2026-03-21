@@ -1,0 +1,115 @@
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--neo-bg-sidebar);
+  border-right: var(--neo-border-width) solid var(--neo-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-section#workspaceSection {
+  flex: 1;
+  min-height: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--neo-bg);
+  border-bottom: 2px solid var(--neo-border);
+  border-top: 2px solid var(--neo-border);
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-section:first-child .section-header {
+  border-top: none;
+}
+
+.section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.chevron {
+  transition: transform 0.1s;
+}
+
+.section-header.collapsed .chevron {
+  transform: rotate(-90deg);
+}
+
+.section-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.section-header:hover .section-actions {
+  opacity: 1;
+}
+
+.section-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--neo-text-muted);
+}
+
+.section-action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--neo-text);
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.section-content.collapsed {
+  display: none;
+}
+
+.open-folder-prompt {
+  padding: 16px;
+}
+
+.neo-btn--full {
+  width: 100%;
+}
+

@@ -1,0 +1,87 @@
+/* ---------- Editor Toolbar ---------- */
+.editor-toolbar {
+  max-width: 800px;
+  margin: 0 auto 16px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--neo-highlight);
+  border: var(--neo-border-width) solid var(--neo-border);
+  box-shadow: var(--neo-shadow-sm);
+  z-index: 10;
+}
+
+.editor-toolbar.hidden {
+  display: none;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--neo-bg);
+  border: 2px solid var(--neo-border);
+  padding: 6px 12px;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--neo-border);
+  transition: transform 0.05s, box-shadow 0.05s, background 0.1s;
+}
+
+.toolbar-btn:hover {
+  background: var(--neo-bg-alt);
+}
+
+.toolbar-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--neo-border);
+}
+
+.syntax-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  background: var(--neo-bg);
+  border: 2px solid var(--neo-border);
+}
+
+.syntax-status.hidden {
+  display: none;
+}
+
+.status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon.hidden {
+  display: none;
+}
+
+.syntax-status--warning {
+  border-color: var(--neo-accent);
+  color: var(--neo-accent);
+}
+
+/* ---------- Editor Container ---------- */
+.editor-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 48px;
+  background: var(--neo-bg);
+  position: relative;
+}
+
+.editor {
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100%;
+}
+
