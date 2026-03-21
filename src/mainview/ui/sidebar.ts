@@ -5,7 +5,10 @@ import { saveAllFiles, closeAllTabs, createNewFile, createNewFolder } from "../w
 
 let isPathChoosing = false;
 
+import { initSidebarLayout } from "./sidebar-layout";
+
 export function setupSidebar() {
+    initSidebarLayout();
     const sidebar = document.getElementById("sidebar");
     const openFolderBtn = document.getElementById("openFolderBtn");
     const closeWorkspaceBtn = document.getElementById("closeWorkspaceBtn");
@@ -96,15 +99,15 @@ export async function openFolder() {
 }
 
 export function updateSidebarVisibility() {
-    const workspaceSection = document.getElementById("workspaceSection");
+    const fileTree = document.getElementById("fileTree");
     const openFolderPrompt = document.getElementById("openFolderPrompt");
 
     if (!state.currentFolderPath) {
-        document.getElementById("fileTree")!.innerHTML = '<div class="file-tree-empty">フォルダを開いてください</div>';
-        workspaceSection?.classList.add("hidden");
+        if (fileTree) fileTree.innerHTML = "";
+        fileTree?.classList.add("hidden");
         openFolderPrompt?.classList.remove("hidden");
     } else {
-        workspaceSection?.classList.remove("hidden");
+        fileTree?.classList.remove("hidden");
         openFolderPrompt?.classList.add("hidden");
     }
 }

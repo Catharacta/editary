@@ -1,15 +1,17 @@
 /* ---------- Editor Toolbar ---------- */
 .editor-toolbar {
+  width: 100%;
   max-width: 800px;
-  margin: 0 auto 16px auto;
+  margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: 12px 20px;
   background: var(--neo-highlight);
   border: var(--neo-border-width) solid var(--neo-border);
   box-shadow: var(--neo-shadow-sm);
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .editor-toolbar.hidden {
@@ -74,14 +76,16 @@
 .editor-container {
   flex: 1;
   overflow-y: auto;
-  padding: 32px 48px;
+  padding: 40px 60px;
   background: var(--neo-bg);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 左寄せに変更 */
 }
 
 .editor {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 800px; /* 読みやすさのための最大幅 */
   min-height: 100%;
 }
-

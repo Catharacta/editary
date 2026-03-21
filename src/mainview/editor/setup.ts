@@ -5,6 +5,7 @@ import { updateTitleBar } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { setupTablePicker } from "./table-picker";
 import { setupToolbar } from "./toolbar";
+import { setupOutline, renderOutline } from "../ui/outline";
 
 export function setupEditorInstance() {
     const editorElement = document.getElementById("editor");
@@ -28,8 +29,10 @@ export function setupEditorInstance() {
             }
         }
         updateStatusBar();
+        renderOutline(editor);
     });
 
     setupTablePicker();
     setupToolbar();
+    setupOutline();
 }

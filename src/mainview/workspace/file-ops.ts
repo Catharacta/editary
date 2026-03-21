@@ -6,6 +6,7 @@ import { updateTitleBar, highlightActiveFile } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { loadFileTree } from "./file-tree";
 import { showUnsavedChangesModal } from "../ui/modals";
+import { renderOutline } from "../ui/outline";
 
 export async function createNewFile() {
     state.untitledCount++;
@@ -159,6 +160,7 @@ export async function switchToTab(filePath: string) {
         highlightActiveFile(filePath);
         state.editor.commands.focus("start");
         updateStatusBar();
+        renderOutline(state.editor);
     } catch (error) {
         console.error("Failed to load tab:", error);
     }

@@ -38,7 +38,6 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    </div>
   </div>
 
   <!-- Main Content Area -->
@@ -88,7 +87,7 @@
       </div>
 
       <!-- Section 2: Workspace -->
-      <div class="sidebar-section hidden" id="workspaceSection">
+      <div class="sidebar-section" id="workspaceSection">
         <div class="section-header">
           <button class="section-toggle" id="workspaceToggle" aria-label="セクション切り替え">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="chevron">
@@ -140,23 +139,41 @@
           </div>
         </div>
         <div class="section-content" id="fileTree">
-          <div class="file-tree-empty">
-            フォルダを開いてください
-          </div>
+        </div>
+        <!-- フォルダ未選択時のプロンプト -->
+        <div id="openFolderPrompt" class="open-folder-prompt">
+          <button id="openFolderBtn" class="neo-btn neo-btn--full">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="square" stroke-linejoin="miter">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            ワークスペースを開く
+          </button>
         </div>
       </div>
-
-      <!-- Open Folder Button (shown when no workspace) -->
-      <div id="openFolderPrompt" class="open-folder-prompt">
-        <button id="openFolderBtn" class="neo-btn neo-btn--full">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="square" stroke-linejoin="miter">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-          </svg>
-          ワークスペースを開く
-        </button>
+      <!-- Section 3: Outline -->
+      <div class="sidebar-section" id="outlineSection">
+        <div class="section-header">
+          <button class="section-toggle" id="outlineToggle" aria-label="セクション切り替え">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="chevron">
+              <polygon points="2,0 8,5 2,10" />
+            </svg>
+          </button>
+          <span class="section-title">アウトライン</span>
+          <div class="section-actions">
+            <button class="section-action-btn" id="refreshOutlineBtn" data-tooltip="更新">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="square">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="section-content" id="outlineList">
+          <div class="outline-empty">見出しがありません</div>
+        </div>
       </div>
-
     </aside>
 
     <!-- Editor Area -->

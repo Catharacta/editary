@@ -32,6 +32,14 @@
   /* Typography */
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+
+  /* Default Outline Colors (Lemon Theme Palette) */
+  --outline-h1: #fef08a;
+  --outline-h2: #fde047;
+  --outline-h3: #facc15;
+  --outline-h4: #fbbf24;
+  --outline-h5: #f59e0b;
+  --outline-h6: #d97706;
 }
 
 /* ---------- Theme Overrides ---------- */
@@ -39,42 +47,91 @@
   --neo-highlight: #fbbf24;
   --neo-bg-alt: #fef3c7;
   --neo-bg-sidebar: #fef08a;
+  --neo-accent: #facc15;
+  --outline-h1: #fef08a;
+  --outline-h2: #fde047;
+  --outline-h3: #facc15;
+  --outline-h4: #fbbf24;
+  --outline-h5: #f59e0b;
+  --outline-h6: #d97706;
 }
 
 .theme-blue {
   --neo-highlight: #60a5fa;
   --neo-bg-alt: #dbeafe;
   --neo-bg-sidebar: #bfdbfe;
+  --neo-accent: #3b82f6;
+  --outline-h1: #dbeafe;
+  --outline-h2: #bfdbfe;
+  --outline-h3: #93c5fd;
+  --outline-h4: #60a5fa;
+  --outline-h5: #3b82f6;
+  --outline-h6: #2563eb;
 }
 
 .theme-green {
   --neo-highlight: #4ade80;
   --neo-bg-alt: #dcfce7;
   --neo-bg-sidebar: #bbf7d0;
+  --neo-accent: #22c55e;
+  --outline-h1: #dcfce7;
+  --outline-h2: #bbf7d0;
+  --outline-h3: #86efac;
+  --outline-h4: #4ade80;
+  --outline-h5: #22c55e;
+  --outline-h6: #16a34a;
 }
 
 .theme-red {
   --neo-highlight: #f87171;
   --neo-bg-alt: #fee2e2;
   --neo-bg-sidebar: #fecaca;
+  --neo-accent: #ef4444;
+  --outline-h1: #fee2e2;
+  --outline-h2: #fecaca;
+  --outline-h3: #fca5a5;
+  --outline-h4: #f87171;
+  --outline-h5: #ef4444;
+  --outline-h6: #dc2626;
 }
 
 .theme-purple {
   --neo-highlight: #a78bfa;
   --neo-bg-alt: #f3e8ff;
   --neo-bg-sidebar: #e9d5ff;
+  --neo-accent: #8b5cf6;
+  --outline-h1: #f3e8ff;
+  --outline-h2: #e9d5ff;
+  --outline-h3: #d8b4fe;
+  --outline-h4: #a78bfa;
+  --outline-h5: #8b5cf6;
+  --outline-h6: #7c3aed;
 }
 
 .theme-pink {
   --neo-highlight: #f472b6;
   --neo-bg-alt: #fce7f3;
   --neo-bg-sidebar: #fbcfe8;
+  --neo-accent: #ec4899;
+  --outline-h1: #fce7f3;
+  --outline-h2: #fbcfe8;
+  --outline-h3: #f9a8d4;
+  --outline-h4: #f472b6;
+  --outline-h5: #ec4899;
+  --outline-h6: #db2777;
 }
 
 .theme-black {
   --neo-highlight: #4b5563;
   --neo-bg-alt: #e5e7eb;
   --neo-bg-sidebar: #d1d5db;
+  --neo-accent: #1f2937;
+  --outline-h1: #f3f4f6;
+  --outline-h2: #e5e7eb;
+  --outline-h3: #d1d5db;
+  --outline-h4: #9ca3af;
+  --outline-h5: #6b7280;
+  --outline-h6: #374151;
 }
 
 /* ---------- Reset ---------- */
