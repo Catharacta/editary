@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, stat } from "node:fs/promises";
 import { join, extname, basename, dirname } from "node:path";
 import type { FileEntry } from "../shared/types";
 
@@ -48,6 +48,25 @@ async function getDirectoryEntries(dirPath: string): Promise<FileEntry[]> {
     });
 
     return entries;
+}
+
+/**
+ * Safely ensures a directory exists.
+ * Helps avoid 'EEXIST' errors on some Windows environments where recursive mkdir might fail on existing components.
+ */
+async function ensureDir(dirPath: string) {
+    try {
+        await mkdir(dirPath, { recursive: true });
+    } catch (error: any) {
+        if (error.code === 'EEXIST') {
+            // Check if it's actually a directory
+            try {
+                const s = await stat(dirPath);
+                if (s.isDirectory()) return;
+            } catch (ignore) {}
+        }
+        throw error;
+    }
 }
 
 // @ts-ignore
@@ -132,7 +151,7 @@ export const handleFileOperations = {
         try {
             // Ensure parent directory exists
             const dir = dirname(filePath);
-            await mkdir(dir, { recursive: true });
+            await ensureDir(dir);
             await writeFile(filePath, content, "utf-8");
             return true;
         } catch (error) {
@@ -153,7 +172,7 @@ export const handleFileOperations = {
 
         try {
             // Ensure directory exists
-            await mkdir(dirPath, { recursive: true });
+            await ensureDir(dirPath);
             // Create empty file
             await writeFile(filePath, "", "utf-8");
             return filePath;
@@ -172,7 +191,7 @@ export const handleFileOperations = {
     }) => {
         const newDirPath = join(dirPath, dirName);
         try {
-            await mkdir(newDirPath, { recursive: true });
+            await ensureDir(newDirPath);
             return newDirPath;
         } catch (error) {
             console.error(`Failed to create directory: ${newDirPath}`, error);

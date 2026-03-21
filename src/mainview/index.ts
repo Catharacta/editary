@@ -4,6 +4,43 @@ import { createEditor, setEditorContent, getEditorHTML, getEditorText, reparseCo
 import { markdownToHtml, htmlToMarkdown } from "./markdown-parser";
 
 // ========================================
+// Tooltip Logic
+// ========================================
+const tooltipEl = document.getElementById('tooltip');
+
+document.addEventListener('mouseover', (e) => {
+    const target = (e.target as HTMLElement).closest('[data-tooltip]');
+    if (target && tooltipEl) {
+        const text = target.getAttribute('data-tooltip');
+        if (text) {
+            tooltipEl.textContent = text;
+            tooltipEl.classList.remove('hidden');
+            
+            const rect = target.getBoundingClientRect();
+            const tooltipRect = tooltipEl.getBoundingClientRect();
+            
+            // Position above the element
+            let top = rect.top - tooltipRect.height - 8;
+            let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+            
+            // Adjust if out of bounds
+            if (top < 0) top = rect.bottom + 8;
+            if (left < 0) left = 8;
+            if (left + tooltipRect.width > window.innerWidth) left = window.innerWidth - tooltipRect.width - 8;
+            
+            tooltipEl.style.top = `${top}px`;
+            tooltipEl.style.left = `${left}px`;
+        }
+    }
+});
+
+document.addEventListener('mouseout', (e) => {
+    const target = (e.target as HTMLElement).closest('[data-tooltip]');
+    if (target && tooltipEl) {
+        tooltipEl.classList.add('hidden');
+    }
+});
+// ========================================
 // State
 // ========================================
 let currentFilePath: string | null = null;
@@ -73,6 +110,12 @@ editor.on("update", () => {
 // ========================================
 const editorToolbar = document.getElementById("editorToolbar");
 const updateBtn = document.getElementById("updateContentBtn");
+const exportBtn = document.getElementById("exportBtn");
+const exportModal = document.getElementById("exportModal");
+const closeExportModal = document.getElementById("closeExportModal");
+const cancelExport = document.getElementById("cancelExport");
+const executeExport = document.getElementById("executeExport");
+const exportStyleGroup = document.getElementById("exportStyleGroup");
 const syntaxStatus = document.getElementById("syntaxStatus");
 const syntaxStatusText = document.getElementById("syntaxStatusText");
 const statusIconInfo = document.getElementById("statusIconInfo");
@@ -203,7 +246,8 @@ document.getElementById("closeWorkspaceBtn")?.addEventListener("click", () => {
     updateSidebarVisibility();
 });
 document.getElementById("collapseAllBtn")?.addEventListener("click", () => {
-    // Implement tree collapse if needed
+    document.querySelectorAll(".file-tree-children").forEach(el => el.classList.add("collapsed"));
+    document.querySelectorAll(".file-tree-item--directory").forEach(el => el.classList.add("collapsed"));
 });
 
 async function createNewFile() {
@@ -243,11 +287,12 @@ async function createNewFolder() {
 // ========================================
 document.getElementById("newFileFromEditorsBtn")?.addEventListener("click", createNewFile);
 document.getElementById("saveAllBtn")?.addEventListener("click", async () => {
-    for (const [path, tab] of openTabs.entries()) {
-        if (tab.isDirty) {
-            // Save logic
-            // Since our saveCurrentFile only saves the current one, let's make a generic save
-            await saveFile(path);
+    // Collect paths to avoid mutating map while iterating
+    const paths = Array.from(openTabs.keys());
+    for (const p of paths) {
+        const tab = openTabs.get(p);
+        if (tab?.isDirty) {
+            await saveFile(p);
         }
     }
 });
@@ -293,14 +338,27 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
 
         if (entry.isDirectory) {
             item.innerHTML = `
+                <svg class="file-tree-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" style="margin-right: 4px; flex-shrink: 0; transition: transform 0.1s;">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" style="margin-right: 6px; flex-shrink: 0;">
                     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                 </svg>
                 <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${entry.name}</span>
             `;
             parent.appendChild(item);
+
+            const childrenContainer = document.createElement("div");
+            childrenContainer.className = "file-tree-children";
+            parent.appendChild(childrenContainer);
+
+            item.addEventListener("click", () => {
+                const isCollapsed = childrenContainer.classList.toggle("collapsed");
+                item.classList.toggle("collapsed", isCollapsed);
+            });
+
             if (entry.children) {
-                renderEntries(parent, entry.children, depth + 1);
+                renderEntries(childrenContainer, entry.children, depth + 1);
             }
         } else {
             item.innerHTML = `
@@ -339,7 +397,7 @@ function renderOpenTabs() {
             <span class="open-editor-tab-dir">${dirName}</span>
             <div class="open-editor-tab-status">
                 ${tab.isDirty ? '<div class="open-editor-tab-dirty"></div>' : ''}
-                <button class="open-editor-tab-close" title="閉じる">
+                <button class="open-editor-tab-close" data-tooltip="閉じる">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
@@ -463,7 +521,6 @@ async function openFile(filePath: string) {
 }
 
 async function saveFile(filePath: string) {
-    if (currentFilePath !== filePath) return;
     const tab = openTabs.get(filePath);
     if (!tab) return;
 
@@ -492,7 +549,16 @@ async function saveFile(filePath: string) {
     }
 
     try {
-        const html = getEditorHTML(editor);
+        let html = "";
+        if (currentFilePath === filePath) {
+            html = getEditorHTML(editor);
+        } else if (tab.cachedContent !== undefined) {
+            html = tab.cachedContent;
+        } else {
+            console.error("No content to save for:", filePath);
+            return;
+        }
+
         const markdown = htmlToMarkdown(html);
 
         // Write the file to disk
@@ -733,6 +799,17 @@ document.addEventListener("keydown", (e) => {
         if (currentFilePath) saveFile(currentFilePath);
     }
 
+    if (e.ctrlKey && e.key === "u") {
+        e.preventDefault();
+        updateBtn?.click();
+    }
+    
+    // Ctrl+E: Export
+    if (e.ctrlKey && e.key === "e") {
+        e.preventDefault();
+        exportBtn?.click();
+    }
+    
     if (e.ctrlKey && e.key === "o") {
         e.preventDefault();
         openFolder();
@@ -1287,4 +1364,174 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+// ========================================
+// Export Logic
+// ========================================
+exportBtn?.addEventListener("click", () => {
+    if (!currentFilePath && !editor.getText()) {
+        alert("エクスポートする内容がありません。");
+        return;
+    }
+    exportModal?.classList.remove("hidden");
+});
+
+const hideExportModal = () => {
+    exportModal?.classList.add("hidden");
+};
+
+closeExportModal?.addEventListener("click", hideExportModal);
+cancelExport?.addEventListener("click", hideExportModal);
+
+// Toggle style options based on format
+document.querySelectorAll('input[name="exportFormat"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+        // Style selection is now always visible since MD is removed
+        exportStyleGroup?.classList.remove('hidden');
+    });
+});
+
+executeExport?.addEventListener("click", async () => {
+    const format = (document.querySelector('input[name="exportFormat"]:checked') as HTMLInputElement)?.value;
+    const style = (document.querySelector('input[name="exportStyle"]:checked') as HTMLInputElement)?.value;
+    
+    hideExportModal();
+
+    const html = getEditorHTML(editor);
+    const fileName = currentFilePath ? currentFilePath.split(/[/\\]/).pop()?.replace(/\.md$/i, '') : "untitled";
+    
+    if (format === 'html') {
+        const fullHtml = generateFullHtml(html, style);
+        await performSaveExport(fileName + ".html", fullHtml);
+    } else if (format === 'pdf') {
+        // Apply print styles via body class
+        document.body.classList.add(`export-${style}`);
+        
+        // Minor delay to ensure styles are applied (though mostly sync)
+        setTimeout(() => {
+            window.print();
+            document.body.classList.remove(`export-${style}`);
+        }, 100);
+    }
+});
+
+async function performSaveExport(defaultName: string, content: string) {
+    const defaultPath = currentFolderPath ? `${currentFolderPath}\\${defaultName}` : `C:\\Users\\${defaultName}`;
+    
+    try {
+        const savePath = await electroview.rpc?.request.showSaveFileDialog({
+            defaultPath,
+            title: "エクスポート先の保存"
+        });
+
+        if (savePath) {
+            const success = await electroview.rpc?.request.writeFile({
+                filePath: savePath,
+                content: content
+            });
+            if (success) {
+                alert("エクスポートが完了しました。");
+            } else {
+                alert("ファイルの保存に失敗しました。");
+            }
+        }
+    } catch (error) {
+        console.error("Export failed:", error);
+        alert("エクスポート中にエラーが発生しました。");
+    }
+}
+
+function generateFullHtml(contentHtml: string, style: string): string {
+    const isTheme = style === 'theme';
+    const title = currentFilePath ? currentFilePath.split(/[/\\]/).pop() || "Document" : "Document";
+    
+    const themeStyles = `
+        body { 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.7; 
+            color: #1a1a1a; 
+            max-width: 850px; 
+            margin: 0 auto; 
+            padding: 60px 40px;
+            background: #fffdf7;
+        }
+        .ProseMirror {
+            background: #ffffff;
+            border: 4px solid #1a1a1a;
+            box-shadow: 12px 12px 0px #1a1a1a;
+            padding: 40px;
+        }
+        h1, h2, h3 { font-weight: 900; color: #1a1a1a; margin-top: 1.8em; margin-bottom: 0.8em; line-height: 1.2; }
+        h1 { font-size: 2.5em; border-bottom: 6px solid #fbbf24; display: inline-block; padding-bottom: 0.1em; }
+        h2 { font-size: 1.8em; border-bottom: 4px solid #1a1a1a; padding-bottom: 0.2em; }
+        h3 { font-size: 1.4em; }
+        p { margin-bottom: 1.2em; }
+        a { color: #1a1a1a; text-decoration: none; border-bottom: 3px solid #fbbf24; font-weight: 700; }
+        a:hover { background: #fbbf24; }
+        pre { background: #1a1a1a; color: #fffdf7; padding: 20px; overflow-x: auto; border: 3px solid #1a1a1a; box-shadow: 6px 6px 0px #fbbf24; border-radius: 0; margin: 1.5em 0; }
+        code { font-family: 'JetBrains Mono', monospace; background: #fbbf24; color: #1a1a1a; padding: 0.2em 0.4em; font-weight: 700; }
+        pre code { background: transparent; color: inherit; padding: 0; font-weight: 400; }
+        blockquote { border: 3px solid #1a1a1a; background: #fef3c7; margin: 2em 0; padding: 20px 30px; box-shadow: 6px 6px 0px #f97316; font-style: italic; border-left: 12px solid #f97316; }
+        table { border-collapse: collapse; width: 100%; margin: 2em 0; border: 4px solid #1a1a1a; box-shadow: 8px 8px 0px #1a1a1a; }
+        th, td { border: 2px solid #1a1a1a; padding: 12px 16px; text-align: left; }
+        th { background: #fbbf24; font-weight: 900; text-transform: uppercase; font-size: 0.9em; letter-spacing: 0.05em; }
+        tr:nth-child(even) { background: #fffdf7; }
+        strong { background: #fbbf24; padding: 0 2px; font-weight: 900; }
+        img { max-width: 100%; border: 4px solid #1a1a1a; box-shadow: 8px 8px 0px #1a1a1a; margin: 1.5em 0; }
+        hr { border: none; border-top: 4px dashed #1a1a1a; margin: 3em 0; }
+        ul, ol { padding-left: 1.5em; margin-bottom: 1.2em; }
+        li { margin-bottom: 0.5em; }
+    `;
+
+    const cleanStyles = `
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #24292f; 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 0 30px;
+            background: #ffffff;
+        }
+        h1, h2, h3 { font-weight: 600; color: #1a1a1a; margin-top: 24px; margin-bottom: 16px; line-height: 1.25; }
+        h1 { font-size: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
+        h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
+        h3 { font-size: 1.25em; }
+        p { margin-bottom: 16px; }
+        a { color: #0969da; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        pre { background: #f6f8fa; padding: 16px; overflow-x: auto; border-radius: 6px; margin-bottom: 16px; border: 1px solid #d0d7de; }
+        code { font-family: 'JetBrains Mono', monospace; background: rgba(175, 184, 193, 0.2); padding: 0.2em 0.4em; border-radius: 6px; font-size: 85%; }
+        pre code { background: transparent; padding: 0; font-size: 100%; }
+        blockquote { border-left: 0.25em solid #d0d7de; color: #57606a; padding: 0 1em; margin: 0 0 16px 0; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 16px; border-spacing: 0; }
+        th, td { border: 1px solid #d0d7de; padding: 6px 13px; }
+        th { background: #f6f8fa; font-weight: 600; }
+        tr:nth-child(even) { background: #f6f8fa; }
+        img { max-width: 100%; box-sizing: content-box; background-color: #fff; }
+        hr { height: 0.25em; padding: 0; margin: 24px 0; background-color: #d0d7de; border: 0; }
+        ul, ol { padding-left: 2em; margin-bottom: 16px; }
+        li { margin-bottom: 4px; }
+    `;
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        ${isTheme ? themeStyles : cleanStyles}
+    </style>
+</head>
+<body>
+    <div class="ProseMirror">
+        ${contentHtml}
+    </div>
+</body>
+</html>`;
+}
 

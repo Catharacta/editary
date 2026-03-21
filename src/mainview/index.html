@@ -59,7 +59,7 @@
           </button>
           <span class="section-title">エディタ</span>
           <div class="section-actions">
-            <button class="section-action-btn" id="newFileFromEditorsBtn" title="新規ファイル">
+            <button class="section-action-btn" id="newFileFromEditorsBtn" data-tooltip="新規ファイル">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -68,7 +68,7 @@
                 <line x1="9" y1="15" x2="15" y2="15" />
               </svg>
             </button>
-            <button class="section-action-btn" id="saveAllBtn" title="すべて保存">
+            <button class="section-action-btn" id="saveAllBtn" data-tooltip="すべて保存">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
@@ -76,7 +76,7 @@
                 <polyline points="7 3 7 8 15 8" />
               </svg>
             </button>
-            <button class="section-action-btn" id="closeAllBtn" title="すべて閉じる">
+            <button class="section-action-btn" id="closeAllBtn" data-tooltip="すべて閉じる">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -100,7 +100,7 @@
           </button>
           <span class="section-title">ワークスペース</span>
           <div class="section-actions">
-            <button class="section-action-btn" id="newFileBtn" title="新規ファイル">
+            <button class="section-action-btn" id="newFileBtn" data-tooltip="新規ファイル">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -109,7 +109,7 @@
                 <line x1="9" y1="15" x2="15" y2="15" />
               </svg>
             </button>
-            <button class="section-action-btn" id="newFolderBtn" title="新規フォルダ">
+            <button class="section-action-btn" id="newFolderBtn" data-tooltip="新規フォルダ">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -117,21 +117,21 @@
                 <line x1="9" y1="14" x2="15" y2="14" />
               </svg>
             </button>
-            <button class="section-action-btn" id="refreshBtn" title="更新">
+            <button class="section-action-btn" id="refreshBtn" data-tooltip="更新">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <polyline points="23 4 23 10 17 10" />
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
               </svg>
             </button>
-            <button class="section-action-btn" id="closeWorkspaceBtn" title="ワークスペースを閉じる">
+            <button class="section-action-btn" id="closeWorkspaceBtn" data-tooltip="ワークスペースを閉じる">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                 <line x1="9" y1="12" x2="15" y2="18"></line>
                 <line x1="15" y1="12" x2="9" y2="18"></line>
               </svg>
             </button>
-            <button class="section-action-btn" id="collapseAllBtn" title="フォルダを折りたたむ">
+            <button class="section-action-btn" id="collapseAllBtn" data-tooltip="フォルダを折りたたむ">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="square">
                 <polyline points="4 14 10 14 10 20" />
@@ -167,7 +167,7 @@
       <div id="editorToolbar" class="editor-toolbar hidden">
         <div class="toolbar-left" style="display: flex; gap: 8px;">
           <div class="toolbar-dropdown">
-            <button id="tableInsertBtn" class="toolbar-btn" title="テーブルの挿入" aria-haspopup="true" aria-expanded="false">
+            <button id="tableInsertBtn" class="toolbar-btn" data-tooltip="テーブルの挿入" aria-haspopup="true" aria-expanded="false">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                 <line x1="3" y1="9" x2="21" y2="9"/>
@@ -184,12 +184,20 @@
               </div>
             </div>
           </div>
-          <button id="updateContentBtn" class="toolbar-btn" title="内容をパースし直して更新します">
+          <button id="updateContentBtn" class="toolbar-btn" data-tooltip="内容をパースし直して更新します">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
               <polyline points="23 4 23 10 17 10" />
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
             </svg>
             <span>更新 (Sync)</span>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button id="exportBtn" class="toolbar-btn" data-tooltip="エクスポート (PDF/HTML)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
           </button>
         </div>
         <div class="toolbar-right">
@@ -213,24 +221,24 @@
         <div class="search-panel-row">
           <input type="text" id="searchInput" class="search-input neo-input" placeholder="検索..." />
           <span id="searchResultCount" class="search-count">0/0</span>
-          <button id="searchPrevBtn" class="search-btn" title="前へ">
+          <button id="searchPrevBtn" class="search-btn" data-tooltip="前へ">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="18 15 12 9 6 15" /></svg>
           </button>
-          <button id="searchNextBtn" class="search-btn" title="次へ">
+          <button id="searchNextBtn" class="search-btn" data-tooltip="次へ">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="6 9 12 15 18 9" /></svg>
           </button>
-          <button id="searchCloseBtn" class="search-btn search-close" title="閉じる">
+          <button id="searchCloseBtn" class="search-btn search-close" data-tooltip="閉じる">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
         
         <div class="search-panel-row search-replace-row" id="replaceRowContainer">
           <input type="text" id="replaceInput" class="search-input neo-input" placeholder="置換..." />
-          <button id="replaceBtn" class="search-text-btn" title="置換">置換</button>
-          <button id="replaceAllBtn" class="search-text-btn" title="すべて置換">すべて</button>
+          <button id="replaceBtn" class="search-text-btn" data-tooltip="置換">置換</button>
+          <button id="replaceAllBtn" class="search-text-btn" data-tooltip="すべて置換">すべて</button>
         </div>
         
-        <button id="toggleReplaceBtn" class="toggle-replace-btn" title="置換を切り替え">
+        <button id="toggleReplaceBtn" class="toggle-replace-btn" data-tooltip="置換を切り替え">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="6 9 12 15 18 9" /></svg>
           <span style="font-size: 10px; margin-left: 4px;">置換</span>
         </button>
@@ -239,41 +247,41 @@
       <!-- Table Bubble Menu Hidden Container -->
       <div style="display: none;">
         <div id="tableBubbleMenu" class="bubble-menu">
-          <button id="tb-addRowBefore" class="bubble-btn" title="上に行を追加">
+          <button id="tb-addRowBefore" class="bubble-btn" data-tooltip="上に行を追加">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line><path d="M5 5h14"></path></svg>
           </button>
-          <button id="tb-addRowAfter" class="bubble-btn" title="下に行を追加">
+          <button id="tb-addRowAfter" class="bubble-btn" data-tooltip="下に行を追加">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line><path d="M5 19h14"></path></svg>
           </button>
-          <button id="tb-deleteRow" class="bubble-btn" title="行を削除">
+          <button id="tb-deleteRow" class="bubble-btn" data-tooltip="行を削除">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><path d="M5 5h14M5 19h14"></path></svg>
           </button>
           <span class="bubble-divider"></span>
-          <button id="tb-addColumnBefore" class="bubble-btn" title="左に列を追加">
+          <button id="tb-addColumnBefore" class="bubble-btn" data-tooltip="左に列を追加">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line><path d="M5 5v14"></path></svg>
           </button>
-          <button id="tb-addColumnAfter" class="bubble-btn" title="右に列を追加">
+          <button id="tb-addColumnAfter" class="bubble-btn" data-tooltip="右に列を追加">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line><path d="M19 5v14"></path></svg>
           </button>
-          <button id="tb-deleteColumn" class="bubble-btn" title="列を削除">
+          <button id="tb-deleteColumn" class="bubble-btn" data-tooltip="列を削除">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><path d="M5 5v14M19 5v14"></path></svg>
           </button>
           <span class="bubble-divider"></span>
-          <button id="tb-mergeCells" class="bubble-btn" title="セルの結合/解除">
+          <button id="tb-mergeCells" class="bubble-btn" data-tooltip="セルの結合/解除">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg>
           </button>
           <span class="bubble-divider"></span>
-          <button id="tb-deleteTable" class="bubble-btn bubble-btn--danger" title="テーブルを削除">
+          <button id="tb-deleteTable" class="bubble-btn bubble-btn--danger" data-tooltip="テーブルを削除">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
           <span class="bubble-divider"></span>
-          <button id="tb-alignLeft" class="bubble-btn" title="左寄せ">
+          <button id="tb-alignLeft" class="bubble-btn" data-tooltip="左寄せ">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
           </button>
-          <button id="tb-alignCenter" class="bubble-btn" title="中央寄せ">
+          <button id="tb-alignCenter" class="bubble-btn" data-tooltip="中央寄せ">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="18" y1="18" x2="6" y2="18"/></svg>
           </button>
-          <button id="tb-alignRight" class="bubble-btn" title="右寄せ">
+          <button id="tb-alignRight" class="bubble-btn" data-tooltip="右寄せ">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
           </button>
         </div>
@@ -311,6 +319,58 @@
       </div>
     </div>
   </div>
+
+  <!-- Export Modal -->
+  <div id="exportModal" class="modal-overlay hidden">
+    <div class="modal-content neo-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">エクスポート</h2>
+        <button id="closeExportModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="export-option-group">
+          <label class="export-label">フォーマットを選択</label>
+          <div class="export-format-grid">
+            <label class="format-card">
+              <input type="radio" name="exportFormat" value="pdf" checked>
+              <div class="format-card-content">
+                <span class="format-icon">PDF</span>
+                <span class="format-name">Adobe PDF</span>
+              </div>
+            </label>
+            <label class="format-card">
+              <input type="radio" name="exportFormat" value="html">
+              <div class="format-card-content">
+                <span class="format-icon">HTML</span>
+                <span class="format-name">Web Page</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="export-option-group" id="exportStyleGroup">
+          <label class="export-label">スタイルを選択</label>
+          <div class="export-style-options">
+            <label class="style-option">
+              <input type="radio" name="exportStyle" value="clean" checked>
+              <span class="style-option-text">Clean (標準ドキュメント)</span>
+            </label>
+            <label class="style-option">
+              <input type="radio" name="exportStyle" value="theme">
+              <span class="style-option-text">Editary Theme (ネオブルータリズム)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelExport" class="neo-btn secondary">キャンセル</button>
+        <button id="executeExport" class="neo-btn primary">エクスポート実行</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Tooltip -->
+  <div id="tooltip" class="tooltip hidden"></div>
 
   <script src="views://mainview/index.js"></script>
 </body>
