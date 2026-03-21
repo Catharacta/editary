@@ -116,6 +116,9 @@ const closeExportModal = document.getElementById("closeExportModal");
 const cancelExport = document.getElementById("cancelExport");
 const executeExport = document.getElementById("executeExport");
 const exportStyleGroup = document.getElementById("exportStyleGroup");
+const licenseModal = document.getElementById("licenseModal");
+const closeLicenseModalBtn = document.getElementById("closeLicenseModalBtn");
+const licenseList = document.getElementById("licenseList");
 const syntaxStatus = document.getElementById("syntaxStatus");
 const syntaxStatusText = document.getElementById("syntaxStatusText");
 const statusIconInfo = document.getElementById("statusIconInfo");
@@ -837,8 +840,7 @@ document.addEventListener("keydown", (e) => {
 const helpMenuBtn = document.getElementById('helpMenuBtn');
 const helpDropdown = document.getElementById('helpDropdown');
 const showLicenseBtn = document.getElementById('showLicenseBtn');
-const licenseModal = document.getElementById('licenseModal');
-const closeLicenseModalBtn = document.getElementById('closeLicenseModalBtn');
+// License modal variables are declared at the bottom for consistency
 const licenseListContainer = document.getElementById('licenseList');
 
 // Toggle dropdown
@@ -1533,5 +1535,143 @@ function generateFullHtml(contentHtml: string, style: string): string {
     </div>
 </body>
 </html>`;
+}
+
+// ========================================
+// Settings & Theme Logic
+// ========================================
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeSettingsModal = document.getElementById("closeSettingsModal");
+const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+const themeInputs = document.querySelectorAll('input[name="appTheme"]') as NodeListOf<HTMLInputElement>;
+
+function applyTheme(themeName: string) {
+    // Remove all theme classes including yellow
+    const themes = ['theme-yellow', 'theme-red', 'theme-blue', 'theme-green', 'theme-purple', 'theme-pink', 'theme-black'];
+    document.body.classList.remove(...themes);
+    
+    // Add the selected theme class (including yellow for consistency)
+    if (themeName !== 'default') {
+        document.body.classList.add(`theme-${themeName}`);
+    }
+    
+    // Update radio buttons in modal if they exist
+    const radio = document.querySelector(`input[name="appTheme"][value="${themeName}"]`) as HTMLInputElement;
+    if (radio) radio.checked = true;
+
+    // Save to localStorage
+    localStorage.setItem('editary-theme', themeName);
+}
+
+settingsBtn?.addEventListener("click", () => {
+    // Set current theme in modal
+    const currentTheme = localStorage.getItem('editary-theme') || 'yellow';
+    applyTheme(currentTheme);
+    
+    // Default to Appearance tab
+    switchSettingsTab('appearance');
+    
+    settingsModal?.classList.remove("hidden");
+});
+
+const hideSettingsModal = () => {
+    settingsModal?.classList.add("hidden");
+};
+
+closeSettingsModal?.addEventListener("click", hideSettingsModal);
+saveSettingsBtn?.addEventListener("click", hideSettingsModal);
+
+// Tab Switching
+const settingsTabs = document.querySelectorAll('.settings-tab-btn');
+const settingsPanes = document.querySelectorAll('.settings-pane');
+
+function switchSettingsTab(tabId: string) {
+    settingsTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId);
+    });
+    
+    settingsPanes.forEach(pane => {
+        pane.classList.toggle('active', pane.id === `pane-${tabId}`);
+    });
+}
+
+settingsTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        if (tabId) switchSettingsTab(tabId);
+    });
+});
+
+// Theme selection in modal (instant preview)
+themeInputs.forEach(input => {
+    input.addEventListener('change', () => {
+        if (input.checked) {
+            applyTheme(input.value);
+        }
+    });
+});
+
+// Overlay closing
+settingsModal?.addEventListener("click", (e) => {
+    if (e.target === settingsModal) {
+        hideSettingsModal();
+    }
+});
+
+// Initialize Theme
+const savedTheme = localStorage.getItem('editary-theme') || 'yellow';
+applyTheme(savedTheme);
+
+
+// ========================================
+// License Modal Logic
+// ========================================
+
+// Function to open license modal (can be called from "About" or "Help" tab)
+(window as any).openLicenseModal = async () => {
+    if (licenseModal) {
+        licenseModal.classList.remove("hidden");
+        // Load licenses if not already loaded or every time for simplicity
+        loadLicenses();
+    }
+};
+
+closeLicenseModalBtn?.addEventListener("click", () => {
+    licenseModal?.classList.add("hidden");
+});
+
+licenseModal?.addEventListener("click", (e) => {
+    if (e.target === licenseModal) {
+        licenseModal.classList.add("hidden");
+    }
+});
+
+async function loadLicenses() {
+    if (!licenseList) return;
+    
+    // Clear list
+    licenseList.innerHTML = '<div class="loading">読み込み中...</div>';
+    
+    try {
+        const licenses = await (window as any).electrobun.rpc.request.getLicenses();
+        if (licenses && Array.isArray(licenses)) {
+            licenseList.innerHTML = licenses.map((lib: any) => `
+                <div class="license-item">
+                    <div class="license-header">
+                        <span class="license-name">${lib.name}</span>
+                        <span class="license-type">${lib.type}</span>
+                    </div>
+                    <div class="license-copyright">${lib.copyright || ''}</div>
+                    <div class="license-text">${lib.text}</div>
+                </div>
+            `).join('');
+        } else {
+            licenseList.innerHTML = '<div class="error">ライセンス情報の取得に失敗しました。</div>';
+        }
+    } catch (err) {
+        console.error("Failed to load licenses:", err);
+        licenseList.innerHTML = '<div class="error">エラーが発生しました。</div>';
+    }
 }
 

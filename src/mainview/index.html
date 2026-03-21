@@ -11,36 +11,33 @@
 </head>
 
 <body>
+  <script>
+    (function() {
+      const theme = localStorage.getItem('editary-theme');
+      if (theme && theme !== 'default') {
+        document.body.classList.add('theme-' + theme);
+      }
+    })();
+  </script>
   <!-- Custom Titlebar (Draggable) -->
   <div id="titlebar" class="titlebar electrobun-webkit-app-region-drag">
     <div class="titlebar-left">
       <div class="titlebar-title">Editary</div>
-      <div class="titlebar-menu electrobun-webkit-app-region-no-drag">
-        <div class="dropdown">
-          <button id="helpMenuBtn" class="titlebar-menu-btn" aria-haspopup="true" aria-expanded="false">ヘルプ</button>
-          <div id="helpDropdown" class="dropdown-content hidden">
-            <button id="showLicenseBtn" class="dropdown-item">ライセンス情報...</button>
-          </div>
-        </div>
-      </div>
     </div>
     <div class="titlebar-controls electrobun-webkit-app-region-no-drag">
-      <button id="minimizeBtn" class="titlebar-btn titlebar-btn--minimize" aria-label="最小化">
-        <svg width="10" height="1" viewBox="0 0 10 1">
-          <rect width="10" height="1" fill="currentColor" />
-        </svg>
+      <button id="settingsBtn" class="titlebar-btn" data-tooltip="設定">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
-      <button id="maximizeBtn" class="titlebar-btn titlebar-btn--maximize" aria-label="最大化">
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <rect x="0.5" y="0.5" width="9" height="9" stroke="currentColor" fill="none" stroke-width="1" />
-        </svg>
+      <button id="minimizeBtn" class="titlebar-btn" data-tooltip="最小化">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
-      <button id="closeBtn" class="titlebar-btn titlebar-btn--close" aria-label="閉じる">
-        <svg width="10" height="10" viewBox="0 0 10 10">
-          <line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.5" />
-          <line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.5" />
-        </svg>
+      <button id="maximizeBtn" class="titlebar-btn" data-tooltip="最大化">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><rect x="3" y="3" width="18" height="18" rx="0" ry="0"/></svg>
       </button>
+      <button id="closeBtn" class="titlebar-btn titlebar-btn--close" data-tooltip="閉じる">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
     </div>
   </div>
 
@@ -298,27 +295,26 @@
     <div class="status-spacer"></div>
     <div class="status-item" id="statusEncoding">UTF-8</div>
   </footer>
-
   <!-- License Modal -->
   <div id="licenseModal" class="modal-overlay hidden">
-    <div class="license-modal neo-modal">
+    <div class="neo-modal license-modal-wide">
       <div class="modal-header">
-        <h2>オープンソースライセンス</h2>
+        <h2 class="modal-title">ライセンス</h2>
         <button id="closeLicenseModalBtn" class="modal-close-btn" aria-label="閉じる">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
       <div class="modal-content">
-        <p class="license-intro">Editary は以下の素晴らしいオープンソースソフトウェアを利用して構築されています。</p>
         <div id="licenseList" class="license-list">
           <!-- Rendered by JS -->
         </div>
       </div>
     </div>
   </div>
+
 
   <!-- Export Modal -->
   <div id="exportModal" class="modal-overlay hidden">
@@ -365,6 +361,179 @@
       <div class="modal-footer">
         <button id="cancelExport" class="neo-btn secondary">キャンセル</button>
         <button id="executeExport" class="neo-btn primary">エクスポート実行</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay hidden">
+    <div class="neo-modal settings-modal-wide">
+      <div class="modal-header">
+        <h2 class="modal-title">設定 (Settings)</h2>
+        <button id="closeSettingsModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="settings-container">
+        <!-- サイドバー -->
+        <div class="settings-sidebar">
+          <button class="settings-tab-btn active" data-tab="appearance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="m4.93 4.93 14.14 14.14"/><path d="m4.93 19.07 14.14-14.14"/></svg>
+            外観
+          </button>
+          <button class="settings-tab-btn" data-tab="editor">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            エディタ
+          </button>
+          <div class="settings-sidebar-spacer"></div>
+          <button class="settings-tab-btn" data-tab="about">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            情報
+          </button>
+          <button class="settings-tab-btn" data-tab="help">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            ヘルプ
+          </button>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="settings-content">
+          <!-- 外観（Appearance） -->
+          <div id="pane-appearance" class="settings-pane active">
+            <div class="settings-pane-header">
+              <h3>アプリのテーマ</h3>
+              <p>インターフェースの配色を選択します。</p>
+            </div>
+            <div class="theme-grid-premium">
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="yellow" checked>
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-yellow"></div>
+                  <span class="theme-option-name">Lemon</span>
+                </div>
+              </label>
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="blue">
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-blue"></div>
+                  <span class="theme-option-name">Sky</span>
+                </div>
+              </label>
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="green">
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-green"></div>
+                  <span class="theme-option-name">Mint</span>
+                </div>
+              </label>
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="red">
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-red"></div>
+                  <span class="theme-option-name">Rose</span>
+                </div>
+              </label>
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="purple">
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-purple"></div>
+                  <span class="theme-option-name">Lavender</span>
+                </div>
+              </label>
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="pink">
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-pink"></div>
+                  <span class="theme-option-name">Bubblegum</span>
+                </div>
+              </label>
+              <label class="theme-option-card">
+                <input type="radio" name="appTheme" value="black">
+                <div class="theme-option-content">
+                  <div class="theme-preview-box preview-black"></div>
+                  <span class="theme-option-name">Coal</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- エディタ（Editor） -->
+          <div id="pane-editor" class="settings-pane">
+            <div class="settings-pane-header">
+              <h3>エディタ設定</h3>
+              <p>執筆環境の動作をカスタマイズします。</p>
+            </div>
+            <div class="settings-list-premium">
+              <div class="settings-row">
+                <div class="settings-text">
+                  <div class="settings-title">自動保存 (Auto-save)</div>
+                  <div class="settings-desc">編集内容を一定間隔で自動的に保存します</div>
+                </div>
+                <label class="neo-toggle">
+                  <input type="checkbox" checked disabled>
+                  <span class="neo-toggle-slider"></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-text">
+                  <div class="settings-title">行番号の表示</div>
+                  <div class="settings-desc">エディタの左端に行番号を表示します</div>
+                </div>
+                <label class="neo-toggle">
+                  <input type="checkbox" checked disabled>
+                  <span class="neo-toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 情報（About） -->
+          <div id="pane-about" class="settings-pane">
+            <div class="settings-pane-header">
+              <h3>Editary について</h3>
+            </div>
+            <div class="about-container">
+              <div class="about-brand">Editary</div>
+              <div class="about-meta">Version 1.0.0-beta</div>
+              <div class="about-description">
+                Neobrutalism 風デザインを採用した、モダンな Markdown エディタ。
+              </div>
+              <div class="about-footer">
+                <div class="about-copyright">&copy; 2026 Catharacta</div>
+                <div class="about-action-links">
+                  <a href="#" class="about-link">GitHub</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ヘルプ（Help） -->
+          <div id="pane-help" class="settings-pane">
+            <div class="settings-list-premium" style="margin-top: 0;">
+              <div class="settings-row" style="border-top: none; flex-direction: column; align-items: flex-start; gap: 8px;">
+                <div class="settings-text">
+                  <div class="settings-title">ライセンス</div>
+                </div>
+                <button id="showLicenseBtn" class="neo-btn" style="padding: 10px 24px;">確認する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="neo-btn primary">保存して閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="licenseModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>ライセンス</h2>
+        <button id="closeLicenseModalBtn" class="neo-btn icon-btn" aria-label="閉じる">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-content">
+        <div id="licenseList" class="license-list"></div>
       </div>
     </div>
   </div>
