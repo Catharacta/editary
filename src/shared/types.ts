@@ -84,6 +84,21 @@ export type EditaryRPCType = {
                 params: { filePath: string };
                 response: { dataUrl: string | null };
             };
+            /** Rename a file or directory */
+            renameEntry: {
+                params: { oldPath: string; newName: string };
+                response: { success: boolean; newPath: string; error?: string };
+            };
+            /** Delete a file or directory */
+            deleteEntry: {
+                params: { path: string };
+                response: { success: boolean; error?: string };
+            };
+            /** Move a file or directory */
+            moveEntry: {
+                params: { oldPath: string; newParentDir: string };
+                response: { success: boolean; newPath: string; error?: string };
+            };
         };
         messages: {
             /** Window control: close */

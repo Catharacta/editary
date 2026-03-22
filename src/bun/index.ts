@@ -23,6 +23,9 @@ const rpc = BrowserView.defineRPC<EditaryRPCType>({
             saveImage: handleFileOperations.saveImage,
             copyImage: handleFileOperations.copyImage,
             readImageAsDataUrl: handleFileOperations.readImageAsDataUrl,
+            renameEntry: handleFileOperations.renameEntry,
+            deleteEntry: handleFileOperations.deleteEntry,
+            moveEntry: handleFileOperations.moveEntry,
         },
         messages: {
             closeWindow: () => win.close(),

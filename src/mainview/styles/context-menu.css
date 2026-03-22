@@ -1,0 +1,45 @@
+.context-menu {
+    position: fixed;
+    z-index: 10000;
+    background-color: var(--bg-color);
+    border: var(--border-width) solid var(--text-color);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--text-color);
+    min-width: 160px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    animation: menuAppear 0.1s ease-out;
+}
+
+@keyframes menuAppear {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    border: 1px solid transparent;
+}
+
+.context-menu-item:hover {
+    background-color: var(--accent-light);
+    border-color: var(--text-color);
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--text-color);
+}
+
+.context-menu-item--danger:hover {
+    background-color: #ff5e5e;
+    color: white;
+}
+
+.context-menu-item:active {
+    transform: translate(0, 0);
+    box-shadow: none;
+}

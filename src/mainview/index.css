@@ -1,6 +1,7 @@
 @import "./styles/tokens.css";
 @import "./styles/layout.css";
 @import "./styles/sidebar.css";
+@import "./styles/context-menu.css";
 @import "./styles/tabs.css";
 @import "./styles/editor.css";
 @import "./styles/prosemirror.css";

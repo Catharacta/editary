@@ -315,3 +315,139 @@ async function processEditorImages(html: string, targetDir: string): Promise<str
 
     return html;
 }
+/**
+ * Rename a file or directory and update the state/UI.
+ */
+export async function renameEntry(oldPath: string, newName: string) {
+    try {
+        const response = await electroview.rpc?.request.renameEntry({ oldPath, newName });
+        
+        if (response?.success) {
+            const newPath = response.newPath;
+            
+            // Update open tabs if the renamed entry (or a child if it's a directory) is open
+            for (const [path, tab] of Array.from(state.openTabs.entries())) {
+                if (path === oldPath) {
+                    // Exact match (file or directory itself)
+                    state.openTabs.delete(path);
+                    state.openTabs.set(newPath, { ...tab, filePath: newPath });
+                    if (state.currentFilePath === path) {
+                        state.currentFilePath = newPath;
+                    }
+                } else if (path.startsWith(oldPath + '/') || path.startsWith(oldPath + '\\')) {
+                    // Child of the renamed directory
+                    const relativePath = path.substring(oldPath.length);
+                    const newChildPath = newPath + relativePath;
+                    state.openTabs.delete(path);
+                    state.openTabs.set(newChildPath, { ...tab, filePath: newChildPath });
+                    if (state.currentFilePath === path) {
+                        state.currentFilePath = newChildPath;
+                    }
+                }
+            }
+            
+            if (state.currentFolderPath) {
+                await loadFileTree(state.currentFolderPath);
+            }
+            updateTitleBar();
+            renderOpenTabs();
+            highlightActiveFile(state.currentFilePath || "");
+            
+            return { success: true, newPath };
+        } else {
+            console.error("[renameEntry] Failed:", response?.error);
+            return { success: false, error: response?.error };
+        }
+    } catch (error) {
+        console.error("Failed to rename entry:", error);
+        return { success: false, error: String(error) };
+    }
+}
+
+/**
+ * Delete a file or directory and update the state/UI.
+ */
+export async function deleteEntry(path: string) {
+    try {
+        const response = await electroview.rpc?.request.deleteEntry({ path });
+        
+        if (response?.success) {
+            // Close any tabs that were pointing to this path or inside it
+            for (const openPath of Array.from(state.openTabs.keys())) {
+                if (openPath === path || openPath.startsWith(path + '/') || openPath.startsWith(path + '\\')) {
+                    // Force close without prompt as the file is gone
+                    state.openTabs.delete(openPath);
+                    if (state.currentFilePath === openPath) {
+                        state.currentFilePath = null;
+                        setEditorContent(state.editor, "");
+                        state.editor.setEditable(false);
+                        document.getElementById("editorToolbar")?.classList.add("hidden");
+                    }
+                }
+            }
+            
+            if (state.currentFolderPath) {
+                await loadFileTree(state.currentFolderPath);
+            }
+            updateTitleBar();
+            renderOpenTabs();
+            highlightActiveFile(state.currentFilePath || "");
+            updateStatusBar();
+            
+            return { success: true };
+        } else {
+            console.error("[deleteEntry] Failed:", response?.error);
+            return { success: false, error: response?.error };
+        }
+    } catch (error) {
+        console.error("Failed to delete entry:", error);
+        return { success: false, error: String(error) };
+    }
+}
+
+/**
+ * Move a file or directory and update the state/UI.
+ */
+export async function moveEntry(oldPath: string, newParentDir: string) {
+    try {
+        const response = await electroview.rpc?.request.moveEntry({ oldPath, newParentDir });
+        
+        if (response?.success) {
+            const newPath = response.newPath;
+            
+            // Similar to rename, update open tabs
+            for (const [path, tab] of Array.from(state.openTabs.entries())) {
+                if (path === oldPath) {
+                    state.openTabs.delete(path);
+                    state.openTabs.set(newPath, { ...tab, filePath: newPath });
+                    if (state.currentFilePath === path) {
+                        state.currentFilePath = newPath;
+                    }
+                } else if (path.startsWith(oldPath + '/') || path.startsWith(oldPath + '\\')) {
+                    const relativePath = path.substring(oldPath.length);
+                    const newChildPath = newPath + relativePath;
+                    state.openTabs.delete(path);
+                    state.openTabs.set(newChildPath, { ...tab, filePath: newChildPath });
+                    if (state.currentFilePath === path) {
+                        state.currentFilePath = newChildPath;
+                    }
+                }
+            }
+            
+            if (state.currentFolderPath) {
+                await loadFileTree(state.currentFolderPath);
+            }
+            updateTitleBar();
+            renderOpenTabs();
+            highlightActiveFile(state.currentFilePath || "");
+            
+            return { success: true, newPath };
+        } else {
+            console.error("[moveEntry] Failed:", response?.error);
+            return { success: false, error: response?.error };
+        }
+    } catch (error) {
+        console.error("Failed to move entry:", error);
+        return { success: false, error: String(error) };
+    }
+}

@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile, mkdir, stat, copyFile } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, stat, copyFile, rename, rm } from "node:fs/promises";
 import { join, extname, basename, dirname } from "node:path";
 import type { FileEntry } from "../shared/types";
 
@@ -314,7 +314,42 @@ export const handleFileOperations = {
         }
     },
 
+        renameEntry: async ({ oldPath, newName }: { oldPath: string; newName: string }) => {
+        try {
+            const dir = dirname(oldPath);
+            const newPath = join(dir, newName);
+            await rename(oldPath, newPath);
+            return { success: true, newPath };
+        } catch (error: any) {
+            console.error("[renameEntry] Failed:", error);
+            return { success: false, newPath: "", error: error.message };
+        }
+    },
+
+    deleteEntry: async ({ path }: { path: string }) => {
+        try {
+            await rm(path, { recursive: true, force: true });
+            return { success: true };
+        } catch (error: any) {
+            console.error("[deleteEntry] Failed:", error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    moveEntry: async ({ oldPath, newParentDir }: { oldPath: string; newParentDir: string }) => {
+        try {
+            const name = basename(oldPath);
+            const newPath = join(newParentDir, name);
+            await rename(oldPath, newPath);
+            return { success: true, newPath };
+        } catch (error: any) {
+            console.error("[moveEntry] Failed:", error);
+            return { success: false, newPath: "", error: error.message };
+        }
+    },
+
     getLicenses: async () => {
+
         return [
             {
                 name: "ElectroBun",
