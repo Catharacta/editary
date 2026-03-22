@@ -4,6 +4,10 @@ import { openFile, renameEntry, deleteEntry, moveEntry } from "./file-ops";
 import { showContextMenu } from "../ui/context-menu";
 import { state } from "../state/workspace";
 
+// Store a map of path to HTMLElement to easily find folders for inline creation
+const itemMap = new Map<string, HTMLElement>();
+const childrenMap = new Map<string, HTMLElement>();
+
 export async function loadFileTree(dirPath: string) {
     try {
         const entries = await electroview.rpc?.request.readDirectory({ dirPath });
@@ -18,6 +22,8 @@ export function renderFileTree(entries: FileEntry[]) {
     if (!container) return;
 
     container.innerHTML = "";
+    itemMap.clear();
+    childrenMap.clear();
 
     if (entries.length === 0) {
         container.innerHTML = `<div class="file-tree-empty">Markdownファイルが見つかりません</div>`;
@@ -34,6 +40,7 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
         item.style.paddingLeft = `${16 + depth * 16}px`;
         item.dataset.path = entry.path;
         item.dataset.type = entry.isDirectory ? "directory" : "file";
+        itemMap.set(entry.path, item);
         
         // Drag & Drop
         item.draggable = true;
@@ -87,7 +94,11 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
             item.addEventListener("click", () => {
                 const isCollapsed = childrenContainer.classList.toggle("collapsed");
                 item.classList.toggle("collapsed", isCollapsed);
+                state.selectedPath = entry.path;
+                highlightSelected(entry.path);
             });
+
+            childrenMap.set(entry.path, childrenContainer);
 
             if (entry.children) {
                 renderEntries(childrenContainer, entry.children, depth + 1);
@@ -100,7 +111,11 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
                 </svg>
                 <span class="file-tree-name">${entry.name}</span>
             `;
-            item.addEventListener("click", () => openFile(entry.path));
+            item.addEventListener("click", () => {
+                state.selectedPath = entry.path;
+                highlightSelected(entry.path);
+                openFile(entry.path);
+            });
             parent.appendChild(item);
         }
 
@@ -109,11 +124,21 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
             e.preventDefault();
             e.stopPropagation();
             
-            showContextMenu(e.clientX, e.clientY, [
-                { 
-                    label: "名前を変更", 
-                    action: () => startRename(item, entry.path, entry.name) 
-                },
+            state.selectedPath = entry.path;
+            highlightSelected(entry.path);
+
+            const menuItems = [];
+            
+            if (entry.isDirectory) {
+                menuItems.push(
+                    { label: "新規ファイル", action: () => startCreateInline(entry.path, false) },
+                    { label: "新規フォルダ", action: () => startCreateInline(entry.path, true) },
+                    { type: "separator" }
+                );
+            }
+
+            menuItems.push(
+                { label: "名前を変更", action: () => startRename(item, entry.path, entry.name) },
                 { 
                     label: "削除", 
                     danger: true, 
@@ -123,7 +148,9 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
                         }
                     } 
                 }
-            ]);
+            );
+
+            showContextMenu(e.clientX, e.clientY, menuItems as any);
         });
     }
 }
@@ -170,4 +197,120 @@ function startRename(item: HTMLElement, path: string, oldName: string) {
     } else {
         input.select();
     }
+}
+
+function highlightSelected(path: string) {
+    document.querySelectorAll(".file-tree-item--selected").forEach(el => el.classList.remove("file-tree-item--selected"));
+    const item = itemMap.get(path);
+    if (item) {
+        item.classList.add("file-tree-item--selected");
+    }
+}
+
+/**
+ * Handle creation from header buttons
+ */
+export function createNewFileInSelected() {
+    handleCreateRequest(false);
+}
+
+export function createNewFolderInSelected() {
+    handleCreateRequest(true);
+}
+
+async function handleCreateRequest(isDirectory: boolean) {
+    let parentPath = state.currentFolderPath;
+    
+    if (state.selectedPath) {
+        // If file is selected, parent is its directory. If folder, it's the folder itself.
+        const isSelectedDir = itemMap.get(state.selectedPath)?.classList.contains("file-tree-item--directory");
+        if (isSelectedDir) {
+            parentPath = state.selectedPath;
+        } else {
+            // Get parent directory of the file
+            parentPath = state.selectedPath.replace(/[\\/][^\\/]*$/, "");
+        }
+    }
+
+    if (!parentPath) return;
+    startCreateInline(parentPath, isDirectory);
+}
+
+/**
+ * Start inline creation of a file or folder.
+ */
+function startCreateInline(parentPath: string, isDirectory: boolean) {
+    const childrenContainer = childrenMap.get(parentPath) || document.getElementById("fileTree");
+    if (!childrenContainer) return;
+
+    // Ensure parent folder is expanded if it is a directory in the tree
+    const parentItem = itemMap.get(parentPath);
+    if (parentItem && childrenContainer !== document.getElementById("fileTree")) {
+        childrenContainer.classList.remove("collapsed");
+        parentItem.classList.remove("collapsed");
+    }
+
+    const depth = parentItem ? (parseInt(parentItem.style.paddingLeft) - 16) / 16 + 1 : 0;
+
+    const tempItem = document.createElement("div");
+    tempItem.className = isDirectory ? "file-tree-item file-tree-item--directory temp-creation" : "file-tree-item temp-creation";
+    tempItem.style.paddingLeft = `${16 + depth * 16}px`;
+    
+    const icon = isDirectory ? 
+        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" style="margin-right: 6px; flex-shrink: 0;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>` :
+        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" style="margin-right: 6px; flex-shrink: 0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
+
+    tempItem.innerHTML = `
+        ${isDirectory ? '<div style="width: 16px;"></div>' : ''}
+        ${icon}
+        <input type="text" class="file-tree-rename-input" placeholder="${isDirectory ? 'フォルダ名...' : 'ファイル名...'}">
+    `;
+
+    // Insert at the beginning of children
+    if (childrenContainer.firstChild) {
+        childrenContainer.insertBefore(tempItem, childrenContainer.firstChild);
+    } else {
+        childrenContainer.appendChild(tempItem);
+    }
+
+    const input = tempItem.querySelector("input") as HTMLInputElement;
+    input.focus();
+
+    const finishCreate = async () => {
+        const name = input.value.trim();
+        if (name) {
+            try {
+                if (isDirectory) {
+                    await electroview.rpc?.request.createDirectory({ dirPath: parentPath, dirName: name });
+                } else {
+                    const newPath = await electroview.rpc?.request.createFile({ dirPath: parentPath, fileName: name });
+                    if (newPath) await openFile(newPath);
+                }
+                // Reload tree
+                if (state.currentFolderPath) {
+                    await loadFileTree(state.currentFolderPath);
+                }
+            } catch (error) {
+                console.error("Failed to create:", error);
+                tempItem.remove();
+            }
+        } else {
+            tempItem.remove();
+        }
+    };
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            finishCreate();
+        } else if (e.key === "Escape") {
+            tempItem.remove();
+        }
+    });
+
+    input.addEventListener("blur", () => {
+        // Use timeout to allow click events to process if needed
+        setTimeout(() => {
+            if (tempItem.parentNode) finishCreate();
+        }, 100);
+    });
 }

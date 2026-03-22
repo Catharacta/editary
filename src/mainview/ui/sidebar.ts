@@ -1,6 +1,6 @@
 import { electroview } from "../ipc";
 import { state } from "../state/workspace";
-import { loadFileTree } from "../workspace/file-tree";
+import { loadFileTree, createNewFileInSelected, createNewFolderInSelected } from "../workspace/file-tree";
 import { saveAllFiles, closeAllTabs, createNewFile, createNewFolder } from "../workspace/file-ops";
 
 let isPathChoosing = false;
@@ -62,8 +62,8 @@ export function setupSidebar() {
     closeAllBtn?.addEventListener("click", () => closeAllTabs());
 
     // Workspace Actions
-    newFileBtn?.addEventListener("click", () => createNewFile());
-    newFolderBtn?.addEventListener("click", () => createNewFolder());
+    newFileBtn?.addEventListener("click", () => createNewFileInSelected());
+    newFolderBtn?.addEventListener("click", () => createNewFolderInSelected());
     collapseAllBtn?.addEventListener("click", () => {
         // Simple implementation: just refresh for now
         if (state.currentFolderPath) loadFileTree(state.currentFolderPath);
