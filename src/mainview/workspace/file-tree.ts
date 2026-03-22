@@ -4,6 +4,7 @@ import { openFile, renameEntry, deleteEntry, moveEntry } from "./file-ops";
 import { showContextMenu } from "../ui/context-menu";
 import { showConfirm } from "../ui/modals";
 import { state } from "../state/workspace";
+import { t } from "../utils/i18n";
 
 // Store a map of path to HTMLElement to easily find folders for inline creation
 const itemMap = new Map<string, HTMLElement>();
@@ -27,7 +28,7 @@ export function renderFileTree(entries: FileEntry[]) {
     childrenMap.clear();
 
     if (entries.length === 0) {
-        container.innerHTML = `<div class="file-tree-empty">Markdownファイルが見つかりません</div>`;
+        container.innerHTML = `<div class="file-tree-empty">${t("workspace.empty")}</div>`;
         return;
     }
 
@@ -132,16 +133,16 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
             
             if (entry.isDirectory) {
                 menuItems.push(
-                    { label: "新規ファイル", action: () => startCreateInline(entry.path, false) },
-                    { label: "新規フォルダ", action: () => startCreateInline(entry.path, true) },
+                    { label: t("workspace.contextMenu.newFile"), action: () => startCreateInline(entry.path, false) },
+                    { label: t("workspace.contextMenu.newFolder"), action: () => startCreateInline(entry.path, true) },
                     { type: "separator" }
                 );
             }
 
             menuItems.push(
-                { label: "名前を変更 (F2)", action: () => startRename(item, entry.path, entry.name) },
+                { label: `${t("workspace.contextMenu.rename")} (F2)`, action: () => startRename(item, entry.path, entry.name) },
                 { 
-                    label: "削除 (Delete)", 
+                    label: `${t("workspace.contextMenu.delete")} (Delete)`, 
                     danger: true, 
                     action: async () => {
                         handleDelete(entry.path, entry.name);
@@ -212,7 +213,7 @@ function highlightSelected(path: string) {
 }
 
 async function handleDelete(path: string, name: string) {
-    if (await showConfirm("削除の確認", `本当に「${name}」を削除しますか？`)) {
+    if (await showConfirm(t("workspace.contextMenu.delete"), t("workspace.deleteConfirm", { name: name }))) {
         await deleteEntry(path);
     }
 }
@@ -330,7 +331,7 @@ function startCreateInline(parentPath: string, isDirectory: boolean) {
     tempItem.innerHTML = `
         ${isDirectory ? '<div style="width: 16px;"></div>' : ''}
         ${icon}
-        <input type="text" class="file-tree-rename-input" placeholder="${isDirectory ? 'フォルダ名...' : 'ファイル名...'}">
+        <input type="text" class="file-tree-rename-input" placeholder="${isDirectory ? t("workspace.contextMenu.newFolder") + '...' : t("workspace.contextMenu.newFile") + '...'}">
     `;
 
     // Insert at the beginning of children

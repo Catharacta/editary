@@ -17,5 +17,6 @@ export const state = {
     editorSettings: {
         autoSave: false,
         showLineNumbers: false,
+        language: 'ja' as 'ja' | 'en',
     },
 };

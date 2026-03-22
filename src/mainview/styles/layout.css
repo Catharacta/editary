@@ -100,7 +100,7 @@
   gap: 6px;
 }
 
-.titlebar-btn {
+.win-btn {
   width: 28px;
   height: 28px;
   display: flex;
@@ -111,20 +111,25 @@
   box-shadow: var(--neo-shadow-sm);
   cursor: pointer;
   transition: transform 0.05s, box-shadow 0.05s;
+  padding: 0;
 }
 
-.titlebar-btn:hover {
+.win-btn:hover {
   background: var(--neo-bg-alt);
 }
 
-.titlebar-btn:active {
+.win-btn:active {
   transform: translate(2px, 2px);
   box-shadow: var(--neo-shadow-active);
 }
 
-.titlebar-btn--close:hover {
-  background: var(--neo-danger);
-  color: white;
+.win-btn-close:hover {
+  background: var(--neo-danger) !important;
+  color: white !important;
+}
+
+.win-btn-close svg {
+  stroke: currentColor;
 }
 
 /* ---------- App Layout ---------- */
@@ -163,6 +168,30 @@
 
 .neo-btn--full {
   width: 100% !important;
+}
+
+/* ---------- Neobrutalism Select ---------- */
+.neo-select {
+  padding: 8px 12px;
+  background: var(--neo-bg);
+  border: var(--neo-border-width) solid var(--neo-border);
+  box-shadow: var(--neo-shadow-sm);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.05s, box-shadow 0.05s;
+}
+
+.neo-select:hover {
+  background: var(--neo-bg-alt);
+}
+
+.neo-select:focus {
+  background: var(--neo-bg-alt);
+  transform: translate(1px, 1px);
+  box-shadow: var(--neo-shadow-active);
 }
 
 /* ---------- Tooltip */

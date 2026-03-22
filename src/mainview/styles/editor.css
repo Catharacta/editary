@@ -1,17 +1,33 @@
 /* ---------- Editor Toolbar ---------- */
 .editor-toolbar {
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
+  min-height: 44px;
   margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 8px 16px;
   background: var(--neo-highlight);
   border: var(--neo-border-width) solid var(--neo-border);
   box-shadow: var(--neo-shadow-sm);
   z-index: 10;
   flex-shrink: 0;
+}
+
+.toolbar-left, .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 2px;
+  border-radius: 2px;
 }
 
 .editor-toolbar.hidden {
@@ -21,16 +37,16 @@
 .toolbar-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   background: var(--neo-bg);
-  border: 2px solid var(--neo-border);
-  padding: 6px 12px;
-  font-family: var(--font-sans);
-  font-weight: 800;
-  font-size: 12px;
+  border: var(--neo-border-width) solid var(--neo-border);
+  padding: 0;
   cursor: pointer;
   box-shadow: 2px 2px 0px var(--neo-border);
   transition: transform 0.05s, box-shadow 0.05s, background 0.1s;
+  flex-shrink: 0;
 }
 
 .toolbar-btn:hover {

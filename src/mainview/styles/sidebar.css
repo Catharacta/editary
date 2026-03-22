@@ -57,8 +57,12 @@
   transition: transform 0.1s;
 }
 
+.section-header:not(.collapsed) .chevron {
+  transform: rotate(90deg);
+}
+
 .section-header.collapsed .chevron {
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 }
 
 .section-title {
@@ -71,29 +75,42 @@
 .section-actions {
   display: flex;
   gap: 2px;
+  transition: opacity 0.2s;
   opacity: 0;
-  transition: opacity 0.1s;
+  pointer-events: none;
 }
 
 .section-header:hover .section-actions {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .section-action-btn {
-  background: none;
-  border: none;
+  background: var(--neo-bg);
+  border: 2px solid var(--neo-border);
   cursor: pointer;
-  padding: 2px;
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  color: var(--neo-text-muted);
+  border-radius: 2px;
+  color: var(--neo-text);
+  box-shadow: 1px 1px 0 var(--neo-border);
+  transition: all 0.1s;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .section-action-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--neo-text);
+  background: var(--neo-highlight);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--neo-border);
+}
+
+.section-action-btn:active {
+  transform: translate(0, 0);
+  box-shadow: none;
 }
 
 .section-content {
@@ -198,9 +215,12 @@
 }
 
 .open-folder-prompt {
-  padding: 24px 16px;
+  padding: 40px 16px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 16px;
 }
 
 /* File Tree Interactions */

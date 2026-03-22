@@ -1,0 +1,137 @@
+{
+    "common": {
+        "ok": "OK",
+        "cancel": "キャンセル",
+        "save": "保存",
+        "discard": "破棄",
+        "close": "閉じる",
+        "confirmCloseTitle": "確認",
+        "confirm": "確認",
+        "notify": "通知",
+        "error": "エラー",
+        "delete": "削除"
+    },
+    "titlebar": {
+        "settings": "設定",
+        "minimize": "最小化",
+        "maximize": "最大化",
+        "close": "閉じる"
+    },
+    "sidebar": {
+        "editors": "エディタ",
+        "newFile": "新規ファイル",
+        "saveAll": "すべて保存",
+        "closeAll": "すべて閉じる",
+        "workspace": "ワークスペース",
+        "newFolder": "新規フォルダ",
+        "refresh": "更新",
+        "closeWorkspace": "ワークスペースを閉じる",
+        "collapseAll": "フォルダを折りたたむ",
+        "openWorkspace": "ワークスペースを開く",
+        "outline": "アウトライン",
+        "noOutline": "アクティブなエディターはアウトライン情報を提供できません。",
+        "noHeadings": "アクティブなエディターはアウトライン情報を提供できません。"
+    },
+    "workspace": {
+        "empty": "フォルダが空です",
+        "deleteConfirm": "「{name}」を削除してもよろしいですか？",
+        "contextMenu": {
+            "newFile": "新規ファイル",
+            "newFolder": "新規フォルダ",
+            "rename": "名前の変更",
+            "delete": "削除"
+        }
+    },
+    "editor": {
+        "bold": "太字 (Ctrl+B)",
+        "italic": "斜体 (Ctrl+I)",
+        "strike": "打ち消し線",
+        "h1": "見出し 1",
+        "h2": "見出し 2",
+        "h3": "見出し 3",
+        "bulletList": "箇条書き (Ctrl+Shift+8)",
+        "orderedList": "番号付きリスト (Ctrl+Shift+7)",
+        "taskList": "タスクリスト (Ctrl+Shift+9)",
+        "blockquote": "引用 (Ctrl+Shift+B)",
+        "codeBlock": "コードブロック",
+        "insertTable": "テーブルの挿入",
+        "insertImage": "画像の挿入",
+        "reparse": "内容をパースし直して更新",
+        "export": "エクスポート (PDF/HTML)",
+        "search": "検索...",
+        "prev": "前へ",
+        "next": "次へ",
+        "replace": "置換...",
+        "replaceBtn": "置換",
+        "replaceAllBtn": "すべて置換",
+        "placeholder": "ここに Markdown を書き始めてください...",
+        "syntaxUpdated": "シンタックスを更新しました",
+        "syncFailed": "同期に失敗しました",
+        "noContent": "エクスポートする内容がありません。"
+    },
+    "settings": {
+        "title": "設定 (Settings)",
+        "tabs": {
+            "appearance": "外観",
+            "editor": "エディタ",
+            "about": "情報",
+            "help": "ヘルプ",
+            "language": "言語"
+        },
+        "appearance": {
+            "title": "アプリのテーマ",
+            "desc": "インターフェースの配色を選択します。",
+            "themes": {
+                "lemon": "Lemon (イエロー)",
+                "sky": "Sky (ブルー)",
+                "mint": "Mint (グリーン)",
+                "rose": "Rose (レッド)",
+                "lavender": "Lavender (パープル)",
+                "bubblegum": "Bubblegum (ピンク)",
+                "coal": "Coal (ブラック)"
+            }
+        },
+        "language": {
+            "title": "言語 (Language)",
+            "desc": "表示言語を設定します。",
+            "selectLabel": "UI言語"
+        },
+        "editor": {
+            "title": "エディタ設定",
+            "desc": "執筆環境の動作をカスタマイズします。",
+            "autoSave": "自動保存 (Auto-save)",
+            "autoSaveDesc": "編集内容を一定間隔で自動的に保存します",
+            "lineNumbers": "行番号の表示",
+            "lineNumbersDesc": "エディタの左端に行番号を表示します"
+        },
+        "about": {
+            "desc": "Neobrutalism 風デザインを採用した、モダンな Markdown エディタ。"
+        },
+        "help": {
+            "license": "ライセンス",
+            "licenseBtn": "確認する",
+            "licenseLoading": "読み込み中..."
+        },
+        "saveBtn": "保存して閉じる"
+    },
+    "export": {
+        "formatLabel": "フォーマットを選択",
+        "styleLabel": "スタイルを選択",
+        "styleClean": "Clean (標準ドキュメント)",
+        "styleTheme": "Editary Theme (ネオブルータリズム)",
+        "execute": "エクスポート実行",
+        "error": "エクスポート中にエラーが発生しました。",
+        "noContent": "エクスポートする内容がありません。"
+    },
+    "unsaved": {
+        "title": "未保存の変更",
+        "message": "ファイル 「{filename}」 に未保存の変更があります。変更を保存して閉じますか？",
+        "saveAndClose": "保存して閉じる",
+        "discardAndClose": "保存せずに閉じる"
+    },
+    "status": {
+        "lines": "行",
+        "words": "単語数",
+        "chars": "文字数"
+    }
+}

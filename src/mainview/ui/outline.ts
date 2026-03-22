@@ -1,5 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { state } from "../state/workspace";
+import { t } from "../utils/i18n";
 
 export function setupOutline() {
     const refreshBtn = document.getElementById("refreshOutlineBtn");
@@ -28,7 +29,7 @@ export function renderOutline(editor: Editor) {
     editor.state.doc.descendants((node, pos) => {
         if (node.type.name === "heading") {
             headings.push({
-                text: node.textContent || "(空の見出し)",
+                text: node.textContent || t("outline.emptyHeading"),
                 level: node.attrs.level,
                 pos: pos,
             });
@@ -36,7 +37,7 @@ export function renderOutline(editor: Editor) {
     });
 
     if (headings.length === 0) {
-        outlineList.innerHTML = '<div class="outline-empty">見出しがありません</div>';
+        outlineList.innerHTML = `<div class="outline-empty">${t("sidebar.noHeadings")}</div>`;
         return;
     }
 

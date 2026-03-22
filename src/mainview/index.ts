@@ -7,9 +7,14 @@ import { setupKeyboardShortcuts } from "./keyboard";
 import { setupWindowControls } from "./ui/window-controls";
 import { electroview } from "./ipc";
 import { state } from "./state/workspace";
+import { initI18n, updateUI } from "./utils/i18n";
 import "./index.css";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    // 0. i18n Initialization
+    await initI18n();
+    updateUI();
+
     // 1. UI Modules
     setupWindowControls();
     setupTooltips();

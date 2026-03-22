@@ -7,6 +7,7 @@ import { updateStatusBar } from "../ui/status-bar";
 import { loadFileTree } from "./file-tree";
 import { showUnsavedChangesModal, updateEditorView } from "../ui/modals";
 import { renderOutline } from "../ui/outline";
+import { t } from "../utils/i18n";
 
 export async function createNewFile() {
     state.untitledCount++;
@@ -27,7 +28,7 @@ export async function createNewFolder() {
     try {
         const selectedPath = await electroview.rpc?.request.showFolderBrowserDialog({
             defaultPath: state.currentFolderPath,
-            title: "新しいフォルダを作成・選択"
+            title: t("workspace.newFolder")
         });
 
         if (selectedPath) {
@@ -57,7 +58,7 @@ export function renderOpenTabs() {
             <span class="open-editor-tab-dir">${dirName}</span>
             <div class="open-editor-tab-status">
                 ${tab.isDirty ? '<div class="open-editor-tab-dirty"></div>' : ''}
-                <button class="open-editor-tab-close" data-tooltip="閉じる">
+                <button class="open-editor-tab-close" data-i18n-tooltip="common.close">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
@@ -187,7 +188,7 @@ export async function saveFile(filePath: string) {
         try {
             manualPath = await electroview.rpc?.request.showSaveFileDialog({
                 defaultPath,
-                title: "未保存のファイルを保存"
+                title: t("workspace.saveUnsaved")
             });
         } catch (error) {
             console.error("showSaveFileDialog RPC failed or timed out:", error);

@@ -25,17 +25,27 @@
       <div class="titlebar-title">Editary</div>
     </div>
     <div class="titlebar-controls electrobun-webkit-app-region-no-drag">
-      <button id="settingsBtn" class="titlebar-btn" data-tooltip="設定">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <button class="win-btn" id="settingsBtn" data-i18n-tooltip="titlebar.settings" data-tooltip="設定">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l-.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
       </button>
-      <button id="minimizeBtn" class="titlebar-btn" data-tooltip="最小化">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <button class="win-btn" id="minimizeBtn" data-i18n-tooltip="titlebar.minimize" data-tooltip="最小化">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
       </button>
-      <button id="maximizeBtn" class="titlebar-btn" data-tooltip="最大化">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><rect x="3" y="3" width="18" height="18" rx="0" ry="0"/></svg>
+      <button class="win-btn" id="maximizeBtn" data-i18n-tooltip="titlebar.maximize" data-tooltip="最大化">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        </svg>
       </button>
-      <button id="closeBtn" class="titlebar-btn titlebar-btn--close" data-tooltip="閉じる">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button class="win-btn win-btn-close" id="closeBtn" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
     </div>
   </div>
@@ -49,35 +59,18 @@
       <div class="sidebar-section" id="openEditorsSection">
         <div class="section-header">
           <button class="section-toggle" id="openEditorsToggle" aria-label="セクション切り替え">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="chevron">
-              <polygon points="2,0 8,5 2,10" />
-            </svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-          <span class="section-title">エディタ</span>
+          <span class="section-title" data-i18n="sidebar.editors">エディタ</span>
           <div class="section-actions">
-            <button class="section-action-btn" id="newFileFromEditorsBtn" data-tooltip="新規ファイル">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
+            <button id="newFileFromEditorsBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFile" data-tooltip="新規ファイル">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             </button>
-            <button class="section-action-btn" id="saveAllBtn" data-tooltip="すべて保存">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                <polyline points="17 21 17 13 7 13 7 21" />
-                <polyline points="7 3 7 8 15 8" />
-              </svg>
+            <button id="saveAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.saveAll" data-tooltip="すべて保存">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
             </button>
-            <button class="section-action-btn" id="closeAllBtn" data-tooltip="すべて閉じる">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+            <button id="closeAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.closeAll" data-tooltip="すべて閉じる">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
           </div>
         </div>
@@ -90,51 +83,24 @@
       <div class="sidebar-section" id="workspaceSection">
         <div class="section-header">
           <button class="section-toggle" id="workspaceToggle" aria-label="セクション切り替え">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="chevron">
-              <polygon points="2,0 8,5 2,10" />
-            </svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-          <span class="section-title">ワークスペース</span>
-          <div class="section-actions">
-            <button class="section-action-btn" id="newFileBtn" data-tooltip="新規ファイル">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
+          <span class="section-title" data-i18n="sidebar.workspace">ワークスペース</span>
+          <div class="section-actions hidden">
+            <button id="newFileBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFile" data-tooltip="新規ファイル">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
             </button>
-            <button class="section-action-btn" id="newFolderBtn" data-tooltip="新規フォルダ">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                <line x1="12" y1="11" x2="12" y2="17" />
-                <line x1="9" y1="14" x2="15" y2="14" />
-              </svg>
+            <button id="newFolderBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFolder" data-tooltip="新規フォルダ">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             </button>
-            <button class="section-action-btn" id="refreshBtn" data-tooltip="更新">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-              </svg>
+            <button id="refreshBtn" class="section-action-btn" data-i18n-tooltip="sidebar.refresh" data-tooltip="更新">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l5.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             </button>
-            <button class="section-action-btn" id="closeWorkspaceBtn" data-tooltip="ワークスペースを閉じる">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                <line x1="9" y1="12" x2="15" y2="18"></line>
-                <line x1="15" y1="12" x2="9" y2="18"></line>
-              </svg>
+            <button id="closeWorkspaceBtn" class="section-action-btn" data-i18n-tooltip="sidebar.closeWorkspace" data-tooltip="ワークスペースを閉じる">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
-            <button class="section-action-btn" id="collapseAllBtn" data-tooltip="フォルダを折りたたむ">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <polyline points="4 14 10 14 10 20" />
-                <polyline points="20 10 14 10 14 4" />
-                <line x1="14" y1="10" x2="21" y2="3" />
-                <line x1="3" y1="21" x2="10" y2="14" />
-              </svg>
+            <button id="collapseAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.collapseAll" data-tooltip="フォルダを折りたたむ">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 6 14 6 14 0"/><line x1="14" y1="6" x2="21" y2="13"/><line x1="3" y1="11" x2="10" y2="4"/></svg>
             </button>
           </div>
         </div>
@@ -142,12 +108,11 @@
         </div>
         <!-- フォルダ未選択時のプロンプト -->
         <div id="openFolderPrompt" class="open-folder-prompt">
-          <button id="openFolderBtn" class="neo-btn neo-btn--full">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="square" stroke-linejoin="miter">
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          <button id="openFolderBtn" class="neo-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
             </svg>
-            ワークスペースを開く
+            <span data-i18n="sidebar.openWorkspace">ワークスペースを開く</span>
           </button>
         </div>
       </div>
@@ -159,7 +124,7 @@
               <polygon points="2,0 8,5 2,10" />
             </svg>
           </button>
-          <span class="section-title">アウトライン</span>
+          <span class="section-title" data-i18n="sidebar.outline">アウトライン</span>
           <div class="section-actions">
             <button class="section-action-btn" id="refreshOutlineBtn" data-tooltip="更新">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -171,7 +136,7 @@
           </div>
         </div>
         <div class="section-content" id="outlineList">
-          <div class="outline-empty">見出しがありません</div>
+          <div class="outline-empty" data-i18n="sidebar.noHeadings">アクティブなエディターはアウトライン情報を提供できません。</div>
         </div>
       </div>
     </aside>
@@ -179,57 +144,29 @@
     <!-- Editor Area -->
     <main id="editorContainer" class="editor-container">
       <div id="editorToolbar" class="editor-toolbar hidden">
-        <div class="toolbar-left" style="display: flex; gap: 8px;">
-          <div class="toolbar-dropdown">
-            <button id="tableInsertBtn" class="toolbar-btn" data-tooltip="テーブルの挿入" aria-haspopup="true" aria-expanded="false">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <line x1="3" y1="9" x2="21" y2="9"/>
-                <line x1="3" y1="15" x2="21" y2="15"/>
-                <line x1="9" y1="3" x2="9" y2="21"/>
-                <line x1="15" y1="3" x2="15" y2="21"/>
-              </svg>
-            </button>
-            <div id="tableGridPicker" class="table-grid-picker hidden">
-              <div class="table-grid-info" id="tableGridInfo">3 x 3</div>
-              <div class="table-grid" id="tableGridContainer">
-                <!-- Grids rendered by JS -->
+        <div class="toolbar-left">
+          <div class="toolbar-group">
+            <div class="toolbar-dropdown">
+              <button id="tableInsertBtn" class="toolbar-btn" data-i18n-tooltip="editor.insertTable" data-tooltip="テーブルの挿入" aria-haspopup="true" aria-expanded="false">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+              </button>
+              <div id="tableGridPicker" class="table-grid-picker hidden">
+                <div class="table-grid-info" id="tableGridInfo">3 x 3</div>
+                <div class="table-grid" id="tableGridContainer">
+                  <!-- Grids rendered by JS -->
+                </div>
               </div>
             </div>
+            <button id="imageInsertBtn" class="toolbar-btn" data-i18n-tooltip="editor.insertImage" data-tooltip="画像の挿入">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
           </div>
-          <button id="imageInsertBtn" class="toolbar-btn" data-tooltip="画像の挿入">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
-          </button>
-          <input type="file" id="imageInput" style="display: none;" accept="image/*" />
-          <button id="updateContentBtn" class="toolbar-btn" data-tooltip="内容をパースし直して更新します">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-          </button>
-          <div class="toolbar-divider"></div>
-          <button id="exportBtn" class="toolbar-btn" data-tooltip="エクスポート (PDF/HTML)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </button>
         </div>
+        <input type="file" id="imageInput" style="display: none;" accept="image/*" />
         <div class="toolbar-right">
-          <div id="syntaxStatus" class="syntax-status hidden">
-            <div id="statusIconInfo" class="status-icon hidden">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            </div>
-            <div id="statusIconWarning" class="status-icon hidden">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <span id="syntaxStatusText"></span>
-          </div>
+          <button id="exportBtn" class="toolbar-btn" data-i18n-tooltip="editor.export" data-tooltip="エクスポート">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </button>
         </div>
       </div>
       <div id="editor" class="editor">
@@ -239,28 +176,28 @@
       <!-- Search & Replace Panel -->
       <div id="searchPanel" class="search-panel hidden">
         <div class="search-panel-row">
-          <input type="text" id="searchInput" class="search-input neo-input" placeholder="検索..." />
+          <input type="text" id="searchInput" class="search-input neo-input" data-i18n-placeholder="editor.search" placeholder="検索..." />
           <span id="searchResultCount" class="search-count">0/0</span>
-          <button id="searchPrevBtn" class="search-btn" data-tooltip="前へ">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="18 15 12 9 6 15" /></svg>
+          <button id="searchPrevBtn" class="search-btn" data-i18n-tooltip="editor.prev" data-tooltip="前へ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
           </button>
-          <button id="searchNextBtn" class="search-btn" data-tooltip="次へ">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="6 9 12 15 18 9" /></svg>
+          <button id="searchNextBtn" class="search-btn" data-i18n-tooltip="editor.next" data-tooltip="次へ">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
           </button>
-          <button id="searchCloseBtn" class="search-btn search-close" data-tooltip="閉じる">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <button id="searchCloseBtn" class="search-btn search-close" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
         
         <div class="search-panel-row search-replace-row" id="replaceRowContainer">
-          <input type="text" id="replaceInput" class="search-input neo-input" placeholder="置換..." />
-          <button id="replaceBtn" class="search-text-btn" data-tooltip="置換">置換</button>
-          <button id="replaceAllBtn" class="search-text-btn" data-tooltip="すべて置換">すべて</button>
+          <input type="text" id="replaceInput" class="search-input neo-input" data-i18n-placeholder="editor.replace" placeholder="置換..." />
+          <button id="replaceBtn" class="search-text-btn" data-i18n="editor.replaceBtn">置換</button>
+          <button id="replaceAllBtn" class="search-text-btn" data-i18n="editor.replaceAllBtn" data-tooltip="すべて置換">すべて</button>
         </div>
         
-        <button id="toggleReplaceBtn" class="toggle-replace-btn" data-tooltip="置換を切り替え">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><polyline points="6 9 12 15 18 9" /></svg>
-          <span style="font-size: 10px; margin-left: 4px;">置換</span>
+        <button id="toggleReplaceBtn" class="toggle-replace-btn" data-i18n-tooltip="editor.replace" data-tooltip="置換を切り替え">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+          <span style="font-size: 10px; margin-left: 4px;" data-i18n="editor.replaceBtn">置換</span>
         </button>
       </div>
       
@@ -312,9 +249,9 @@
 
   <!-- Status Bar -->
   <footer id="statusBar" class="status-bar hidden">
-    <div class="status-item" id="statusLines">行: 0</div>
-    <div class="status-item" id="statusWords">単語数: 0</div>
-    <div class="status-item" id="statusChars">文字数: 0</div>
+    <div class="status-item" id="statusLines" data-i18n="status.lines">行: 0</div>
+    <div class="status-item" id="statusWords" data-i18n="status.words">単語数: 0</div>
+    <div class="status-item" id="statusChars" data-i18n="status.chars">文字数: 0</div>
     <div class="status-spacer"></div>
     <div class="status-item" id="statusEncoding">UTF-8</div>
   </footer>
@@ -322,9 +259,9 @@
   <div id="licenseModal" class="modal-overlay hidden">
     <div class="neo-modal license-modal-wide">
       <div class="modal-header">
-        <h2 class="modal-title">ライセンス</h2>
-        <button id="closeLicenseModalBtn" class="modal-close-btn" aria-label="閉じる">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
+        <h2 class="modal-title" data-i18n="settings.help.license">ライセンス</h2>
+        <button id="closeLicenseModalBtn" class="modal-close-btn" aria-label="閉じる" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -343,12 +280,12 @@
   <div id="exportModal" class="modal-overlay hidden">
     <div class="modal-content neo-modal">
       <div class="modal-header">
-        <h2 class="modal-title">エクスポート</h2>
-        <button id="closeExportModal" class="modal-close-btn">&times;</button>
+        <h2 class="modal-title" data-i18n="editor.export">エクスポート</h2>
+        <button id="closeExportModal" class="modal-close-btn" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">&times;</button>
       </div>
       <div class="modal-body">
         <div class="export-option-group">
-          <label class="export-label">フォーマットを選択</label>
+          <label class="export-label" data-i18n="export.formatLabel">フォーマットを選択</label>
           <div class="export-format-grid">
             <label class="format-card">
               <input type="radio" name="exportFormat" value="pdf" checked>
@@ -368,22 +305,22 @@
         </div>
 
         <div class="export-option-group" id="exportStyleGroup">
-          <label class="export-label">スタイルを選択</label>
+          <label class="export-label" data-i18n="export.styleLabel">スタイルを選択</label>
           <div class="export-style-options">
             <label class="style-option">
               <input type="radio" name="exportStyle" value="clean" checked>
-              <span class="style-option-text">Clean (標準ドキュメント)</span>
+              <span class="style-option-text" data-i18n="export.styleClean">Clean (標準ドキュメント)</span>
             </label>
             <label class="style-option">
               <input type="radio" name="exportStyle" value="theme">
-              <span class="style-option-text">Editary Theme (ネオブルータリズム)</span>
+              <span class="style-option-text" data-i18n="export.styleTheme">Editary Theme (ネオブルータリズム)</span>
             </label>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button id="cancelExport" class="neo-btn secondary">キャンセル</button>
-        <button id="executeExport" class="neo-btn primary">エクスポート実行</button>
+        <button id="cancelExport" class="neo-btn secondary" data-i18n="common.cancel">キャンセル</button>
+        <button id="executeExport" class="neo-btn primary" data-i18n="export.execute">エクスポート実行</button>
       </div>
     </div>
   </div>
@@ -392,27 +329,27 @@
   <div id="settingsModal" class="modal-overlay hidden">
     <div class="neo-modal settings-modal-wide">
       <div class="modal-header">
-        <h2 class="modal-title">設定 (Settings)</h2>
-        <button id="closeSettingsModal" class="modal-close-btn">&times;</button>
+        <h2 class="modal-title" data-i18n="settings.title">設定 (Settings)</h2>
+        <button id="closeSettingsModal" class="modal-close-btn" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">&times;</button>
       </div>
       <div class="settings-container">
         <!-- サイドバー -->
         <div class="settings-sidebar">
-          <button class="settings-tab-btn active" data-tab="appearance">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="m4.93 4.93 14.14 14.14"/><path d="m4.93 19.07 14.14-14.14"/></svg>
+          <button class="settings-tab-btn active" data-tab="appearance" data-i18n="settings.tabs.appearance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/><path d="m4.93 4.93 14.14 14.14"/><path d="m4.93 19.07 14.14-14.14"/></svg>
             外観
           </button>
-          <button class="settings-tab-btn" data-tab="editor">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <button class="settings-tab-btn" data-tab="editor" data-i18n="settings.tabs.editor">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             エディタ
           </button>
           <div class="settings-sidebar-spacer"></div>
-          <button class="settings-tab-btn" data-tab="about">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <button class="settings-tab-btn" data-tab="about" data-i18n="settings.tabs.about">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             情報
           </button>
-          <button class="settings-tab-btn" data-tab="help">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          <button class="settings-tab-btn" data-tab="help" data-i18n="settings.tabs.help">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
             ヘルプ
           </button>
         </div>
@@ -422,73 +359,90 @@
           <!-- 外観（Appearance） -->
           <div id="pane-appearance" class="settings-pane active">
             <div class="settings-pane-header">
-              <h3>アプリのテーマ</h3>
-              <p>インターフェースの配色を選択します。</p>
+              <h3 data-i18n="settings.appearance.title">アプリのテーマ</h3>
+              <p data-i18n="settings.appearance.desc">インターフェースの配色を選択します。</p>
             </div>
             <div class="theme-grid-premium">
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="yellow" checked>
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-yellow"></div>
-                  <span class="theme-option-name">Lemon</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.lemon">Lemon</span>
                 </div>
               </label>
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="blue">
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-blue"></div>
-                  <span class="theme-option-name">Sky</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.sky">Sky</span>
                 </div>
               </label>
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="green">
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-green"></div>
-                  <span class="theme-option-name">Mint</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.mint">Mint</span>
                 </div>
               </label>
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="red">
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-red"></div>
-                  <span class="theme-option-name">Rose</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.rose">Rose</span>
                 </div>
               </label>
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="purple">
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-purple"></div>
-                  <span class="theme-option-name">Lavender</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.lavender">Lavender</span>
                 </div>
               </label>
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="pink">
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-pink"></div>
-                  <span class="theme-option-name">Bubblegum</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.bubblegum">Bubblegum</span>
                 </div>
               </label>
               <label class="theme-option-card">
                 <input type="radio" name="appTheme" value="black">
                 <div class="theme-option-content">
                   <div class="theme-preview-box preview-black"></div>
-                  <span class="theme-option-name">Coal</span>
+                  <span class="theme-option-name" data-i18n="settings.appearance.themes.coal">Coal</span>
                 </div>
               </label>
+            </div>
+
+            <!-- 言語設定 (Language) -->
+            <div class="settings-pane-header" style="margin-top: 24px;">
+              <h3 data-i18n="settings.language.title">言語 (Language)</h3>
+              <p data-i18n="settings.language.desc">表示言語を設定します。</p>
+            </div>
+            <div class="settings-list-premium">
+              <div class="settings-row">
+                <div class="settings-text">
+                  <div class="settings-title" data-i18n="settings.language.selectLabel">UI言語</div>
+                </div>
+                <select id="languageSelect" class="neo-input" style="width: auto; min-width: 120px;">
+                  <option value="ja">日本語</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
             </div>
           </div>
 
           <!-- エディタ（Editor） -->
           <div id="pane-editor" class="settings-pane">
             <div class="settings-pane-header">
-              <h3>エディタ設定</h3>
-              <p>執筆環境の動作をカスタマイズします。</p>
+              <h3 data-i18n="settings.editor.title">エディタ設定</h3>
+              <p data-i18n="settings.editor.desc">執筆環境の動作をカスタマイズします。</p>
             </div>
             <div class="settings-list-premium">
               <div class="settings-row">
                 <div class="settings-text">
-                  <div class="settings-title">自動保存 (Auto-save)</div>
-                  <div class="settings-desc">編集内容を一定間隔で自動的に保存します</div>
+                  <div class="settings-title" data-i18n="settings.editor.autoSave">自動保存 (Auto-save)</div>
+                  <div class="settings-desc" data-i18n="settings.editor.autoSaveDesc">編集内容を一定間隔で自動的に保存します</div>
                 </div>
                 <label class="neo-toggle">
                   <input type="checkbox" id="autoSaveToggle">
@@ -497,8 +451,8 @@
               </div>
               <div class="settings-row">
                 <div class="settings-text">
-                  <div class="settings-title">行番号の表示</div>
-                  <div class="settings-desc">エディタの左端に行番号を表示します</div>
+                  <div class="settings-title" data-i18n="settings.editor.lineNumbers">行番号の表示</div>
+                  <div class="settings-desc" data-i18n="settings.editor.lineNumbersDesc">エディタの左端に行番号を表示します</div>
                 </div>
                 <label class="neo-toggle">
                   <input type="checkbox" id="lineNumbersToggle">
@@ -511,18 +465,18 @@
           <!-- 情報（About） -->
           <div id="pane-about" class="settings-pane">
             <div class="settings-pane-header">
-              <h3>Editary について</h3>
+              <h3 data-i18n="settings.tabs.about">Editary について</h3>
             </div>
             <div class="about-container">
               <div class="about-brand">Editary</div>
               <div class="about-meta">Version 1.0.0-beta</div>
-              <div class="about-description">
+              <div class="about-description" data-i18n="settings.about.desc">
                 Neobrutalism 風デザインを採用した、モダンな Markdown エディタ。
               </div>
               <div class="about-footer">
                 <div class="about-copyright">&copy; 2026 Catharacta</div>
                 <div class="about-action-links">
-                  <a href="#" class="about-link">GitHub</a>
+                  <a href="https://github.com/blackboardsh/editary" class="about-link" target="_blank">GitHub</a>
                 </div>
               </div>
             </div>
@@ -533,16 +487,16 @@
             <div class="settings-list-premium" style="margin-top: 0;">
               <div class="settings-row" style="border-top: none; flex-direction: column; align-items: flex-start; gap: 8px;">
                 <div class="settings-text">
-                  <div class="settings-title">ライセンス</div>
+                  <div class="settings-title" data-i18n="settings.help.license">ライセンス</div>
                 </div>
-                <button id="showLicenseBtn" class="neo-btn" style="padding: 10px 24px;">確認する</button>
+                <button id="showLicenseBtn" class="neo-btn" style="padding: 10px 24px;" data-i18n="settings.help.licenseBtn">確認する</button>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button id="saveSettingsBtn" class="neo-btn primary">保存して閉じる</button>
+        <button id="saveSettingsBtn" class="neo-btn primary" data-i18n="settings.saveBtn">保存して閉じる</button>
       </div>
     </div>
   </div>
@@ -552,17 +506,17 @@
   <div id="unsavedChangesModal" class="modal-overlay hidden">
     <div class="neo-modal">
       <div class="modal-header">
-        <h2 class="modal-title">未保存の変更</h2>
-        <button id="closeUnsavedModal" class="modal-close-btn">&times;</button>
+        <h2 class="modal-title" data-i18n="unsaved.title">未保存の変更</h2>
+        <button id="closeUnsavedModal" class="modal-close-btn" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">&times;</button>
       </div>
       <div class="modal-body">
         <p id="unsavedChangesMessage"></p>
       </div>
       <div class="modal-footer modal-footer--column">
-        <button id="saveAndCloseBtn" class="neo-btn primary neo-btn--full">保存して閉じる</button>
+        <button id="saveAndCloseBtn" class="neo-btn primary neo-btn--full" data-i18n="unsaved.saveAndClose">保存して閉じる</button>
         <div class="flex-container gap-8 w-full" style="display: flex;">
-          <button id="discardAndCloseBtn" class="neo-btn secondary flex-1">保存せずに閉じる</button>
-          <button id="cancelCloseBtn" class="neo-btn secondary flex-1">キャンセル</button>
+          <button id="discardAndCloseBtn" class="neo-btn secondary flex-1" data-i18n="unsaved.discardAndClose">保存せずに閉じる</button>
+          <button id="cancelCloseBtn" class="neo-btn secondary flex-1" data-i18n="common.cancel">キャンセル</button>
         </div>
       </div>
     </div>
@@ -572,14 +526,14 @@
   <div id="utilityAlertModal" class="modal-overlay hidden">
     <div class="neo-modal">
       <div class="modal-header">
-        <h2 class="modal-title" id="utilityAlertTitle">通知</h2>
-        <button id="closeUtilityAlert" class="modal-close-btn">&times;</button>
+        <h2 class="modal-title" id="utilityAlertTitle" data-i18n="common.notify">通知</h2>
+        <button id="closeUtilityAlert" class="modal-close-btn" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">&times;</button>
       </div>
       <div class="modal-body">
         <p id="utilityAlertMessage"></p>
       </div>
       <div class="modal-footer">
-        <button id="utilityAlertOkBtn" class="neo-btn primary">OK</button>
+        <button id="utilityAlertOkBtn" class="neo-btn primary" data-i18n="common.ok">OK</button>
       </div>
     </div>
   </div>
@@ -588,15 +542,15 @@
   <div id="confirmModal" class="modal-overlay hidden">
     <div class="neo-modal">
       <div class="modal-header">
-        <h2 class="modal-title" id="confirmTitle">確認</h2>
-        <button id="closeConfirm" class="modal-close-btn">&times;</button>
+        <h2 class="modal-title" id="confirmTitle" data-i18n="common.confirm">確認</h2>
+        <button id="closeConfirm" class="modal-close-btn" data-i18n-tooltip="titlebar.close" data-tooltip="閉じる">&times;</button>
       </div>
       <div class="modal-body">
         <p id="confirmMessage"></p>
       </div>
       <div class="modal-footer">
-        <button id="confirmOkBtn" class="neo-btn primary">OK</button>
-        <button id="confirmCancelBtn" class="neo-btn secondary">キャンセル</button>
+        <button id="confirmOkBtn" class="neo-btn primary" data-i18n="common.ok">OK</button>
+        <button id="confirmCancelBtn" class="neo-btn secondary" data-i18n="common.cancel">キャンセル</button>
       </div>
     </div>
   </div>

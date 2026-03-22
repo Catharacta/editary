@@ -101,13 +101,16 @@ export async function openFolder() {
 export function updateSidebarVisibility() {
     const fileTree = document.getElementById("fileTree");
     const openFolderPrompt = document.getElementById("openFolderPrompt");
+    const workspaceActions = document.querySelector("#workspaceSection .section-actions");
 
     if (!state.currentFolderPath) {
         if (fileTree) fileTree.innerHTML = "";
         fileTree?.classList.add("hidden");
         openFolderPrompt?.classList.remove("hidden");
+        workspaceActions?.classList.add("hidden");
     } else {
         fileTree?.classList.remove("hidden");
         openFolderPrompt?.classList.add("hidden");
+        workspaceActions?.classList.remove("hidden");
     }
 }

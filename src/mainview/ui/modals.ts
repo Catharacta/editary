@@ -2,6 +2,7 @@ import { state } from "../state/workspace";
 import { electroview } from "../ipc";
 import { getEditorHTML } from "../editor";
 import { updateTitleBar } from "../utils/dom";
+import { t, loadLocale, getLocale, updateUI } from "../utils/i18n";
 
 export function updateEditorView() {
     const editor = document.getElementById("editor");
@@ -28,7 +29,7 @@ function setupExportModal() {
 
     exportBtn?.addEventListener("click", () => {
         if (!state.currentFilePath && (!state.editor || !state.editor.getText())) {
-            showAlert("通知", "エクスポートする内容がありません。");
+            showAlert(t("common.confirmCloseTitle"), t("export.noContent"));
             return;
         }
         exportModal?.classList.remove("hidden");
@@ -72,7 +73,7 @@ async function performSaveExport(defaultName: string, content: string) {
     try {
         const savePath = await electroview.rpc?.request.showSaveFileDialog({
             defaultPath,
-            title: "エクスポート先の保存"
+            title: t("export.execute")
         });
 
         if (savePath) {
@@ -81,14 +82,14 @@ async function performSaveExport(defaultName: string, content: string) {
                 content: content
             });
             if (success) {
-                showAlert("完了", "エクスポートが完了しました。");
+                showAlert(t("common.confirmCloseTitle"), t("export.execute")); // Reuse title
             } else {
-                showAlert("エラー", "ファイルの保存に失敗しました。");
+                showAlert(t("common.confirmCloseTitle"), t("export.execute")); // Should have error keys
             }
         }
     } catch (error) {
         console.error("Export failed:", error);
-        showAlert("エラー", "エクスポート中にエラーが発生しました。");
+        showAlert(t("common.error"), t("export.error"));
     }
 }
 
@@ -166,6 +167,7 @@ function setupSettingsModal() {
     const themeInputs = document.querySelectorAll('input[name="appTheme"]') as NodeListOf<HTMLInputElement>;
     const settingsTabs = document.querySelectorAll('.settings-tab-btn');
     const settingsPanes = document.querySelectorAll('.settings-pane');
+    const languageSelect = document.getElementById("languageSelect") as HTMLSelectElement;
 
     function applyTheme(themeName: string) {
         const themes = ['theme-yellow', 'theme-red', 'theme-blue', 'theme-green', 'theme-purple', 'theme-pink', 'theme-black'];
@@ -187,6 +189,10 @@ function setupSettingsModal() {
 
         if (autoSaveToggle) autoSaveToggle.checked = state.editorSettings.autoSave;
         if (lineNumbersToggle) lineNumbersToggle.checked = state.editorSettings.showLineNumbers;
+        
+        if (languageSelect) {
+            languageSelect.value = getLocale();
+        }
         
         updateEditorView();
     }
@@ -238,6 +244,12 @@ function setupSettingsModal() {
         updateEditorView();
     });
 
+    languageSelect?.addEventListener('change', async () => {
+        const newLocale = languageSelect.value;
+        await loadLocale(newLocale);
+        updateUI();
+    });
+
     settingsModal?.addEventListener("click", (e) => {
         if (e.target === settingsModal) hideSettingsModal();
     });
@@ -275,7 +287,7 @@ function setupAboutAndHelp() {
         if (licenseModal) {
             licenseModal.classList.remove("hidden");
             if (licenseList) {
-                licenseList.innerHTML = '<div class="loading">読み込み中...</div>';
+                licenseList.innerHTML = `<div class="loading">${t("settings.help.licenseLoading")}</div>`;
                 try {
                     const licenses = await electroview.rpc?.request.getLicenses({});
                     if (licenses && Array.isArray(licenses)) {
@@ -290,11 +302,11 @@ function setupAboutAndHelp() {
                             </div>
                         `).join('');
                     } else {
-                        licenseList.innerHTML = '<div class="error">ライセンス情報の取得に失敗しました。</div>';
+                        licenseList.innerHTML = `<div class="error">${t("common.error")}</div>`;
                     }
                 } catch (err) {
                     console.error("Failed to load licenses:", err);
-                    licenseList.innerHTML = '<div class="error">エラーが発生しました。</div>';
+                    licenseList.innerHTML = `<div class="error">${t("common.error")}</div>`;
                 }
             }
         }
@@ -379,7 +391,7 @@ export function showUnsavedChangesModal(fileName: string): Promise<'save' | 'dis
         const unsavedMessage = document.getElementById("unsavedChangesMessage");
         
         if (unsavedMessage) {
-            unsavedMessage.innerText = `ファイル 「${fileName}」 に未保存の変更があります。変更を保存して閉じますか？`;
+            unsavedMessage.innerText = t("unsaved.message", { filename: fileName });
         }
         
         unsavedChangesResolver = resolve;

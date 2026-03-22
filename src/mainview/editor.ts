@@ -21,6 +21,7 @@ import { Kbd, MarkTag, Underline, Details, Summary, Ruby, Rt, RawHtml } from "./
 import { htmlToMarkdown, markdownToHtml, resolveRelativeImages } from "./markdown-parser";
 import { electroview } from "./ipc";
 import { state } from "./state/workspace";
+import { t } from "./utils/i18n";
 
 import BubbleMenu from "@tiptap/extension-bubble-menu";
 
@@ -183,7 +184,7 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
                 },
             }),
             Placeholder.configure({
-                placeholder: "ここに Markdown を書き始めてください...",
+                placeholder: t("editor.placeholder"),
             }),
             Link.configure({
                 openOnClick: false,
@@ -336,10 +337,10 @@ export async function reparseContent(editor: Editor): Promise<{ success: boolean
         
         // Basic check: if dompurify removed something, we might want to know
         // (Though technically we don't have a direct comparison for "removed" items here without complex diffing)
-        return { success: true, message: "シンタックスを更新しました" };
+        return { success: true, message: t("editor.syntaxUpdated") };
     } catch (e) {
         console.error("Reparse failed:", e);
-        return { success: false, message: "同期に失敗しました" };
+        return { success: false, message: t("editor.syncFailed") };
     }
 }
 

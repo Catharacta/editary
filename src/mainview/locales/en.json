@@ -1,0 +1,137 @@
+{
+    "common": {
+        "ok": "OK",
+        "cancel": "Cancel",
+        "save": "Save",
+        "discard": "Discard",
+        "close": "Close",
+        "confirmCloseTitle": "Confirm",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "notify": "Notification",
+        "error": "Error"
+    },
+    "titlebar": {
+        "settings": "Settings",
+        "minimize": "Minimize",
+        "maximize": "Maximize",
+        "close": "Close"
+    },
+    "sidebar": {
+        "editors": "Editors",
+        "newFile": "New File",
+        "saveAll": "Save All",
+        "closeAll": "Close All",
+        "workspace": "Workspace",
+        "newFolder": "New Folder",
+        "refresh": "Refresh",
+        "closeWorkspace": "Close Workspace",
+        "collapseAll": "Collapse All Folders",
+        "openWorkspace": "Open Workspace",
+        "outline": "Outline",
+        "noOutline": "The active editor cannot provide outline information.",
+        "noHeadings": "The active editor cannot provide outline information."
+    },
+    "workspace": {
+        "empty": "Folder is empty",
+        "deleteConfirm": "Are you sure you want to delete '{name}'?",
+        "contextMenu": {
+            "newFile": "New File",
+            "newFolder": "New Folder",
+            "rename": "Rename",
+            "delete": "Delete"
+        }
+    },
+    "editor": {
+        "bold": "Bold (Ctrl+B)",
+        "italic": "Italic (Ctrl+I)",
+        "strike": "Strikethrough",
+        "h1": "Heading 1",
+        "h2": "Heading 2",
+        "h3": "Heading 3",
+        "bulletList": "Bullet List (Ctrl+Shift+8)",
+        "orderedList": "Ordered List (Ctrl+Shift+7)",
+        "taskList": "Task List (Ctrl+Shift+9)",
+        "blockquote": "Blockquote (Ctrl+Shift+B)",
+        "codeBlock": "Code Block",
+        "insertTable": "Insert Table",
+        "insertImage": "Insert Image",
+        "reparse": "Reparse and Update Content",
+        "export": "Export (PDF/HTML)",
+        "search": "Search...",
+        "prev": "Previous",
+        "next": "Next",
+        "replace": "Replace...",
+        "replaceBtn": "Replace",
+        "replaceAllBtn": "Replace All",
+        "placeholder": "Start writing Markdown here...",
+        "syntaxUpdated": "Syntax updated",
+        "syncFailed": "Sync failed",
+        "noContent": "No content to export."
+    },
+    "settings": {
+        "title": "Settings",
+        "tabs": {
+            "appearance": "Appearance",
+            "editor": "Editor",
+            "about": "About",
+            "help": "Help",
+            "language": "Language"
+        },
+        "appearance": {
+            "title": "App Theme",
+            "desc": "Select the color scheme for the interface.",
+            "themes": {
+                "lemon": "Lemon",
+                "sky": "Sky",
+                "mint": "Mint",
+                "rose": "Rose",
+                "lavender": "Lavender",
+                "bubblegum": "Bubblegum",
+                "coal": "Coal"
+            }
+        },
+        "language": {
+            "title": "Language",
+            "desc": "Set the display language.",
+            "selectLabel": "UI Language"
+        },
+        "editor": {
+            "title": "Editor Settings",
+            "desc": "Customize your writing environment.",
+            "autoSave": "Auto-save",
+            "autoSaveDesc": "Automatically save changes at regular intervals",
+            "lineNumbers": "Show line numbers",
+            "lineNumbersDesc": "Display line numbers on the left side of the editor"
+        },
+        "about": {
+            "desc": "A modern Markdown editor with Neobrutalism-inspired design."
+        },
+        "help": {
+            "license": "License",
+            "licenseBtn": "View License",
+            "licenseLoading": "Loading..."
+        },
+        "saveBtn": "Save and Close"
+    },
+    "export": {
+        "formatLabel": "Select Format",
+        "styleLabel": "Select Style",
+        "styleClean": "Clean (Standard Document)",
+        "styleTheme": "Editary Theme (Neobrutalism)",
+        "execute": "Execute Export",
+        "error": "An error occurred during export.",
+        "noContent": "No content to export."
+    },
+    "unsaved": {
+        "title": "Unsaved Changes",
+        "message": "File '{filename}' has unsaved changes. Do you want to save before closing?",
+        "saveAndClose": "Save and Close",
+        "discardAndClose": "Discard and Close"
+    },
+    "status": {
+        "lines": "Lines",
+        "words": "Words",
+        "chars": "Chars"
+    }
+}
