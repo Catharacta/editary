@@ -14,4 +14,8 @@ export const state = {
     openTabs: new Map<string, TabState>(),
     untitledCount: 0,
     editor: null as unknown as Editor,
+    editorSettings: {
+        autoSave: false,
+        showLineNumbers: false,
+    },
 };

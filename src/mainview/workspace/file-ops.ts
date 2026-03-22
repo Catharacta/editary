@@ -5,7 +5,7 @@ import { markdownToHtml, htmlToMarkdown, resolveRelativeImages } from "../markdo
 import { updateTitleBar, highlightActiveFile } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { loadFileTree } from "./file-tree";
-import { showUnsavedChangesModal } from "../ui/modals";
+import { showUnsavedChangesModal, updateEditorView } from "../ui/modals";
 import { renderOutline } from "../ui/outline";
 
 export async function createNewFile() {
@@ -120,6 +120,7 @@ export async function closeTab(filePath: string) {
             renderOpenTabs();
             highlightActiveFile("");
             updateStatusBar();
+            updateEditorView();
         }
     } else {
         renderOpenTabs();
@@ -161,6 +162,7 @@ export async function switchToTab(filePath: string) {
         state.editor.commands.focus("start");
         updateStatusBar();
         renderOutline(state.editor);
+        updateEditorView();
     } catch (error) {
         console.error("Failed to load tab:", error);
     }
@@ -382,6 +384,7 @@ export async function deleteEntry(path: string) {
                         setEditorContent(state.editor, "");
                         state.editor.setEditable(false);
                         document.getElementById("editorToolbar")?.classList.add("hidden");
+                        updateEditorView();
                     }
                 }
             }

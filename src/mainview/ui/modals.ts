@@ -1,6 +1,15 @@
 import { state } from "../state/workspace";
 import { electroview } from "../ipc";
 import { getEditorHTML } from "../editor";
+import { updateTitleBar } from "../utils/dom";
+
+export function updateEditorView() {
+    const editor = document.getElementById("editor");
+    if (editor) {
+        const shouldShow = state.editorSettings.showLineNumbers && state.currentFilePath !== null;
+        editor.classList.toggle("show-line-numbers", shouldShow);
+    }
+}
 
 export function setupModals() {
     setupExportModal();
@@ -168,6 +177,24 @@ function setupSettingsModal() {
         localStorage.setItem('editary-theme', themeName);
     }
 
+    function applyEditorSettings() {
+        const autoSaveToggle = document.getElementById("autoSaveToggle") as HTMLInputElement;
+        const lineNumbersToggle = document.getElementById("lineNumbersToggle") as HTMLInputElement;
+
+        // Load from localStorage or use defaults from state
+        const settings = JSON.parse(localStorage.getItem('editary-settings') || JSON.stringify(state.editorSettings));
+        state.editorSettings = settings;
+
+        if (autoSaveToggle) autoSaveToggle.checked = state.editorSettings.autoSave;
+        if (lineNumbersToggle) lineNumbersToggle.checked = state.editorSettings.showLineNumbers;
+        
+        updateEditorView();
+    }
+
+    function updateEditorViewLocal() {
+        updateEditorView();
+    }
+
     function switchSettingsTab(tabId: string) {
         settingsTabs.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId));
         settingsPanes.forEach(pane => pane.classList.toggle('active', pane.id === `pane-${tabId}`));
@@ -175,6 +202,7 @@ function setupSettingsModal() {
 
     settingsBtn?.addEventListener("click", () => {
         applyTheme(localStorage.getItem('editary-theme') || 'yellow');
+        applyEditorSettings();
         switchSettingsTab('appearance');
         settingsModal?.classList.remove("hidden");
     });
@@ -196,11 +224,26 @@ function setupSettingsModal() {
         });
     });
 
+    const autoSaveToggle = document.getElementById("autoSaveToggle") as HTMLInputElement;
+    const lineNumbersToggle = document.getElementById("lineNumbersToggle") as HTMLInputElement;
+
+    autoSaveToggle?.addEventListener('change', () => {
+        state.editorSettings.autoSave = autoSaveToggle.checked;
+        localStorage.setItem('editary-settings', JSON.stringify(state.editorSettings));
+    });
+
+    lineNumbersToggle?.addEventListener('change', () => {
+        state.editorSettings.showLineNumbers = lineNumbersToggle.checked;
+        localStorage.setItem('editary-settings', JSON.stringify(state.editorSettings));
+        updateEditorView();
+    });
+
     settingsModal?.addEventListener("click", (e) => {
         if (e.target === settingsModal) hideSettingsModal();
     });
 
     applyTheme(localStorage.getItem('editary-theme') || 'yellow');
+    applyEditorSettings();
 }
 
 function setupAboutAndHelp() {

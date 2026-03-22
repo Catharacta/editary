@@ -89,3 +89,37 @@
   max-width: 800px; /* 読みやすさのための最大幅 */
   min-height: 100%;
 }
+
+/* ---------- Line Numbers (CSS Counter) ---------- */
+.editor-container .editor.show-line-numbers .ProseMirror {
+  counter-reset: line-number;
+  padding-left: 55px; /* スペースを確保 */
+}
+
+/* トップレベルの要素のみに番号を振る */
+.editor-container .editor.show-line-numbers .ProseMirror > * {
+  position: relative;
+}
+
+.editor-container .editor.show-line-numbers .ProseMirror > *::before {
+  counter-increment: line-number;
+  content: counter(line-number);
+  position: absolute;
+  left: -45px;
+  top: 0;
+  width: 35px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--neo-border);
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
+  font-weight: 700;
+}
+
+/* テーブルやタスクリスト内の要素は除外する */
+.editor-container .editor.show-line-numbers .ProseMirror .neo-table *::before,
+.editor-container .editor.show-line-numbers .ProseMirror .neo-task-list *::before {
+  content: none !important;
+}

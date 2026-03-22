@@ -1,6 +1,6 @@
 import { createEditor } from "../editor";
 import { state } from "../state/workspace";
-import { renderOpenTabs } from "../workspace/file-ops";
+import { renderOpenTabs, saveFile } from "../workspace/file-ops";
 import { updateTitleBar } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { setupTablePicker } from "./table-picker";
@@ -8,6 +8,7 @@ import { setupToolbar } from "./toolbar";
 import { setupOutline, renderOutline } from "../ui/outline";
 
 export function setupEditorInstance() {
+    let autoSaveTimeout: any = null;
     const editorElement = document.getElementById("editor");
     const tableBubbleMenu = document.getElementById("tableBubbleMenu");
 
@@ -26,6 +27,16 @@ export function setupEditorInstance() {
                 tab.isDirty = true;
                 renderOpenTabs();
                 updateTitleBar();
+            }
+
+            // Auto-save logic
+            if (state.editorSettings.autoSave && tab && !tab.isUntitled) {
+                if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(async () => {
+                    if (state.currentFilePath === tab.filePath && tab.isDirty) {
+                        await saveFile(tab.filePath);
+                    }
+                }, 2000); // 2 seconds delay
             }
         }
         updateStatusBar();
