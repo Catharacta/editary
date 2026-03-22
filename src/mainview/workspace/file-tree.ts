@@ -2,6 +2,7 @@ import { electroview } from "../ipc";
 import { type FileEntry } from "../../shared/types";
 import { openFile, renameEntry, deleteEntry, moveEntry } from "./file-ops";
 import { showContextMenu } from "../ui/context-menu";
+import { showConfirm } from "../ui/modals";
 import { state } from "../state/workspace";
 
 // Store a map of path to HTMLElement to easily find folders for inline creation
@@ -138,14 +139,12 @@ function renderEntries(parent: HTMLElement, entries: FileEntry[], depth: number)
             }
 
             menuItems.push(
-                { label: "名前を変更", action: () => startRename(item, entry.path, entry.name) },
+                { label: "名前を変更 (F2)", action: () => startRename(item, entry.path, entry.name) },
                 { 
-                    label: "削除", 
+                    label: "削除 (Delete)", 
                     danger: true, 
                     action: async () => {
-                        if (confirm(`本当に「${entry.name}」を削除しますか？`)) {
-                            await deleteEntry(entry.path);
-                        }
+                        handleDelete(entry.path, entry.name);
                     } 
                 }
             );
@@ -162,12 +161,15 @@ function startRename(item: HTMLElement, path: string, oldName: string) {
     const nameSpan = item.querySelector(".file-tree-name") as HTMLElement;
     if (!nameSpan) return;
 
+    isInputActive = true;
     const input = document.createElement("input");
     input.type = "text";
     input.className = "file-tree-rename-input";
     input.value = oldName;
 
     const finishRename = async () => {
+        if (!isInputActive) return;
+        isInputActive = false;
         const newName = input.value.trim();
         if (newName && newName !== oldName) {
             await renameEntry(path, newName);
@@ -180,6 +182,7 @@ function startRename(item: HTMLElement, path: string, oldName: string) {
         if (e.key === "Enter") {
             finishRename();
         } else if (e.key === "Escape") {
+            isInputActive = false;
             nameSpan.textContent = oldName;
         }
     });
@@ -204,8 +207,71 @@ function highlightSelected(path: string) {
     const item = itemMap.get(path);
     if (item) {
         item.classList.add("file-tree-item--selected");
+        item.scrollIntoView({ block: "nearest" });
     }
 }
+
+async function handleDelete(path: string, name: string) {
+    if (await showConfirm("削除の確認", `本当に「${name}」を削除しますか？`)) {
+        await deleteEntry(path);
+    }
+}
+
+let isInputActive = false;
+
+// Global keyboard navigation
+document.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (isInputActive) return;
+
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const allItems = Array.from(document.querySelectorAll(".file-tree-item"));
+        const selectedEl = document.querySelector(".file-tree-item--selected") as HTMLElement;
+        if (!selectedEl) return;
+
+        e.preventDefault();
+        const currentIndex = allItems.indexOf(selectedEl);
+        let nextIndex = currentIndex;
+
+        if (e.key === "ArrowDown") {
+            nextIndex = (currentIndex + 1) % allItems.length;
+        } else {
+            nextIndex = (currentIndex - 1 + allItems.length) % allItems.length;
+        }
+
+        const nextItem = allItems[nextIndex] as HTMLElement;
+        const nextPath = nextItem.dataset.path;
+        if (nextPath) {
+            state.selectedPath = nextPath;
+            highlightSelected(nextPath);
+            // Optionally auto-open if it's a file? No, just select.
+            // But we can trigger click if we want to toggle folders.
+            // For now, let's keep it consistent: click to select/toggle.
+        }
+    } else if (e.key === "Enter") {
+        if (state.selectedPath) {
+            const item = itemMap.get(state.selectedPath);
+            if (item) item.click();
+        }
+    } else if (e.key === "F2") {
+        if (state.selectedPath) {
+            const item = itemMap.get(state.selectedPath);
+            const entryName = item?.querySelector(".file-tree-name")?.textContent || "";
+            if (item && entryName) {
+                e.preventDefault();
+                startRename(item, state.selectedPath, entryName);
+            }
+        }
+    } else if (e.key === "Delete") {
+        if (state.selectedPath) {
+            const item = itemMap.get(state.selectedPath);
+            const entryName = item?.querySelector(".file-tree-name")?.textContent || "";
+            if (state.selectedPath && entryName) {
+                e.preventDefault();
+                handleDelete(state.selectedPath, entryName);
+            }
+        }
+    }
+});
 
 /**
  * Handle creation from header buttons
@@ -243,6 +309,7 @@ function startCreateInline(parentPath: string, isDirectory: boolean) {
     const childrenContainer = childrenMap.get(parentPath) || document.getElementById("fileTree");
     if (!childrenContainer) return;
 
+    isInputActive = true;
     // Ensure parent folder is expanded if it is a directory in the tree
     const parentItem = itemMap.get(parentPath);
     if (parentItem && childrenContainer !== document.getElementById("fileTree")) {
@@ -303,6 +370,7 @@ function startCreateInline(parentPath: string, isDirectory: boolean) {
         if (e.key === "Enter") {
             finishCreate();
         } else if (e.key === "Escape") {
+            isInputActive = false;
             tempItem.remove();
         }
     });

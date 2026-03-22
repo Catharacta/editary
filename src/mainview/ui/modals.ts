@@ -275,6 +275,7 @@ function setupAboutAndHelp() {
 
 let unsavedChangesResolver: ((value: 'save' | 'discard' | 'cancel') => void) | null = null;
 let utilityAlertResolver: (() => void) | null = null;
+let confirmResolver: ((value: boolean) => void) | null = null;
 
 function setupUtilityModals() {
     const unsavedModal = document.getElementById("unsavedChangesModal");
@@ -286,6 +287,11 @@ function setupUtilityModals() {
     const utilityAlertModal = document.getElementById("utilityAlertModal");
     const utilityAlertOkBtn = document.getElementById("utilityAlertOkBtn");
     const closeUtilityAlert = document.getElementById("closeUtilityAlert");
+
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmOkBtn = document.getElementById("confirmOkBtn");
+    const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+    const closeConfirm = document.getElementById("closeConfirm");
 
     // Unsaved Changes
     const resolveUnsaved = (result: 'save' | 'discard' | 'cancel') => {
@@ -310,6 +316,18 @@ function setupUtilityModals() {
     };
     utilityAlertOkBtn?.addEventListener("click", resolveAlert);
     closeUtilityAlert?.addEventListener("click", resolveAlert);
+
+    // Confirm
+    const resolveConfirm = (result: boolean) => {
+        confirmModal?.classList.add("hidden");
+        if (confirmResolver) {
+            confirmResolver(result);
+            confirmResolver = null;
+        }
+    };
+    confirmOkBtn?.addEventListener("click", () => resolveConfirm(true));
+    confirmCancelBtn?.addEventListener("click", () => resolveConfirm(false));
+    closeConfirm?.addEventListener("click", () => resolveConfirm(false));
 }
 
 export function showUnsavedChangesModal(fileName: string): Promise<'save' | 'discard' | 'cancel'> {
@@ -336,6 +354,20 @@ export function showAlert(title: string, message: string): Promise<void> {
         if (messageEl) messageEl.innerText = message;
 
         utilityAlertResolver = resolve;
+        modal?.classList.remove("hidden");
+    });
+}
+
+export function showConfirm(title: string, message: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("confirmModal");
+        const titleEl = document.getElementById("confirmTitle");
+        const messageEl = document.getElementById("confirmMessage");
+
+        if (titleEl) titleEl.innerText = title;
+        if (messageEl) messageEl.innerText = message;
+
+        confirmResolver = resolve;
         modal?.classList.remove("hidden");
     });
 }
