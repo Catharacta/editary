@@ -36,8 +36,8 @@ jobs:
       - name: Build Application
         run: |
           bun run build:stable
-          # Find where the exe is
-          gci -Recurse -Filter "*.exe"
+          # Find where the exe is and print its full path
+          Get-ChildItem -Path . -Recurse -Filter "*.exe" | ForEach-Object { Write-Host "Found EXE: $($_.FullName)" }
         shell: pwsh
         env:
           ELECTROBUN_BUILD_ENV: stable
@@ -46,16 +46,13 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           choco install -y nsis wixtoolset --no-progress
-          # Copy templates from node_modules
-          if (-not (Test-Path "templates")) {
-            mkdir "templates"
-          }
+          if (-not (Test-Path "templates")) { mkdir "templates" }
           cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
           # Add tools to PATH
           $nsisPath = "C:\Program Files (x86)\NSIS"
           if (Test-Path $nsisPath) { 
-            echo "$nsisPath" >> $env:GITHUB_PATH
+            Add-Content $env:GITHUB_PATH "$nsisPath"
             Write-Host "Added NSIS to PATH: $nsisPath"
           }
           
@@ -64,21 +61,33 @@ jobs:
           if ($null -ne $wixDir) {
             $binPath = Join-Path $wixDir.FullName "bin"
             if (Test-Path $binPath) { 
-              echo "$binPath" >> $env:GITHUB_PATH
+              Add-Content $env:GITHUB_PATH "$binPath"
               Write-Host "Added WiX to PATH: $binPath"
             }
           }
-          
-          # Debug PATH
-          Write-Host "Current GITHUB_PATH contents:"
-          Get-Content $env:GITHUB_PATH
         shell: pwsh
 
       - name: Build Windows Installer
         if: matrix.os == 'windows-latest'
         run: |
+          # Verify PATH
+          Write-Host "Verifying commands in PATH:"
+          where.exe makensis
+          where.exe candle
+          where.exe light
+          # Copy binary to where builder expects it (if needed)
+          # Based on electrobun-builder source, it expects it in build/stable-win-x64/Editary.exe
+          # We saw that it might be in build/stable-win-x64/Editary/bin/launcher.exe
+          if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
+             $srcExe = Get-ChildItem -Path "build/stable-win-x64" -Recurse -Filter "*.exe" | Select-Object -First 1
+             if ($null -ne $srcExe) {
+                Write-Host "Copying $($srcExe.FullName) to build/stable-win-x64/Editary.exe"
+                cp $srcExe.FullName "build/stable-win-x64/Editary.exe"
+             }
+          }
           bunx electrobun-builder build --target nsis
           bunx electrobun-builder build --target wix
+        shell: pwsh
 
       - name: Release
         uses: softprops/action-gh-release@v2
