@@ -27,4 +27,9 @@ export default {
       "node_modules/nativefiledialog-for-bun/bin/win32/x64/nfd.dll": "bin/win32/x64/nfd.dll",
     },
   },
+  windows: {
+    icon: "build/icons/icon.ico",
+    productId: "dev.catharacta.editary",
+    installDir: "Editary",
+  },
 } satisfies ElectrobunConfig;

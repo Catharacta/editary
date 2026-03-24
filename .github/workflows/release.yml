@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: macos-arm64,macos-x64
+          - os: windows-latest
+            target: win-x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build Application
+        run: bunx electrobun build --targets ${{ matrix.target }}
+        env:
+          ELECTROBUN_BUILD_ENV: stable
+
+      - name: Add Packaging Tools to PATH (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "C:\Program Files (x86)\NSIS" >> $GITHUB_PATH
+          echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Build Windows Installer
+        if: matrix.os == 'windows-latest'
+        run: |
+          bunx electrobun-builder build --target nsis
+          bunx electrobun-builder build --target wix
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            build/stable-*/**/*-Setup.exe
+            build/stable-*/**/*-Setup.tar.zst
+            build/stable-*/**/*.dmg
+            build/stable-*/**/*.zip
+            dist/*.exe
+            dist/*.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
