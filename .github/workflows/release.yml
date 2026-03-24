@@ -61,7 +61,13 @@ jobs:
                 Write-Host "Mapped app binary: $($srcExe.FullName) -> build/stable-win-x64/Editary.exe"
              }
           }
-          bunx electrobun-builder build --target nsis,wix
+          bunx electrobun-builder build --target nsis
+        shell: pwsh
+
+      - name: Build Windows Installer (WIX)
+        if: matrix.os == 'windows-latest'
+        run: |
+          bunx electrobun-builder build --target wix
         shell: pwsh
 
       - name: Release
