@@ -41,12 +41,13 @@ jobs:
       - name: Install Packaging Tools (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          choco install -y nsis --no-progress
+          choco install -y nsis wixtoolset --no-progress
           if (-not (Test-Path "templates")) { mkdir "templates" }
           cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
           # Add tools to PATH
           Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\NSIS"
+          Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\WiX Toolset v3.11\bin"
         shell: pwsh
 
       - name: Build Windows Installer
@@ -60,7 +61,7 @@ jobs:
                 Write-Host "Mapped app binary: $($srcExe.FullName) -> build/stable-win-x64/Editary.exe"
              }
           }
-          bunx electrobun-builder build --target nsis
+          bunx electrobun-builder build --target nsis,wix
         shell: pwsh
 
       - name: Release
@@ -69,6 +70,7 @@ jobs:
         with:
           files: |
             dist/*.exe
+            dist/*.msi
             dist/*.dmg
             dist/*.app.zip
             dist/*.tar.gz
