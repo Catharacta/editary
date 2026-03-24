@@ -46,6 +46,7 @@
   "scripts": {
     "start": "bun run build:dev && electrobun dev",
     "build:dev": "bun install && electrobun build",
-    "build:stable": "bun install && electrobun build --env=stable"
+    "build:stable": "bun install && electrobun build --env=stable",
+    "builder": "electrobun-builder"
   }
 }
