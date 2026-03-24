@@ -12,6 +12,7 @@ jobs:
   build:
     name: Build and Release
     runs-on: windows-latest
+    timeout-minutes: 20
     permissions:
       contents: write
 
@@ -23,7 +24,7 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: bun install
 
       - name: Build Application
