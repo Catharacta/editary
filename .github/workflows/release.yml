@@ -60,11 +60,13 @@ jobs:
       - name: Build Windows Installer
         if: matrix.os == 'windows-latest'
         run: |
-          # Map launcher.exe to Editary.exe for resource patching
-          $appExe = Get-ChildItem -Path "build/stable-win-x64" -Recurse -Filter "launcher.exe" | Select-Object -First 1
-          if ($null -ne $appExe) {
-             Copy-Item $appExe.FullName "build/stable-win-x64/Editary.exe"
-             Write-Host "Mapped app binary: $($appExe.FullName) -> build/stable-win-x64/Editary.exe"
+          # Map launcher.exe to Editary.exe for resource patching (icon etc)
+          if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
+             $srcExe = Get-ChildItem -Path "node_modules/electrobun/dist-win-x64" -Filter "launcher.exe" -Recurse | Select-Object -First 1
+             if ($null -ne $srcExe) {
+                Copy-Item $srcExe.FullName "build/stable-win-x64/Editary.exe"
+                Write-Host "Mapped app binary: $($srcExe.FullName) -> build/stable-win-x64/Editary.exe"
+             }
           }
           bunx electrobun-builder build --target nsis
           bunx electrobun-builder build --target wix
