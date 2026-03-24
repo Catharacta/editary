@@ -34,11 +34,7 @@ jobs:
         run: bun install
 
       - name: Build Application
-        run: |
-          bun run build:stable
-          # Find where the exe is and print its full path
-          Get-ChildItem -Path . -Recurse -Filter "*.exe" | ForEach-Object { Write-Host "Found EXE: $($_.FullName)" }
-        shell: pwsh
+        run: bun run build:stable
         env:
           ELECTROBUN_BUILD_ENV: stable
 
@@ -50,40 +46,25 @@ jobs:
           cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
           # Add tools to PATH
-          $nsisPath = "C:\Program Files (x86)\NSIS"
-          if (Test-Path $nsisPath) { 
-            Add-Content $env:GITHUB_PATH "$nsisPath"
-            Write-Host "Added NSIS to PATH: $nsisPath"
-          }
-          
-          # Search for WiX
-          $wixDir = Get-ChildItem -Path "C:\Program Files (x86)" -Filter "WiX Toolset*" | Select-Object -First 1
-          if ($null -ne $wixDir) {
-            $binPath = Join-Path $wixDir.FullName "bin"
-            if (Test-Path $binPath) { 
-              Add-Content $env:GITHUB_PATH "$binPath"
-              Write-Host "Added WiX to PATH: $binPath"
-            }
+          Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\NSIS"
+          $wixBin = Get-ChildItem -Path "C:\Program Files (x86)" -Filter "WiX Toolset*" | Select-Object -First 1 | ForEach-Object { Join-Path $_.FullName "bin" }
+          if ($null -ne $wixBin) {
+            Add-Content $env:GITHUB_PATH "$wixBin"
+            # Shim wix.exe to candle.exe to satisfy builder dependency check
+            $candle = Join-Path $wixBin "candle.exe"
+            $wixShim = Join-Path $wixBin "wix.exe"
+            if (Test-Path $candle) { Copy-Item $candle $wixShim }
           }
         shell: pwsh
 
       - name: Build Windows Installer
         if: matrix.os == 'windows-latest'
         run: |
-          # Verify PATH
-          Write-Host "Verifying commands in PATH:"
-          where.exe makensis
-          where.exe candle
-          where.exe light
-          # Copy binary to where builder expects it (if needed)
-          # Based on electrobun-builder source, it expects it in build/stable-win-x64/Editary.exe
-          # We saw that it might be in build/stable-win-x64/Editary/bin/launcher.exe
-          if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
-             $srcExe = Get-ChildItem -Path "build/stable-win-x64" -Recurse -Filter "*.exe" | Select-Object -First 1
-             if ($null -ne $srcExe) {
-                Write-Host "Copying $($srcExe.FullName) to build/stable-win-x64/Editary.exe"
-                cp $srcExe.FullName "build/stable-win-x64/Editary.exe"
-             }
+          # Map launcher.exe to Editary.exe for resource patching
+          $appExe = Get-ChildItem -Path "build/stable-win-x64" -Recurse -Filter "launcher.exe" | Select-Object -First 1
+          if ($null -ne $appExe) {
+             Copy-Item $appExe.FullName "build/stable-win-x64/Editary.exe"
+             Write-Host "Mapped app binary: $($appExe.FullName) -> build/stable-win-x64/Editary.exe"
           }
           bunx electrobun-builder build --target nsis
           bunx electrobun-builder build --target wix
@@ -93,11 +74,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            build/stable-*/**/*-Setup.exe
-            build/stable-*/**/*-Setup.tar.zst
-            build/stable-*/**/*.dmg
-            build/stable-*/**/*.zip
             dist/*.exe
             dist/*.msi
+            dist/*.dmg
+            dist/*.app.zip
+            dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
