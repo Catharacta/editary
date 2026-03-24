@@ -42,6 +42,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           choco install -y nsis --no-progress
+          if (-not (Test-Path "templates")) { mkdir "templates" }
+          cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
           # Add tools to PATH
           Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\NSIS"
