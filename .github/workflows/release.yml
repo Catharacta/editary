@@ -11,16 +11,9 @@ permissions:
 jobs:
   build:
     name: Build and Release
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     permissions:
       contents: write
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            target: macos-arm64,macos-x64
-          - os: windows-latest
-            target: win-x64
 
     steps:
       - uses: actions/checkout@v4
@@ -38,8 +31,7 @@ jobs:
         env:
           ELECTROBUN_BUILD_ENV: stable
 
-      - name: Install Packaging Tools (Windows)
-        if: matrix.os == 'windows-latest'
+      - name: Install Packaging Tools
         run: |
           choco install -y nsis wixtoolset --no-progress
           if (-not (Test-Path "templates")) { mkdir "templates" }
@@ -50,8 +42,7 @@ jobs:
           Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\WiX Toolset v3.11\bin"
         shell: pwsh
 
-      - name: Build Windows Installer
-        if: matrix.os == 'windows-latest'
+      - name: Build Windows Installer (NSIS)
         run: |
           # Map launcher.exe to Editary.exe for resource patching (icon etc)
           if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
@@ -61,13 +52,12 @@ jobs:
                 Write-Host "Mapped app binary: $($srcExe.FullName) -> build/stable-win-x64/Editary.exe"
              }
           }
-          bun run builder build --target nsis
+          bun run builder -- build --target nsis
         shell: pwsh
 
-      - name: Build Windows Installer (WIX)
-        if: matrix.os == 'windows-latest'
+      - name: Build Windows Installer (WIX/MSI)
         run: |
-          bun run builder build --target msi
+          bun run builder -- build --target msi
         shell: pwsh
 
       - name: Release
@@ -77,8 +67,5 @@ jobs:
           files: |
             dist/*.exe
             dist/*.msi
-            dist/*.dmg
-            dist/*.app.zip
-            dist/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
