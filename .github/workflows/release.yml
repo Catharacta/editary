@@ -38,9 +38,10 @@ jobs:
         env:
           ELECTROBUN_BUILD_ENV: stable
 
-      - name: Add Packaging Tools to PATH (Windows)
+      - name: Install Packaging Tools (Windows)
         if: matrix.os == 'windows-latest'
         run: |
+          choco install -y nsis wixtoolset --no-progress
           echo "C:\Program Files (x86)\NSIS" >> $GITHUB_PATH
           echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
         shell: bash
