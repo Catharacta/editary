@@ -60,6 +60,14 @@ jobs:
       - name: Build Windows Installer
         if: matrix.os == 'windows-latest'
         run: |
+          # Ensure icon directory and file exist for the builder
+          if (-not (Test-Path "build/icons")) { mkdir "build/icons" -Force }
+          $ico = Get-ChildItem -Path . -Filter "icon.ico" -Recurse | Select-Object -First 1
+          if ($null -ne $ico) {
+             Copy-Item $ico.FullName "build/icons/icon.ico" -Force
+             Write-Host "Mapped icon binary: $($ico.FullName) -> build/icons/icon.ico"
+          }
+
           # Map launcher.exe to Editary.exe for resource patching (icon etc)
           if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
              $srcExe = Get-ChildItem -Path "node_modules/electrobun/dist-win-x64" -Filter "launcher.exe" -Recurse | Select-Object -First 1
