@@ -56,9 +56,9 @@ jobs:
           bun run builder -- build --target nsis
         shell: pwsh
 
-      - name: Build Windows Installer (WIX/MSI)
+      - name: Build Windows Installer (WiX/MSI)
         run: |
-          bun run builder -- build --target msi
+          bun run builder -- build --target wix
         shell: pwsh
 
       - name: Release
