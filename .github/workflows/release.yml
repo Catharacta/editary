@@ -38,9 +38,19 @@ jobs:
           if (-not (Test-Path "templates")) { mkdir "templates" }
           cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
-          # Add tools to PATH
-          Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\NSIS"
-          Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          # Detect NSIS Path
+          $nsisPath = (Get-ChildItem -Path "C:\Program Files*" -Filter "NSIS" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          if ($nsisPath) {
+             Add-Content $env:GITHUB_PATH $nsisPath
+             Write-Host "Detected NSIS: $nsisPath"
+          }
+
+          # Detect WiX Path
+          $wixBin = (Get-ChildItem -Path "C:\Program Files*" -Filter "candle.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
+          if ($wixBin) {
+             Add-Content $env:GITHUB_PATH $wixBin
+             Write-Host "Detected WiX: $wixBin"
+          }
         shell: pwsh
 
       - name: Build Windows Installer (NSIS)
