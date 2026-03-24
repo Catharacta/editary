@@ -42,10 +42,22 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           choco install -y nsis wixtoolset --no-progress
+          # Copy templates from node_modules
+          if (-not (Test-Path "templates")) {
+            mkdir "templates"
+          }
+          cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
+          
+          # Add tools to PATH
           $nsisPath = "C:\Program Files (x86)\NSIS"
-          $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
           if (Test-Path $nsisPath) { echo "$nsisPath" >> $env:GITHUB_PATH }
-          if (Test-Path $wixPath) { echo "$wixPath" >> $env:GITHUB_PATH }
+          
+          # Search for WiX
+          $wixDir = Get-ChildItem -Path "C:\Program Files (x86)" -Filter "WiX Toolset*" | Select-Object -First 1
+          if ($null -ne $wixDir) {
+            $binPath = Join-Path $wixDir.FullName "bin"
+            if (Test-Path $binPath) { echo "$binPath" >> $env:GITHUB_PATH }
+          }
         shell: pwsh
 
       - name: Build Windows Installer

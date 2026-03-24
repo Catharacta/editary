@@ -1,6 +1,8 @@
 import type { ElectrobunConfig } from "electrobun";
 
-export default {
+const config = {
+  name: "Editary",
+  version: "0.1.0",
   app: {
     name: "Editary",
     identifier: "dev.catharacta.editary",
@@ -32,4 +34,6 @@ export default {
     productId: "dev.catharacta.editary",
     installDir: "Editary",
   },
-} satisfies ElectrobunConfig;
+} as any;
+
+export default config;
