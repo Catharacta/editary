@@ -41,33 +41,15 @@ jobs:
       - name: Install Packaging Tools (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          choco install -y nsis wixtoolset --no-progress
-          if (-not (Test-Path "templates")) { mkdir "templates" }
-          cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
+          choco install -y nsis --no-progress
           
           # Add tools to PATH
           Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\NSIS"
-          $wixBin = Get-ChildItem -Path "C:\Program Files (x86)" -Filter "WiX Toolset*" | Select-Object -First 1 | ForEach-Object { Join-Path $_.FullName "bin" }
-          if ($null -ne $wixBin) {
-            Add-Content $env:GITHUB_PATH "$wixBin"
-            # Shim wix.exe to candle.exe to satisfy builder dependency check
-            $candle = Join-Path $wixBin "candle.exe"
-            $wixShim = Join-Path $wixBin "wix.exe"
-            if (Test-Path $candle) { Copy-Item $candle $wixShim }
-          }
         shell: pwsh
 
       - name: Build Windows Installer
         if: matrix.os == 'windows-latest'
         run: |
-          # Ensure icon directory and file exist for the builder
-          if (-not (Test-Path "build/icons")) { mkdir "build/icons" -Force }
-          $ico = Get-ChildItem -Path . -Filter "icon.ico" -Recurse | Select-Object -First 1
-          if ($null -ne $ico) {
-             Copy-Item $ico.FullName "build/icons/icon.ico" -Force
-             Write-Host "Mapped icon binary: $($ico.FullName) -> build/icons/icon.ico"
-          }
-
           # Map launcher.exe to Editary.exe for resource patching (icon etc)
           if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
              $srcExe = Get-ChildItem -Path "node_modules/electrobun/dist-win-x64" -Filter "launcher.exe" -Recurse | Select-Object -First 1
@@ -77,7 +59,6 @@ jobs:
              }
           }
           bunx electrobun-builder build --target nsis
-          bunx electrobun-builder build --target wix
         shell: pwsh
 
       - name: Release
@@ -86,7 +67,6 @@ jobs:
         with:
           files: |
             dist/*.exe
-            dist/*.msi
             dist/*.dmg
             dist/*.app.zip
             dist/*.tar.gz
