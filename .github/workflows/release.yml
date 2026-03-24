@@ -34,7 +34,11 @@ jobs:
         run: bun install
 
       - name: Build Application
-        run: bunx electrobun build --targets ${{ matrix.target }}
+        run: |
+          bun run build:stable
+          # Find where the exe is
+          gci -Recurse -Filter "*.exe"
+        shell: pwsh
         env:
           ELECTROBUN_BUILD_ENV: stable
 
@@ -50,14 +54,24 @@ jobs:
           
           # Add tools to PATH
           $nsisPath = "C:\Program Files (x86)\NSIS"
-          if (Test-Path $nsisPath) { echo "$nsisPath" >> $env:GITHUB_PATH }
+          if (Test-Path $nsisPath) { 
+            echo "$nsisPath" >> $env:GITHUB_PATH
+            Write-Host "Added NSIS to PATH: $nsisPath"
+          }
           
           # Search for WiX
           $wixDir = Get-ChildItem -Path "C:\Program Files (x86)" -Filter "WiX Toolset*" | Select-Object -First 1
           if ($null -ne $wixDir) {
             $binPath = Join-Path $wixDir.FullName "bin"
-            if (Test-Path $binPath) { echo "$binPath" >> $env:GITHUB_PATH }
+            if (Test-Path $binPath) { 
+              echo "$binPath" >> $env:GITHUB_PATH
+              Write-Host "Added WiX to PATH: $binPath"
+            }
           }
+          
+          # Debug PATH
+          Write-Host "Current GITHUB_PATH contents:"
+          Get-Content $env:GITHUB_PATH
         shell: pwsh
 
       - name: Build Windows Installer
