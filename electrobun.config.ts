@@ -30,7 +30,7 @@ const config = {
     },
   },
   windows: {
-    icon: "build/icons/icon.ico",
+    icon: "icons/icon.ico",
     productId: "dev.catharacta.editary",
     installDir: "Editary",
   },
