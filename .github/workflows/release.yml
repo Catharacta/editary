@@ -38,7 +38,7 @@ jobs:
           if (-not (Test-Path "templates")) { mkdir "templates" }
           cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
-          # Targeted detection for NSIS
+          # Check standard paths for NSIS
           $nsisPaths = @(
             "C:\Program Files (x86)\NSIS",
             "C:\Program Files\NSIS"
@@ -47,34 +47,29 @@ jobs:
             if (Test-Path "$p\makensis.exe") {
               Add-Content $env:GITHUB_PATH $p
               Write-Host "Detected NSIS: $p"
+              $nsisFound = $true
               break
             }
           }
+          if (-not $nsisFound) { throw "NSIS not found in standard paths." }
 
-          # Targeted detection for WiX Toolset
+          # Check standard paths for WiX Toolset
           $wixPaths = @(
             "C:\Program Files (x86)\WiX Toolset v3.14\bin",
             "C:\Program Files (x86)\WiX Toolset v3.11\bin",
-            "C:\Program Files\WiX Toolset v4.0\bin",
-            "C:\Program Files\WiX Toolset v3.10\bin"
+            "C:\Program Files\WiX Toolset v3.10\bin",
+            "C:\Program Files\WiX Toolset v3.14\bin",
+            "C:\Program Files\WiX Toolset v3.11\bin"
           )
           foreach ($p in $wixPaths) {
             if (Test-Path "$p\candle.exe") {
               Add-Content $env:GITHUB_PATH $p
               Write-Host "Detected WiX: $p"
-              $found = $true
+              $wixFound = $true
               break
             }
           }
-          
-          if (-not $found) {
-            Write-Host "Warning: candle.exe not found in standard paths. Attempting fallback search..."
-            $wixBin = (Get-ChildItem -Path "C:\Program Files (x86)\WiX Toolset*" -Filter "candle.exe" -Recurse -Depth 2 -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
-            if ($wixBin) {
-              Add-Content $env:GITHUB_PATH $wixBin
-              Write-Host "Detected WiX (fallback): $wixBin"
-            }
-          }
+          if (-not $wixFound) { throw "WiX Toolset not found in standard paths." }
         shell: pwsh
 
       - name: Build Windows Installer (NSIS)
