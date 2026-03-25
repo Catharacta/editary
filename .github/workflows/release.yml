@@ -38,18 +38,42 @@ jobs:
           if (-not (Test-Path "templates")) { mkdir "templates" }
           cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
           
-          # Detect NSIS Path
-          $nsisPath = (Get-ChildItem -Path "C:\Program Files*" -Filter "NSIS" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
-          if ($nsisPath) {
-             Add-Content $env:GITHUB_PATH $nsisPath
-             Write-Host "Detected NSIS: $nsisPath"
+          # Targeted detection for NSIS
+          $nsisPaths = @(
+            "C:\Program Files (x86)\NSIS",
+            "C:\Program Files\NSIS"
+          )
+          foreach ($p in $nsisPaths) {
+            if (Test-Path "$p\makensis.exe") {
+              Add-Content $env:GITHUB_PATH $p
+              Write-Host "Detected NSIS: $p"
+              break
+            }
           }
 
-          # Detect WiX Path
-          $wixBin = (Get-ChildItem -Path "C:\Program Files*" -Filter "candle.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
-          if ($wixBin) {
-             Add-Content $env:GITHUB_PATH $wixBin
-             Write-Host "Detected WiX: $wixBin"
+          # Targeted detection for WiX Toolset
+          $wixPaths = @(
+            "C:\Program Files (x86)\WiX Toolset v3.14\bin",
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin",
+            "C:\Program Files\WiX Toolset v4.0\bin",
+            "C:\Program Files\WiX Toolset v3.10\bin"
+          )
+          foreach ($p in $wixPaths) {
+            if (Test-Path "$p\candle.exe") {
+              Add-Content $env:GITHUB_PATH $p
+              Write-Host "Detected WiX: $p"
+              $found = $true
+              break
+            }
+          }
+          
+          if (-not $found) {
+            Write-Host "Warning: candle.exe not found in standard paths. Attempting fallback search..."
+            $wixBin = (Get-ChildItem -Path "C:\Program Files (x86)\WiX Toolset*" -Filter "candle.exe" -Recurse -Depth 2 -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
+            if ($wixBin) {
+              Add-Content $env:GITHUB_PATH $wixBin
+              Write-Host "Detected WiX (fallback): $wixBin"
+            }
           }
         shell: pwsh
 
