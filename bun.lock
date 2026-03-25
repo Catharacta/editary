@@ -41,7 +41,7 @@
         "@types/katex": "^0.16.8",
         "@types/markdown-it": "^14.1.2",
         "@types/turndown": "^5.0.6",
-        "electrobun-builder-for-windows": "https://github.com/Catharacta/electrobun-builder",
+        "electrobun-builder-for-windows": "^0.1.7",
         "typescript": "^5.0.0",
       },
     },
@@ -397,7 +397,7 @@
 
     "electrobun": ["electrobun@1.15.1", "", { "dependencies": { "@babylonjs/core": "^7.45.0", "@types/bun": "^1.3.8", "png-to-ico": "^2.1.8", "rcedit": "^4.0.1", "three": "^0.165.0" }, "bin": { "electrobun": "bin/electrobun.cjs" } }, "sha512-FJ7XaTzbCPuH2ABK615WJyrfacoMdYR33tHJ0j/2JIw2srK4lHN9iSjPpvRVL1UveIQB7zRQ2pmVjeI4evwJ+g=="],
 
-    "electrobun-builder-for-windows": ["electrobun-builder-for-windows@github:Catharacta/electrobun-builder#37de133", { "dependencies": { "rcedit": "^5.0.2", "sharp": "^0.34.5", "uuid": "^13.0.0" }, "bin": { "electrobun-builder": "dist/index.js" } }, "Catharacta-electrobun-builder-37de133", "sha512-oMBfyIF46wtvov6aiYBAXpi9jb6NU6WYWJcANC0yiHwhGtftMPKTl4aflQkAqJoWhxKFrNw/WBz/2tSt6vaPIQ=="],
+    "electrobun-builder-for-windows": ["electrobun-builder-for-windows@0.1.7", "", { "dependencies": { "rcedit": "^5.0.2", "sharp": "^0.34.5", "uuid": "^13.0.0" }, "bin": { "electrobun-builder": "dist/index.js" } }, "sha512-u+mfK3Uy5PeL3dvPyLPlr4TsBXDst0GnwEob4v7jvJx+Fn+Pg+exOGiPPvVyfHAvkYTIfLQma1Z1to5Xe3VonA=="],
 
     "entities": ["entities@4.5.0", "", {}, "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="],
 
