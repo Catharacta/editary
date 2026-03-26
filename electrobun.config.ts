@@ -2,11 +2,11 @@ import type { ElectrobunConfig } from "electrobun";
 
 const config = {
   name: "Editary",
-  version: "0.1.23",
+  version: "0.1.32",
   app: {
     name: "Editary",
     identifier: "dev.catharacta.editary",
-    version: "0.1.23",
+    version: "0.1.32",
   },
   runtime: {
     exitOnLastWindowClosed: true,
