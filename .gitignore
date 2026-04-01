@@ -35,3 +35,15 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# AI Agents & Temporary Artifacts
+/artifacts/
+/tmp/
+/tmp_research/
+
+# Research, Logs, and Scratch Scripts
+/launcher_zig.txt
+/main_zig.txt
+/test_out.txt
+/ts_errors.txt
+/test_*.ts

@@ -34,56 +34,8 @@ jobs:
         env:
           ELECTROBUN_BUILD_ENV: stable
 
-      - name: Install Packaging Tools
-        run: |
-          choco install -y nsis wixtoolset --no-progress
-          if (-not (Test-Path "templates")) { mkdir "templates" }
-          cp "node_modules/electrobun-builder-for-windows/templates/*" "templates/"
-          
-          # Check standard paths for NSIS
-          $nsisPaths = @(
-            "C:\Program Files (x86)\NSIS",
-            "C:\Program Files\NSIS"
-          )
-          foreach ($p in $nsisPaths) {
-            if (Test-Path "$p\makensis.exe") {
-              Add-Content $env:GITHUB_PATH $p
-              Write-Host "Detected NSIS: $p"
-              $nsisFound = $true
-              break
-            }
-          }
-          if (-not $nsisFound) { throw "NSIS not found in standard paths." }
-
-          # Check standard paths for WiX Toolset
-          $wixPaths = @(
-            "C:\Program Files (x86)\WiX Toolset v3.14\bin",
-            "C:\Program Files (x86)\WiX Toolset v3.11\bin",
-            "C:\Program Files\WiX Toolset v3.10\bin",
-            "C:\Program Files\WiX Toolset v3.14\bin",
-            "C:\Program Files\WiX Toolset v3.11\bin"
-          )
-          foreach ($p in $wixPaths) {
-            if (Test-Path "$p\candle.exe") {
-              Add-Content $env:GITHUB_PATH $p
-              Write-Host "Detected WiX: $p"
-              $wixFound = $true
-              break
-            }
-          }
-          if (-not $wixFound) { throw "WiX Toolset not found in standard paths." }
-        shell: pwsh
-
       - name: Build Windows Installer (NSIS)
         run: |
-          # Map launcher.exe to Editary.exe for resource patching (icon etc)
-          if (-not (Test-Path "build/stable-win-x64/Editary.exe")) {
-             $srcExe = Get-ChildItem -Path "node_modules/electrobun/dist-win-x64" -Filter "launcher.exe" -Recurse | Select-Object -First 1
-             if ($null -ne $srcExe) {
-                Copy-Item $srcExe.FullName "build/stable-win-x64/Editary.exe"
-                Write-Host "Mapped app binary: $($srcExe.FullName) -> build/stable-win-x64/Editary.exe"
-             }
-          }
           bun run builder -- build --target nsis
         shell: pwsh
 
