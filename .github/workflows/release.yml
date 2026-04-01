@@ -34,6 +34,12 @@ jobs:
         env:
           ELECTROBUN_BUILD_ENV: stable
 
+      - name: Add Packaging Tools to PATH
+        run: |
+          echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
+          echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $env:GITHUB_PATH
+        shell: pwsh
+
       - name: Build Windows Installer (NSIS)
         run: |
           bun run builder -- build --target nsis
