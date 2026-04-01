@@ -34,10 +34,14 @@ jobs:
         env:
           ELECTROBUN_BUILD_ENV: stable
 
-      - name: Add Packaging Tools to PATH
+      - name: Install Packaging Tools
         run: |
-          echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
-          echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $env:GITHUB_PATH
+          choco install nsis wixtoolset --yes
+          # NSIS と WiX のパスを GITHUB_PATH に確実に書き込む
+          $nsisPath = "C:\Program Files (x86)\NSIS"
+          $wixPath = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          if (Test-Path $nsisPath) { Add-Content -Path $env:GITHUB_PATH -Value $nsisPath }
+          if (Test-Path $wixPath) { Add-Content -Path $env:GITHUB_PATH -Value $wixPath }
         shell: pwsh
 
       - name: Build Windows Installer (NSIS)
