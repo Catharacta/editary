@@ -1,7 +1,7 @@
 {
   "name": "editary",
   "version": "0.1.34",
-  "description": "A Typora-like Markdown editor with neobrutalism design built on ElectroBun",
+  "description": "A Typora-inspired Markdown editor with bold Neo-brutalism aesthetics. High performance built on Electrobun and Bun, featuring Tiptap, Mermaid, and KaTeX.",
   "private": true,
   "dependencies": {
     "@sereneinserenade/tiptap-search-and-replace": "^0.1.1",
