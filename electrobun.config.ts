@@ -2,6 +2,7 @@ import type { ElectrobunConfig } from "electrobun";
 
 const config = {
   name: "Editary",
+  author: "Catharacta",
   version: "0.1.32",
   app: {
     name: "Editary",
@@ -28,11 +29,15 @@ const config = {
       // nativefiledialog-for-bun のバイナリを同梱 (FFIバックエンド用)
       "node_modules/nativefiledialog-for-bun/bin/win32/x64/nfd.dll": "bin/win32/x64/nfd.dll",
     },
-  },
-  windows: {
-    icon: "icons/icon.ico",
-    productId: "dev.catharacta.editary",
-    installDir: "Editary",
+    // 軽量版 Bun (bunnyBun) を使用してパッケージ容量を削減
+    bunnyBun: "bunny-bun-5258fb9",
+    win: {
+      icon: "icons/icon.ico",
+      productId: "dev.catharacta.editary",
+      installDir: "Editary",
+      // Electrobun canary ビルドの ASAR バグ回避 (launcher.exe が app を見つけられない)
+      useAsar: false,
+    },
   },
 } as any;
 

@@ -1,59 +1,17 @@
-import { initializeDpiAwareness } from "./platform-dpi";
-// 初期化: アプリケーションとダイアログの解像度（DPI）を決定します
-initializeDpiAwareness();
+import { join } from "path";
 
-import { BrowserWindow, BrowserView } from "electrobun/bun";
-import { type EditaryRPCType } from "../shared/types";
-import { handleFileOperations } from "./file-operations";
+// Windowsの場合、WebView2のユーザーデータフォルダを書き込み可能な場所にリダイレクトします
+// この処理は Electrobun のいかなるモジュールが読み込まれるよりも前に（インポートの巻き上げを防ぐために）
+// 物理的なファイルレベルで分離して実行する必要があります
+if (process.platform === "win32") {
+    const localAppData = process.env.LOCALAPPDATA || join(process.env.USERPROFILE || "", "AppData", "Local");
+    process.env.WEBVIEW2_USER_DATA_FOLDER = join(localAppData, "Editary", "WebView2");
+}
 
-// Define RPC handlers for the main process
-const rpc = BrowserView.defineRPC<EditaryRPCType>({
-    maxRequestTime: 300000, // 5 minutes (to allow time for native dialogs like SaveFileDialog)
-    handlers: {
-        requests: {
-            openFolder: handleFileOperations.openFolder,
-            readDirectory: handleFileOperations.readDirectory,
-            readFile: handleFileOperations.readFile,
-            writeFile: handleFileOperations.writeFile,
-            createFile: handleFileOperations.createFile,
-            createDirectory: handleFileOperations.createDirectory,
-            showSaveFileDialog: handleFileOperations.showSaveFileDialog,
-            showFolderBrowserDialog: handleFileOperations.showFolderBrowserDialog,
-            getLicenses: handleFileOperations.getLicenses,
-            saveImage: handleFileOperations.saveImage,
-            copyImage: handleFileOperations.copyImage,
-            readImageAsDataUrl: handleFileOperations.readImageAsDataUrl,
-            renameEntry: handleFileOperations.renameEntry,
-            deleteEntry: handleFileOperations.deleteEntry,
-            moveEntry: handleFileOperations.moveEntry,
-        },
-        messages: {
-            closeWindow: () => win.close(),
-            minimizeWindow: () => win.minimize(),
-            maximizeWindow: () => {
-                if (win.isMaximized()) {
-                    win.unmaximize();
-                } else {
-                    win.maximize();
-                }
-            },
-        },
-    },
+// 動的にメイン実行ファイルを読み込むことで、環境変数の設定が先に完了していることを保証します
+// Bun のバンドラーはこの `import()` を動的インポートとして扱い、
+// エントリポイント内の同期コードが先に実行されることを保証します
+import("./main").catch(err => {
+    console.error("Failed to start application main loop:", err);
+    process.exit(1);
 });
-
-// Create the main application window
-const win = new BrowserWindow({
-    title: "Editary",
-    url: "views://mainview/index.html",
-    frame: {
-        width: 1200,
-        height: 800,
-        x: 100,
-        y: 100,
-    },
-    titleBarStyle: "hidden",
-    rpc,
-});
-
-// Windows のダイアログぼやけ防止のため、ハンドルを登録
-handleFileOperations.setMainWindow(win);
