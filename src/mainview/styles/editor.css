@@ -1,7 +1,7 @@
 /* ---------- Editor Toolbar ---------- */
 .editor-toolbar {
   width: 100%;
-  max-width: 600px;
+  max-width: 100%; /* ボタン増量に伴い幅制限を解除 */
   min-height: 44px;
   margin-bottom: 24px;
   display: flex;
@@ -13,6 +13,7 @@
   box-shadow: var(--neo-shadow-sm);
   z-index: 10;
   flex-shrink: 0;
+  overflow-x: auto; /* 万が一溢れた場合にスクロール可能に */
 }
 
 .toolbar-left, .toolbar-right {
@@ -28,6 +29,15 @@
   background: rgba(255, 255, 255, 0.3);
   padding: 2px;
   border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.toolbar-divider {
+  width: 2px;
+  height: 24px;
+  background: var(--neo-border);
+  margin: 0 4px;
+  opacity: 0.2;
 }
 
 .editor-toolbar.hidden {
@@ -56,6 +66,16 @@
 .toolbar-btn:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0px var(--neo-border);
+}
+
+.toolbar-btn.is-active {
+  background: var(--neo-border);
+  color: var(--neo-bg);
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.2);
+}
+
+.toolbar-btn.is-active svg {
+  stroke: var(--neo-bg);
 }
 
 .syntax-status {
