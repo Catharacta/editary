@@ -1,6 +1,6 @@
 {
   "name": "editary",
-  "version": "0.1.34",
+  "version": "0.1.35",
   "description": "A Typora-inspired Markdown editor with bold Neo-brutalism aesthetics. High performance built on Electrobun and Bun, featuring Tiptap, Mermaid, and KaTeX.",
   "private": true,
   "dependencies": {
@@ -41,7 +41,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/turndown": "^5.0.6",
     "@types/uuid": "^11.0.0",
-    "electrobun-builder-for-windows": "^0.3.2",
+    "electrobun-builder-for-windows": "^0.3.3",
     "happy-dom": "^20.8.9",
     "rcedit": "^5.0.2",
     "typescript": "^5.0.0",
@@ -51,9 +51,10 @@
     "start": "electrobun build && electrobun dev",
     "build:dev": "electrobun build",
     "build:stable": "powershell -ExecutionPolicy Bypass -Command \"Import-Module Microsoft.PowerShell.Archive -Force; electrobun build --env=stable\"",
-    "builder": "electrobun-builder",
+    "builder": "bun node_modules/electrobun-builder-for-windows/dist/index.js",
     "build:installer": "bun run builder -- build --target nsis",
     "build:msi": "bun run builder -- build --target wix",
-    "test:builder": "bun run builder -- build --target nsis --dry-run"
+    "test:builder": "bun run builder -- build --target nsis --dry-run",
+    "electrobun:brand": "bun run builder brand"
   }
 }

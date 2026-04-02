@@ -19,6 +19,38 @@ export function initializeDpiAwareness(): void {
 }
 
 let user32: any = null;
+let shell32: any = null;
+
+/**
+ * Windows のタスクバーにおけるアプリの識別子 (AppUserModelID) を設定します。
+ * これにより、タスクバーの右クリックメニューの名前やアイコンのグループ化が正しく行われます。
+ */
+export function setAppUserModelId(id: string): void {
+  if (process.platform !== "win32") return;
+
+  try {
+    if (!shell32) {
+      shell32 = dlopen("shell32.dll", {
+        SetCurrentProcessExplicitAppUserModelID: {
+          args: [FFIType.ptr],
+          returns: FFIType.i32,
+        },
+      });
+    }
+
+    if (shell32.symbols.SetCurrentProcessExplicitAppUserModelID) {
+      const idBuffer = Buffer.from(id + "\0", "utf16le");
+      const hr = shell32.symbols.SetCurrentProcessExplicitAppUserModelID(idBuffer);
+      if (hr === 0) {
+        console.log(`[AUMID] Successfully set AppUserModelID to: ${id}`);
+      } else {
+        console.warn(`[AUMID] SetCurrentProcessExplicitAppUserModelID returned HRESULT: 0x${(hr >>> 0).toString(16)}`);
+      }
+    }
+  } catch (e) {
+    console.error("[AUMID] Failed to set AppUserModelID:", e);
+  }
+}
 
 function setupWindowsDpi() {
   try {
