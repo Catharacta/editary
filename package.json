@@ -1,6 +1,6 @@
 {
   "name": "editary",
-  "version": "0.1.35",
+  "version": "0.1.36",
   "description": "A Typora-inspired Markdown editor with bold Neo-brutalism aesthetics. High performance built on Electrobun and Bun, featuring Tiptap, Mermaid, and KaTeX.",
   "private": true,
   "dependencies": {

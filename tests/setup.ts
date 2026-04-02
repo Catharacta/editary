@@ -51,15 +51,39 @@ global.IntersectionObserver = class {
     disconnect() {}
 } as any;
 
-// Mock Worker
-global.Worker = class WorkerMock {
-    onmessage: ((this: Worker, ev: MessageEvent) => any) | null = null;
-    onerror: ((this: AbstractWorker, ev: ErrorEvent) => any) | null = null;
+import { mock } from "bun:test";
 
-    constructor(stringUrl: string | URL, options?: WorkerOptions) {}
-    postMessage(message: any, transfer: Transferable[] | StructuredSerializeOptions): void {}
-    terminate(): void {}
-    addEventListener() {}
-    removeEventListener() {}
-    dispatchEvent() { return true; }
-} as any;
+// Mock Worker
+global.Worker = mock(function WorkerMock(this: any, stringUrl: string | URL, options?: WorkerOptions) {
+    this.onmessage = null;
+    this.onerror = null;
+    this.listeners = {};
+
+    this.postMessage = (message: any, transfer?: any): void => {};
+    this.terminate = (): void => {};
+
+    this.addEventListener = (type: string, listener: Function) => {
+        this.listeners[type] = this.listeners[type] || [];
+        this.listeners[type].push(listener);
+    };
+
+    this.removeEventListener = (type: string, listener: Function) => {
+        if (this.listeners[type]) {
+            this.listeners[type] = this.listeners[type].filter((l: any) => l !== listener);
+        }
+    };
+
+    this.dispatchEvent = (event: Event) => true;
+
+    // Helper to trigger listeners in tests
+    this._trigger = (type: string, event: any) => {
+        if (this.listeners[type]) {
+            this.listeners[type].forEach((l: any) => l(event));
+        }
+        if (type === 'message' && this.onmessage) {
+            this.onmessage(event);
+        }
+    };
+    
+    return this;
+}) as any;

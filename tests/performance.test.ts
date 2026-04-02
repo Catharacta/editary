@@ -30,18 +30,17 @@ describe("Performance Optimization Tests", () => {
         // but we can verify that it doesn't throw and eventually calls setContent
         // if we mock the Worker message handling.
         
-        const workerSpy = spyOn(global, 'Worker');
+        const workerMock = global.Worker as any;
+        workerMock.mockClear();
         
         // This will trigger worker creation
         const promise = setEditorContent(mockEditor, "# Hello", true);
         
-        expect(workerSpy).toHaveBeenCalled();
+        expect(workerMock).toHaveBeenCalled();
         
         // Simulate worker response
-        const workerInstance = (workerSpy.mock.results[0].value as any);
-        if (workerInstance.onmessage) {
-            workerInstance.onmessage({ data: "<h1>Hello</h1>" } as any);
-        }
+        const workerInstance = workerMock.mock.results[0].value;
+        workerInstance._trigger('message', { data: { html: "<h1>Hello</h1>" } });
         
         await promise;
         // The worker is mocked to return <h1>Hello</h1>
