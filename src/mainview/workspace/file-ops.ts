@@ -1,7 +1,7 @@
 import { state } from "../state/workspace";
 import { electroview } from "../ipc";
 import { setEditorContent, getEditorHTML, getEditorText } from "../editor";
-import { markdownToHtml, htmlToMarkdown, resolveRelativeImages } from "../markdown-parser";
+import { markdownToHtml, htmlToMarkdown } from "../markdown-parser";
 import { updateTitleBar, highlightActiveFile } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
 import { loadFileTree } from "./file-tree";
@@ -114,7 +114,7 @@ export async function closeTab(filePath: string) {
             switchToTab(remaining[remaining.length - 1]);
         } else {
             state.currentFilePath = null;
-            setEditorContent(state.editor, "");
+            await setEditorContent(state.editor, "");
             state.editor.setEditable(false);
             document.getElementById("editorToolbar")?.classList.add("hidden");
             updateTitleBar();
@@ -142,15 +142,14 @@ export async function switchToTab(filePath: string) {
         const targetTab = state.openTabs.get(filePath);
 
         if (targetTab?.cachedContent !== undefined) {
-            setEditorContent(state.editor, targetTab.cachedContent);
+            await setEditorContent(state.editor, targetTab.cachedContent);
         } else if (targetTab?.isUntitled) {
-            setEditorContent(state.editor, "");
+            await setEditorContent(state.editor, "");
         } else {
             const content = await electroview.rpc?.request.readFile({ filePath });
-            let html = markdownToHtml(content ?? "");
-            const baseDir = filePath.replace(/[\\/][^\\/]*$/, "") || ".";
-            html = await resolveRelativeImages(html, baseDir, electroview.rpc);
-            setEditorContent(state.editor, html);
+            // Use the Worker for Markdown-to-HTML conversion. 
+            // Relative images will be handled lazily (implemented next).
+            await setEditorContent(state.editor, content ?? "", true);
         }
 
         state.editor.setEditable(true);
@@ -311,7 +310,7 @@ async function processEditorImages(html: string, targetDir: string): Promise<str
         if (state.editor && state.openTabs.has(state.currentFilePath || "")) {
             // We use setContent here, it will trigger an update event and mark as dirty again,
             // but since we're in the middle of saveFile, the caller will set isDirty = false after this.
-            setEditorContent(state.editor, newHtml);
+            await setEditorContent(state.editor, newHtml);
         }
         return newHtml;
     }
@@ -382,7 +381,7 @@ export async function deleteEntry(path: string) {
                     state.openTabs.delete(openPath);
                     if (state.currentFilePath === openPath) {
                         state.currentFilePath = null;
-                        setEditorContent(state.editor, "");
+                        await setEditorContent(state.editor, "");
                         state.editor.setEditable(false);
                         document.getElementById("editorToolbar")?.classList.add("hidden");
                         updateEditorView();

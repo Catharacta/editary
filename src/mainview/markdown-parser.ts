@@ -45,38 +45,7 @@ export function markdownToHtml(markdown: string): string {
     });
 }
 
-/**
- * Scan HTML for relative image paths and resolve them to Data URLs using RPC.
- */
-export async function resolveRelativeImages(html: string, baseDir: string, rpc: any): Promise<string> {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    const images = Array.from(doc.querySelectorAll("img"));
-    let changed = false;
-
-    for (const img of images) {
-        let src = img.getAttribute("src");
-        if (src && !src.startsWith("http") && !src.startsWith("data:") && !src.startsWith("views:")) {
-            // It's a relative path. Resolve it against baseDir.
-            // On Windows, handle both / and \
-            const fullPath = baseDir + (baseDir.endsWith("/") || baseDir.endsWith("\\") ? "" : "/") + src;
-            
-            try {
-                const response = await rpc.request.readImageAsDataUrl({ filePath: fullPath });
-                if (response?.dataUrl) {
-                    img.setAttribute("src", response.dataUrl);
-                    // Store the original relative path in a data attribute so we can revert it on save
-                    img.setAttribute("data-original-src", src);
-                    changed = true;
-                }
-            } catch (error) {
-                console.error("[resolveRelativeImages] RPC failed for:", fullPath, error);
-            }
-        }
-    }
-
-    return changed ? doc.body.innerHTML : html;
-}
+// resolveRelativeImages is now handled lazily by the Image extension's NodeView.
 
 // ========================================
 // HTML → Markdown  (for saving to disk)

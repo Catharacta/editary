@@ -152,6 +152,7 @@ export const MathBlock = Node.create({
             dom.appendChild(previewArea);
 
             // ─── Render function ───
+            let hasRendered = false;
             const renderPreview = (text: string) => {
                 if (!text.trim()) {
                     previewArea.innerHTML =
@@ -163,20 +164,51 @@ export const MathBlock = Node.create({
                         displayMode: true,
                         throwOnError: false,
                     });
+                    hasRendered = true;
                 } catch (err: any) {
                     previewArea.innerHTML = `<span class="math-error">${err.message}</span>`;
                 }
             };
 
-            // Initial render
-            renderPreview(node.textContent);
+            // ─── Intersection Observer for Lazy Rendering ───
+            let observer: IntersectionObserver | null = null;
+            if (typeof IntersectionObserver !== 'undefined') {
+                observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && !hasRendered) {
+                            renderPreview(node.textContent);
+                        }
+                    });
+                }, { rootMargin: "200px" });
+
+                // Wait for next frame to ensure DOM is attached before observing
+                window.requestAnimationFrame(() => {
+                    if (observer) observer.observe(dom);
+                });
+            } else {
+                // Fallback for environments without IntersectionObserver
+                renderPreview(node.textContent);
+            }
 
             return {
                 dom,
                 contentDOM: code,  // ProseMirror controls text editing here
                 update: (updatedNode) => {
                     if (updatedNode.type.name !== this.name) return false;
-                    renderPreview(updatedNode.textContent);
+                    
+                    // If content changed, we need to re-render. 
+                    if (updatedNode.textContent !== node.textContent) {
+                        node = updatedNode; // Update node reference to latest
+                        hasRendered = false;
+                        
+                        // Check visibility for immediate re-render
+                        const isVisible = dom.getBoundingClientRect().top < window.innerHeight && dom.getBoundingClientRect().bottom > 0;
+                        if (isVisible || typeof IntersectionObserver === 'undefined') {
+                            renderPreview(updatedNode.textContent);
+                        }
+                    } else {
+                        node = updatedNode; // Always update node reference
+                    }
                     return true;
                 },
                 ignoreMutation: (mutation: any) => {
@@ -189,6 +221,9 @@ export const MathBlock = Node.create({
                     }
                     return false;
                 },
+                destroy: () => {
+                    if (observer) observer.disconnect();
+                }
             };
         };
     },

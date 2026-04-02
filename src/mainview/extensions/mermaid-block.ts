@@ -96,6 +96,7 @@ export const EditaryCodeBlock = CodeBlock.extend({
 
             // Debounced render function
             let renderTimer: ReturnType<typeof setTimeout> | null = null;
+            let hasRendered = false;
 
             const renderPreview = (text: string) => {
                 if (!text.trim()) {
@@ -110,26 +111,54 @@ export const EditaryCodeBlock = CodeBlock.extend({
                         const id = "mermaid-" + Math.random().toString(36).substring(2, 9);
                         const { svg } = await mermaid.render(id, text);
                         previewArea.innerHTML = svg;
+                        hasRendered = true;
                     } catch (e: any) {
                         previewArea.innerHTML = `<div class="mermaid-error">Syntax Error: ${e.message || e}</div>`;
                     }
                 }, 400);
             };
 
-            // Initial render
-            renderPreview(node.textContent);
+            // ─── Intersection Observer for Lazy Rendering ───
+            let observer: IntersectionObserver | null = null;
+            if (typeof IntersectionObserver !== 'undefined') {
+                observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && !hasRendered) {
+                            renderPreview(node.textContent);
+                        }
+                    });
+                }, { rootMargin: "200px" });
+
+                // Wait for next frame to ensure DOM is attached before observing
+                window.requestAnimationFrame(() => {
+                    if (observer) observer.observe(dom);
+                });
+            } else {
+                // Fallback for environments without IntersectionObserver
+                renderPreview(node.textContent);
+            }
 
             return {
                 dom,
                 contentDOM: code,
                 update: (updatedNode) => {
-                    // If the node type changed, or language is no longer mermaid,
-                    // return false to force ProseMirror to rebuild the view
                     if (updatedNode.type.name !== this.name) return false;
                     const updatedLang = (updatedNode.attrs.language || "").toLowerCase();
                     if (updatedLang !== "mermaid") return false;
 
-                    renderPreview(updatedNode.textContent);
+                    // If content changed, we need to re-render.
+                    if (updatedNode.textContent !== node.textContent) {
+                        node = updatedNode; // Update node reference to latest
+                        hasRendered = false;
+                        
+                        // Check visibility for immediate re-render
+                        const isVisible = dom.getBoundingClientRect().top < window.innerHeight && dom.getBoundingClientRect().bottom > 0;
+                        if (isVisible || typeof IntersectionObserver === 'undefined') {
+                            renderPreview(updatedNode.textContent);
+                        }
+                    } else {
+                        node = updatedNode; // Always update node reference
+                    }
                     return true;
                 },
                 ignoreMutation: (mutation: any) => {
@@ -144,6 +173,7 @@ export const EditaryCodeBlock = CodeBlock.extend({
                 },
                 destroy: () => {
                     if (renderTimer) clearTimeout(renderTimer);
+                    if (observer) observer.disconnect();
                 },
             };
         };

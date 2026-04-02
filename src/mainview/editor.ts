@@ -18,10 +18,84 @@ import { MathInline } from "./extensions/math-inline";
 import { EditaryCodeBlock } from "./extensions/mermaid-block";
 import { TextSelection } from "@tiptap/pm/state";
 import { Kbd, MarkTag, Underline, Details, Summary, Ruby, Rt, RawHtml } from "./extensions/html-tags";
-import { htmlToMarkdown, markdownToHtml, resolveRelativeImages } from "./markdown-parser";
+import { htmlToMarkdown, markdownToHtml } from "./markdown-parser";
 import { electroview } from "./ipc";
 import { state } from "./state/workspace";
 import { t } from "./utils/i18n";
+
+// Worker for heavy parsing
+let parsingWorker: Worker | null | undefined = undefined;
+
+function getParsingWorker() {
+    // If it's already null, it means a previous attempt failed, so we don't try again.
+    if (parsingWorker === undefined) {
+        try {
+            // We use a relative URL. In most browser environments, this is fine.
+            // AVOID import.meta.url as it can cause syntax errors in some environments.
+            const workerUrl = "parsing.worker.js";
+            parsingWorker = new Worker(workerUrl);
+            
+            parsingWorker.onerror = (e) => {
+                console.warn("[Editary] Parsing Worker failed to load or crashed. Falling back to synchronous parsing.", e);
+                parsingWorker = null;
+            };
+        } catch (error) {
+            console.error("[Editary] Failed to initialize Web Worker for parsing. Using synchronous fallback.", error);
+            parsingWorker = null;
+        }
+    }
+    return parsingWorker;
+}
+
+/**
+ * Parses Markdown to HTML asynchronously using a Web Worker.
+ * If the worker is unavailable, falls back to synchronous parsing.
+ */
+async function parseMarkdownAsync(markdown: string): Promise<string> {
+    try {
+        const worker = getParsingWorker();
+        
+        if (!worker) {
+            return markdownToHtml(markdown);
+        }
+
+        return new Promise((resolve) => {
+            const onMessage = (e: MessageEvent) => {
+                cleanup();
+                if (e.data.error) {
+                    console.error("[Editary] Worker parse error:", e.data.error);
+                    resolve(markdownToHtml(markdown));
+                } else {
+                    resolve(e.data.html);
+                }
+            };
+            
+            const onError = (e: ErrorEvent) => {
+                cleanup();
+                console.warn("[Editary] Worker execution error, falling back to sync:", e);
+                resolve(markdownToHtml(markdown));
+            };
+
+            const cleanup = () => {
+                worker.removeEventListener("message", onMessage);
+                worker.removeEventListener("error", onError);
+            };
+
+            worker.addEventListener("message", onMessage);
+            worker.addEventListener("error", onError);
+            worker.postMessage({ markdown });
+
+            // Safety timeout: if worker doesn't respond in 5s, fallback
+            setTimeout(() => {
+                cleanup();
+                resolve(markdownToHtml(markdown));
+            }, 5000);
+        });
+    } catch (e) {
+        console.error("[Editary] Error in parseMarkdownAsync:", e);
+        return markdownToHtml(markdown);
+    }
+}
 
 import BubbleMenu from "@tiptap/extension-bubble-menu";
 
@@ -216,6 +290,90 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
                 HTMLAttributes: {
                     class: "neo-image",
                 },
+            }).extend({
+                addNodeView() {
+                    return ({ node, editor, getPos }) => {
+                        const { src } = node.attrs;
+                        const container = document.createElement("div");
+                        container.className = "neo-image-container";
+                        
+                        const img = document.createElement("img");
+                        img.className = "neo-image";
+                        
+                        // If it's a relative path, use a placeholder until resolved
+                        const isRelative = src && !src.startsWith("http") && !src.startsWith("data:") && !src.startsWith("views:");
+                        
+                        if (isRelative) {
+                            img.src = ""; // Empty or placeholder
+                            img.style.opacity = "0.3";
+                            
+                            let observer: IntersectionObserver | null = null;
+                            if (typeof IntersectionObserver !== 'undefined') {
+                                observer = new IntersectionObserver(async (entries) => {
+                                    for (const entry of entries) {
+                                        if (entry.isIntersecting) {
+                                            if (observer) observer.disconnect();
+                                            
+                                            // Resolve path
+                                            if (state.currentFilePath && electroview.rpc) {
+                                                const baseDir = state.currentFilePath.replace(/[\\/][^\\/]*$/, "") || ".";
+                                                const fullPath = baseDir + (baseDir.endsWith("/") || baseDir.endsWith("\\") ? "" : "/") + src;
+                                                
+                                                try {
+                                                    const response = await electroview.rpc.request.readImageAsDataUrl({ filePath: fullPath });
+                                                    if (response?.dataUrl) {
+                                                        img.src = response.dataUrl;
+                                                        img.setAttribute("data-original-src", src);
+                                                        img.style.opacity = "1";
+                                                    }
+                                                } catch (error) {
+                                                    console.error("[LazyImage] Resolution failed:", fullPath, error);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }, { rootMargin: "200px" });
+                                
+                                window.requestAnimationFrame(() => {
+                                    if (observer) observer.observe(container);
+                                });
+                            } else {
+                                // Fallback: Immediate load if IntersectionObserver is missing
+                                (async () => {
+                                    if (state.currentFilePath && electroview.rpc) {
+                                        const baseDir = state.currentFilePath.replace(/[\\/][^\\/]*$/, "") || ".";
+                                        const fullPath = baseDir + (baseDir.endsWith("/") || baseDir.endsWith("\\") ? "" : "/") + src;
+                                        try {
+                                            const response = await electroview.rpc.request.readImageAsDataUrl({ filePath: fullPath });
+                                            if (response?.dataUrl) {
+                                                img.src = response.dataUrl;
+                                                img.setAttribute("data-original-src", src);
+                                                img.style.opacity = "1";
+                                            }
+                                        } catch (error) {
+                                            console.error("[LazyImage] Resolution failed (fallback):", fullPath, error);
+                                        }
+                                    }
+                                })();
+                            }
+                        } else {
+                            img.src = src;
+                        }
+
+                        container.appendChild(img);
+                        
+                        return {
+                            dom: container,
+                            update: (updatedNode) => {
+                                if (updatedNode.type.name !== this.name) return false;
+                                // If the src attribute changed, we let ProseMirror handle it by returning false 
+                                // (rebuild the view) or we manually update.
+                                if (updatedNode.attrs.src !== node.attrs.src) return false;
+                                return true;
+                            },
+                        };
+                    };
+                }
             }),
             Typography,
 
@@ -302,12 +460,22 @@ export function createEditor(element: HTMLElement, tableBubbleMenu: HTMLElement 
 }
 
 /**
- * Set the editor content from a Markdown/HTML string.
- * For now, we load content as HTML. In the future, a Markdown parser
- * (e.g., markdown-it) can convert .md content to HTML before loading.
+ * Set the editor content from a Markdown or HTML string.
  */
-export function setEditorContent(editor: Editor, content: string): void {
-    editor.commands.setContent(content);
+export async function setEditorContent(editor: Editor, content: string, isMarkdown: boolean = false): Promise<void> {
+    let finalContent = content;
+    
+    if (isMarkdown && content.trim()) {
+        try {
+            // Use worker for heavy markdown
+            finalContent = await parseMarkdownAsync(content);
+        } catch (e) {
+            console.error("Worker parsing failed, falling back to sync:", e);
+            finalContent = markdownToHtml(content);
+        }
+    }
+    
+    editor.commands.setContent(finalContent);
 }
 
 /**
@@ -328,15 +496,10 @@ export async function reparseContent(editor: Editor): Promise<{ success: boolean
         const markdown = htmlToMarkdown(currentHtml);
         let newHtml = markdownToHtml(markdown);
         
-        if (state.currentFilePath) {
-            const baseDir = state.currentFilePath.replace(/[\\/][^\\/]*$/, "") || ".";
-            newHtml = await resolveRelativeImages(newHtml, baseDir, electroview);
-        }
-
+        // Image resolution is now handled lazily by the NodeView.
+        
         editor.commands.setContent(newHtml);
         
-        // Basic check: if dompurify removed something, we might want to know
-        // (Though technically we don't have a direct comparison for "removed" items here without complex diffing)
         return { success: true, message: t("editor.syntaxUpdated") };
     } catch (e) {
         console.error("Reparse failed:", e);
