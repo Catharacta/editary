@@ -1,6 +1,6 @@
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
-import { initializeDpiAwareness } from "./platform-dpi";
+import { initializeDpiAwareness, getWindowHandle, setWindowIcon } from "./platform-dpi";
 import { BrowserWindow, BrowserView } from "electrobun/bun";
 import { type EditaryRPCType } from "../shared/types";
 import { handleFileOperations } from "./file-operations";
@@ -78,3 +78,49 @@ const win = new BrowserWindow({
 
 // Windows のダイアログぼやけ防止のため、ハンドルを登録
 handleFileOperations.setMainWindow(win);
+
+// ウィンドウアイコンの設定 (Windows 限定の FFI 経由)
+if (process.platform === "win32") {
+    let retries = 0;
+    const maxRetries = 50; // 100ms * 50 = 5秒間
+    const retryInterval = 100;
+
+    const trySetIcon = () => {
+        const hwnd = getWindowHandle("Editary");
+        if (hwnd && hwnd !== 0n) {
+            // パス候補のリスト
+            // 1. Resources/icons/icon.ico (ビルド後の標準構造)
+            // 2. Resources/app/views/mainview/assets/icon.ico (フォールバック)
+            // 3. プロジェクトルートの icons/icon.ico (開発中プロセスcwd)
+            const candidates = [
+                join(resourcesDir, "icons/icon.ico"),
+                join(resourcesDir, "app/views/mainview/assets/icon.ico"),
+                join(process.cwd(), "icons/icon.ico")
+            ];
+
+            let foundPath: string | null = null;
+            for (const p of candidates) {
+                console.log(`[Icon] Checking icon candidate: ${p}`);
+                if (existsSync(p)) {
+                    foundPath = p;
+                    break;
+                }
+            }
+            
+            if (foundPath) {
+                console.log(`[Icon] Icon found! Applying: ${foundPath}`);
+                setWindowIcon(hwnd, foundPath);
+            } else {
+                console.warn(`[Icon] Icon not found in any expected location.`);
+                console.log(`[Icon] Search context - isPackaged: ${isPackaged}, resourcesDir: ${resourcesDir}, cwd: ${process.cwd()}, metaDir: ${import.meta.dir}`);
+            }
+        } else if (retries < maxRetries) {
+            retries++;
+            setTimeout(trySetIcon, retryInterval);
+        } else {
+            console.error(`[Icon] Giving up after ${maxRetries} retries. Window handle not found.`);
+        }
+    };
+
+    trySetIcon();
+}

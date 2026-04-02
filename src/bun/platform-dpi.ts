@@ -43,6 +43,14 @@ function setupWindowsDpi() {
       FindWindowW: {
         args: [FFIType.ptr, FFIType.ptr],
         returns: FFIType.ptr,
+      },
+      SendMessageW: {
+        args: [FFIType.ptr, FFIType.u32, FFIType.u64, FFIType.u64],
+        returns: FFIType.ptr,
+      },
+      LoadImageW: {
+        args: [FFIType.ptr, FFIType.ptr, FFIType.u32, FFIType.i32, FFIType.i32, FFIType.u32],
+        returns: FFIType.ptr,
       }
     });
 
@@ -145,21 +153,65 @@ export function getWindowHandle(title: string): any {
     return user32.symbols.FindWindowW(null, titleBuffer);
   };
 
-  // そのままのタイトルで試行
+  // 1. そのままのタイトルで試行
+  console.log(`[DPI] Attempting to find window with title: "${title}"`);
   let hwnd = tryFind(title);
   
-  // 見つからない場合は -dev を付けて試行 (ElectroBun の dev ビルド用)
-  if (!hwnd && !title.endsWith("-dev")) {
+  // 2. 見つからない場合は -dev を付けて試行 (ElectroBun の dev ビルド用)
+  if ((!hwnd || hwnd === 0n) && !title.endsWith("-dev")) {
+    console.log(`[DPI] Window "${title}" not found. Trying with "-dev" suffix...`);
     hwnd = tryFind(title + "-dev");
   }
   
-  if (hwnd) {
-    console.log(`[DPI] Found HWND for window "${title}": ${hwnd}`);
+  if (hwnd && hwnd !== 0n) {
+    console.log(`[DPI] Found HWND for window "${title}": 0x${hwnd.toString(16)}`);
   } else {
-    console.warn(`[DPI] Could not find HWND for window "${title}" (tried with and without -dev suffix)`);
+    console.warn(`[DPI] Could not find HWND for window "${title}" after all attempts.`);
   }
   
   return hwnd;
+}
+
+/**
+ * 指定したウィンドウハンドルにアイコンを設定します。
+ */
+export function setWindowIcon(hwnd: any, iconPath: string): void {
+  if (process.platform !== "win32" || !hwnd || !user32) return;
+
+  const WM_SETICON = 0x0080;
+  const ICON_SMALL = 0;
+  const ICON_BIG = 1;
+  const IMAGE_ICON = 1;
+  const LR_LOADFROMFILE = 0x00000010;
+  const LR_DEFAULTSIZE = 0x00000040;
+
+  try {
+    const iconPathBuffer = Buffer.from(iconPath + "\0", "utf16le");
+    
+    // アイコンを読み込む (LoadImageW)
+    console.log(`[Icon] Loading icon from path: "${iconPath}"`);
+    const hIcon = user32.symbols.LoadImageW(
+      null,
+      iconPathBuffer,
+      IMAGE_ICON,
+      0, 0,
+      LR_LOADFROMFILE | LR_DEFAULTSIZE
+    );
+
+    if (hIcon && hIcon !== 0n) {
+      console.log(`[Icon] Icon loaded successfully. HICON: 0x${hIcon.toString(16)}`);
+      // 大アイコンを設定 (タスクバー、タスク切替)
+      user32.symbols.SendMessageW(hwnd, WM_SETICON, BigInt(ICON_BIG), hIcon);
+      // 小アイコンを設定 (タイトルバー、プレビュー)
+      user32.symbols.SendMessageW(hwnd, WM_SETICON, BigInt(ICON_SMALL), hIcon);
+      
+      console.log(`[Icon] WM_SETICON messages sent to HWND 0x${hwnd.toString(16)}`);
+    } else {
+      console.warn(`[Icon] Failed to load icon (LoadImageW returned 0). Path: "${iconPath}"`);
+    }
+  } catch (error) {
+    console.error(`[Icon] Error setting window icon:`, error);
+  }
 }
 
 function setupLinuxDpi() {

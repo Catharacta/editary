@@ -60,9 +60,16 @@ export function updateUI() {
 
     // 2. Placeholders
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        if (!(el instanceof HTMLElement)) return;
         const key = el.getAttribute('data-i18n-placeholder');
-        if (key && el instanceof HTMLInputElement) {
-            el.placeholder = t(key);
+        if (key) {
+            const translated = t(key);
+            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+                el.placeholder = translated;
+            }
+            // CSS の attr(data-placeholder) や var(--placeholder-text) で参照できるように設定
+            el.setAttribute('data-placeholder', translated);
+            el.style.setProperty('--placeholder-text', `"${translated}"`);
         }
     });
 

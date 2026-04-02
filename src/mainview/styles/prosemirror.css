@@ -247,7 +247,7 @@
 
 /* ---------- Placeholder ---------- */
 .ProseMirror p.is-editor-empty:first-child::before {
-  content: "ここに Markdown を書き始めてください...";
+  content: var(--placeholder-text);
   color: var(--neo-text-muted);
   float: left;
   pointer-events: none;
