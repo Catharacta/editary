@@ -5,6 +5,12 @@ type Translations = Record<string, any>;
 let currentTranslations: Translations = {};
 let currentLocale = 'ja';
 
+// --- Test only helpers ---
+export function setTranslationsForTest(translations: any) {
+    currentTranslations = translations;
+}
+// -------------------------
+
 export async function initI18n() {
     const savedLocale = localStorage.getItem('editary-language') || 'ja';
     await loadLocale(savedLocale);
