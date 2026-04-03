@@ -26,6 +26,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupKeyboardShortcuts();
     setupEditorInstance();
 
+    // 3. Dynamic Metadata (Version)
+    try {
+        const version = await electroview.rpc?.request.getVersion({});
+        const versionEl = document.getElementById("aboutVersion");
+        if (versionEl && version) {
+            versionEl.textContent = `Version ${version}`;
+        }
+    } catch (e) {
+        console.warn("Failed to fetch version from main process:", e);
+    }
+
     // Prevent default browser behavior for drag & drop navigation
     window.addEventListener("dragover", (e) => {
         e.preventDefault();

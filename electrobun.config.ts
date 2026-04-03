@@ -3,11 +3,11 @@ import type { ElectrobunConfig } from "electrobun";
 const config = {
   name: "Editary",
   author: "Catharacta",
-  version: "0.1.37",
+  version: "0.1.35",
   app: {
     name: "Editary",
     identifier: "dev.catharacta.editary.v2",
-    version: "0.1.37",
+    version: "0.1.35",
   },
   runtime: {
     exitOnLastWindowClosed: true,

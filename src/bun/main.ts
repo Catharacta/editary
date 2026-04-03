@@ -20,9 +20,16 @@ try {
     if (existsSync(versionJsonPath)) {
         const versionInfo = JSON.parse(readFileSync(versionJsonPath, "utf8"));
         version = versionInfo.version;
+    } else {
+        // Fallback for development: read package.json directly
+        const packageJsonPath = join(import.meta.dir, "../../package.json");
+        if (existsSync(packageJsonPath)) {
+            const packageInfo = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+            version = packageInfo.version;
+        }
     }
 } catch (e) {
-    console.warn(`Failed to read version.json at ${versionJsonPath}:`, e);
+    console.warn(`Failed to read version info:`, e);
 }
 
 console.log(`Starting Editary v${version}...`);
@@ -47,6 +54,7 @@ const rpc = BrowserView.defineRPC<EditaryRPCType>({
             renameEntry: handleFileOperations.renameEntry,
             deleteEntry: handleFileOperations.deleteEntry,
             moveEntry: handleFileOperations.moveEntry,
+            getVersion: () => version,
         },
         messages: {
             closeWindow: () => win.close(),

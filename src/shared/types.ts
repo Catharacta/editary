@@ -99,6 +99,11 @@ export type EditaryRPCType = {
                 params: { oldPath: string; newParentDir: string };
                 response: { success: boolean; newPath: string; error?: string };
             };
+            /** Get application version from package.json */
+            getVersion: {
+                params: {};
+                response: string;
+            };
         };
         messages: {
             /** Window control: close */
