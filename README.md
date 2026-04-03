@@ -10,6 +10,10 @@
 
 - **Typora-like Writing Experience**: Seamlessly edit Markdown with a real-time preview powered by Tiptap.
 - **Neo-brutalism UI**: A bold, high-contrast design with thick borders and vibrant colors.
+  - **App Window Frame**: High-impact black borders around the entire application.
+  - **Refined Settings**: Optimized vertical layouts for better usability.
+  - **Customizable Themes**: Switch between light and dark modes with unique neo-brutalist palettes.
+  - **Sidebar Navigation**: Intuitive file management with a clean, border-heavy aesthetic.
 - **Advanced Markdown Support**:
   - 📊 **Mermaid**: Create diagrams and charts directly in your notes.
   - 🧪 **KaTeX**: High-quality math typesetting for formulas.
