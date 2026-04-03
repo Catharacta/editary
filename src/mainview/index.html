@@ -469,11 +469,11 @@
               <p data-i18n="settings.language.desc">表示言語を設定します。</p>
             </div>
             <div class="settings-list-premium">
-              <div class="settings-row">
+              <div class="settings-row settings-row--vertical">
                 <div class="settings-text">
                   <div class="settings-title" data-i18n="settings.language.selectLabel">UI言語</div>
                 </div>
-                <select id="languageSelect" class="neo-input" style="width: auto; min-width: 120px;">
+                <select id="languageSelect" class="neo-input neo-select" style="width: 100%; min-width: 120px;">
                   <option value="ja">日本語</option>
                   <option value="en">English</option>
                 </select>
@@ -488,25 +488,25 @@
               <p data-i18n="settings.editor.desc">執筆環境の動作をカスタマイズします。</p>
             </div>
             <div class="settings-list-premium">
-              <div class="settings-row">
+              <div class="settings-row settings-row--vertical">
                 <div class="settings-text">
                   <div class="settings-title" data-i18n="settings.editor.autoSave">自動保存 (Auto-save)</div>
                   <div class="settings-desc" data-i18n="settings.editor.autoSaveDesc">編集内容を一定間隔で自動的に保存します</div>
+                  <label class="neo-toggle" style="margin-top: 8px;">
+                    <input type="checkbox" id="autoSaveToggle">
+                    <span class="neo-toggle-slider"></span>
+                  </label>
                 </div>
-                <label class="neo-toggle">
-                  <input type="checkbox" id="autoSaveToggle">
-                  <span class="neo-toggle-slider"></span>
-                </label>
               </div>
-              <div class="settings-row">
+              <div class="settings-row settings-row--vertical">
                 <div class="settings-text">
                   <div class="settings-title" data-i18n="settings.editor.lineNumbers">行番号の表示</div>
                   <div class="settings-desc" data-i18n="settings.editor.lineNumbersDesc">エディタの左端に行番号を表示します</div>
+                  <label class="neo-toggle" style="margin-top: 8px;">
+                    <input type="checkbox" id="lineNumbersToggle">
+                    <span class="neo-toggle-slider"></span>
+                  </label>
                 </div>
-                <label class="neo-toggle">
-                  <input type="checkbox" id="lineNumbersToggle">
-                  <span class="neo-toggle-slider"></span>
-                </label>
               </div>
             </div>
           </div>

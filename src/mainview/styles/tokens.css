@@ -153,5 +153,6 @@ body {
   background: var(--neo-bg);
   display: flex;
   flex-direction: column;
+  border: var(--neo-border-width) solid var(--neo-border);
 }
 

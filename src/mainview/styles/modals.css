@@ -249,12 +249,18 @@
 }
 
 .settings-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
   margin-right: 16px;
+}
+
+.settings-row--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.settings-row--vertical .settings-text {
+  margin-right: 0;
+  width: 100%;
 }
 
 .settings-title {
