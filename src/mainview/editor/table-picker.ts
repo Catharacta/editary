@@ -54,6 +54,31 @@ export function setupTablePicker() {
         }
     }
 
+    function positionPicker() {
+        if (!tableInsertBtn || !tableGridPicker) return;
+        const rect = tableInsertBtn.getBoundingClientRect();
+        
+        // Temporarily show to get dimensions
+        tableGridPicker.classList.remove("hidden");
+        const pickerRect = tableGridPicker.getBoundingClientRect();
+        
+        let top = rect.bottom + 4;
+        let left = rect.left;
+        
+        // Boundary check (right)
+        if (left + pickerRect.width > window.innerWidth - 8) {
+            left = window.innerWidth - pickerRect.width - 8;
+        }
+        
+        // Boundary check (bottom)
+        if (top + pickerRect.height > window.innerHeight - 8) {
+            top = rect.top - pickerRect.height - 4;
+        }
+        
+        tableGridPicker.style.top = `${top}px`;
+        tableGridPicker.style.left = `${left}px`;
+    }
+
     tableInsertBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         const isExpanded = tableInsertBtn.getAttribute("aria-expanded") === "true";
@@ -62,7 +87,7 @@ export function setupTablePicker() {
             closeTableGridPicker();
         } else {
             tableInsertBtn.setAttribute("aria-expanded", "true");
-            tableGridPicker?.classList.remove("hidden");
+            positionPicker();
             highlightGrid(3, 3);
         }
     });
@@ -82,7 +107,7 @@ export function setupTablePicker() {
     document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
         if (tableGridPicker && !tableGridPicker.classList.contains("hidden")) {
-            if (!target.closest(".toolbar-dropdown")) {
+            if (!target.closest(".table-grid-picker") && !target.closest("#tableInsertBtn")) {
                 closeTableGridPicker();
             }
         }
