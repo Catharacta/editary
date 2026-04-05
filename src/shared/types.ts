@@ -32,9 +32,9 @@ export type EditaryRPCType = {
                 params: {};
                 response: string | null;
             };
-            /** List all .md files in the given directory */
+            /** List files in the given directory (optionally recursive) */
             readDirectory: {
-                params: { dirPath: string };
+                params: { dirPath: string; recursive?: boolean };
                 response: FileEntry[];
             };
             /** Read the content of a file */

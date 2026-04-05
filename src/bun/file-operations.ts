@@ -3,9 +3,10 @@ import { join, extname, basename, dirname } from "node:path";
 import type { FileEntry, LicenseEntry } from "../shared/types";
 
 /**
- * Recursively read a directory and return file entries for .md files.
+ * Read a directory and return file entries.
+ * Can be recursive (reads entire tree) or shallow (reads only direct children).
  */
-async function getDirectoryEntries(dirPath: string): Promise<FileEntry[]> {
+async function getDirectoryEntries(dirPath: string, recursive: boolean = true): Promise<FileEntry[]> {
     const entries: FileEntry[] = [];
 
     try {
@@ -18,14 +19,23 @@ async function getDirectoryEntries(dirPath: string): Promise<FileEntry[]> {
             const fullPath = join(dirPath, item.name);
 
             if (item.isDirectory()) {
-                const children = await getDirectoryEntries(fullPath);
-                // Only include directories that contain .md files (directly or nested)
-                if (children.length > 0) {
+                if (recursive) {
+                    const children = await getDirectoryEntries(fullPath, true);
+                    // Only include directories that contain .md files (directly or nested)
+                    if (children.length > 0) {
+                        entries.push({
+                            name: item.name,
+                            path: fullPath,
+                            isDirectory: true,
+                            children,
+                        });
+                    }
+                } else {
+                    // In shallow mode, include all directories
                     entries.push({
                         name: item.name,
                         path: fullPath,
                         isDirectory: true,
-                        children,
                     });
                 }
             } else if (extname(item.name).toLowerCase() === ".md") {
@@ -129,8 +139,8 @@ export const handleFileOperations: any = {
         });
     },
 
-    readDirectory: async ({ dirPath }: { dirPath: string }) => {
-        return getDirectoryEntries(dirPath);
+    readDirectory: async ({ dirPath, recursive }: { dirPath: string; recursive?: boolean }) => {
+        return getDirectoryEntries(dirPath, recursive ?? true);
     },
 
     readFile: async ({ filePath }: { filePath: string }) => {
