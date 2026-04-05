@@ -1,6 +1,6 @@
 import { state } from "../state/workspace";
 import { electroview } from "../ipc";
-import { setEditorContent, getEditorHTML, getEditorText } from "../editor";
+import { setEditorContent, getEditorHTML, getEditorText, jumpToText } from "../editor";
 import { markdownToHtml, htmlToMarkdown } from "../markdown-parser";
 import { updateTitleBar, highlightActiveFile } from "../utils/dom";
 import { updateStatusBar } from "../ui/status-bar";
@@ -128,8 +128,14 @@ export async function closeTab(filePath: string) {
     }
 }
 
-export async function switchToTab(filePath: string) {
-    if (state.currentFilePath === filePath) return;
+export async function switchToTab(filePath: string, options?: { jumpToText?: string }) {
+    if (state.currentFilePath === filePath) {
+        // Already on the right tab, just jump if needed
+        if (options?.jumpToText) {
+            jumpToText(state.editor, options.jumpToText);
+        }
+        return;
+    }
 
     if (state.currentFilePath) {
         const curTab = state.openTabs.get(state.currentFilePath);
@@ -163,16 +169,24 @@ export async function switchToTab(filePath: string) {
         updateStatusBar();
         renderOutline(state.editor);
         updateEditorView();
+
+        // Perform jump if requested
+        if (options?.jumpToText) {
+            // Small delay to ensure Tiptap has fully rendered the new content
+            setTimeout(() => {
+                jumpToText(state.editor, options.jumpToText!);
+            }, 100);
+        }
     } catch (error) {
         console.error("Failed to load tab:", error);
     }
 }
 
-export async function openFile(filePath: string) {
+export async function openFile(filePath: string, options?: { jumpToText?: string }) {
     if (!state.openTabs.has(filePath)) {
         state.openTabs.set(filePath, { filePath, isDirty: false, isUntitled: false });
     }
-    await switchToTab(filePath);
+    await switchToTab(filePath, options);
 }
 
 export async function saveFile(filePath: string) {

@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile, mkdir, stat, copyFile, rename, rm } from "node:fs/promises";
 import { join, extname, basename, dirname } from "node:path";
-import type { FileEntry, LicenseEntry } from "../shared/types";
+import type { FileEntry, LicenseEntry, SearchOptions } from "../shared/types";
 
 /**
  * Read a directory and return file entries.
@@ -122,44 +122,82 @@ export function setMainWindow(win: BrowserWindow) {
 // @ts-ignore - Some handlers might need slight adjustments to match the exact electrobun RPC handler signature
 export const handleFileOperations: any = {
 
-    searchInFiles: async ({ query, dirPath }: { query: string; dirPath: string }) => {
+    searchInFiles: async ({ query, dirPath, options }: { query: string; dirPath: string; options?: SearchOptions }) => {
         const results: any[] = [];
         if (!query) return results;
 
-        const lowerQuery = query.toLowerCase();
+        const isCaseSensitive = options?.isCaseSensitive ?? false;
+        const isWholeWord = options?.isWholeWord ?? false;
+        const isRegex = options?.isRegex ?? false;
+
+        let pattern = query;
+        if (!isRegex) {
+            // Escape special characters for literal search
+            pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        if (isWholeWord) {
+            pattern = `\\b${pattern}\\b`;
+        }
+
+        const regex = new RegExp(pattern, isCaseSensitive ? "" : "i");
+
+        // Prepare filter regexes
+        const globToRegex = (glob: string) => {
+            const pattern = glob.trim()
+                .replace(/[.+^${}()|[\]\\]/g, '\\$&') // Escape regex chars except * and ?
+                .replace(/\*/g, '.*')
+                .replace(/\?/g, '.');
+            return new RegExp(`^${pattern}$`, 'i');
+        };
+
+        const includeRegexes = options?.includePattern?.split(',').map(globToRegex).filter(r => !!r) || [];
+        const excludeRegexes = options?.excludePattern?.split(',').map(globToRegex).filter(r => !!r) || [];
+
+        const isIncluded = (name: string) => {
+            if (includeRegexes.length === 0) return true;
+            return includeRegexes.some(r => r.test(name));
+        };
+
+        const isExcluded = (name: string) => {
+            return excludeRegexes.some(r => r.test(name));
+        };
 
         async function walk(currentPath: string) {
             const items = await readdir(currentPath, { withFileTypes: true });
             for (const item of items) {
-                if (item.name.startsWith(".")) continue;
+                if (item.name.startsWith(".") || isExcluded(item.name)) continue;
                 const fullPath = join(currentPath, item.name);
 
                 if (item.isDirectory()) {
                     await walk(fullPath);
-                } else if (extname(item.name).toLowerCase() === ".md") {
-                    try {
-                        const content = await readFile(fullPath, "utf-8");
-                        const lines = content.split(/\r?\n/);
-                        const matches: any[] = [];
+                } else {
+                    const isMd = extname(item.name).toLowerCase() === ".md";
+                    if (isMd && isIncluded(item.name)) {
+                        try {
+                            const content = await readFile(fullPath, "utf-8");
+                            const lines = content.split(/\r?\n/);
+                            const matches: any[] = [];
 
-                        lines.forEach((lineText, index) => {
-                            if (lineText.toLowerCase().includes(lowerQuery)) {
-                                matches.push({
-                                    line: index + 1,
-                                    text: lineText.trim()
+                            lines.forEach((lineText, index) => {
+                                if (regex.test(lineText)) {
+                                    matches.push({
+                                        line: index + 1,
+                                        text: lineText.trim()
+                                    });
+                                }
+                            });
+
+                            if (matches.length > 0) {
+                                results.push({
+                                    filePath: fullPath,
+                                    fileName: item.name,
+                                    matches: matches
                                 });
                             }
-                        });
-
-                        if (matches.length > 0) {
-                            results.push({
-                                filePath: fullPath,
-                                fileName: item.name,
-                                matches: matches
-                            });
+                        } catch (e) {
+                            console.error(`Failed to search in file: ${fullPath}`, e);
                         }
-                    } catch (e) {
-                        console.error(`Failed to search in file: ${fullPath}`, e);
                     }
                 }
             }
@@ -167,6 +205,46 @@ export const handleFileOperations: any = {
 
         await walk(dirPath);
         return results;
+    },
+
+    replaceAllInFiles: async ({ query, replace, filePaths, options }: { query: string; replace: string; filePaths: string[]; options?: SearchOptions }) => {
+        let successCount = 0;
+        let errorCount = 0;
+
+        if (!query) return { successCount, errorCount };
+
+        const isCaseSensitive = options?.isCaseSensitive ?? false;
+        const isWholeWord = options?.isWholeWord ?? false;
+        const isRegex = options?.isRegex ?? false;
+
+        let pattern = query;
+        if (!isRegex) {
+            pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        if (isWholeWord) {
+            pattern = `\\b${pattern}\\b`;
+        }
+
+        // Global replace flag 'g' is essential here
+        const regex = new RegExp(pattern, (isCaseSensitive ? "" : "i") + "g");
+
+        for (const filePath of filePaths) {
+            try {
+                const content = await readFile(filePath, "utf-8");
+                const newContent = content.replace(regex, replace);
+                
+                if (content !== newContent) {
+                    await writeFile(filePath, newContent, "utf-8");
+                }
+                successCount++;
+            } catch (e) {
+                console.error(`Failed to replace in file: ${filePath}`, e);
+                errorCount++;
+            }
+        }
+
+        return { successCount, errorCount };
     },
 
     openFolder: async () => {

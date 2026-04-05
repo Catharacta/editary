@@ -1,7 +1,6 @@
 @import "./styles/tokens.css";
 @import "./styles/layout.css";
 @import "./styles/activity-bar.css";
-@import "./styles/sidebar.css";
 @import "./styles/search-panel.css";
 @import "./styles/context-menu.css";
 @import "./styles/tabs.css";
@@ -9,3 +8,45 @@
 @import "./styles/prosemirror.css";
 @import "./styles/modals.css";
 @import "./styles/status-bar.css";
+@import "./styles/sidebar.css";
+
+:root {
+    --activity-bar-width: 48px;
+    --sidebar-width: 250px;
+}
+
+.resizer {
+    width: 6px;
+    cursor: col-resize;
+    position: relative;
+    z-index: 1000;
+    margin-left: -3px; /* Center 6px area over the 3px border */
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.resizer:hover {
+    background: rgba(0, 0, 0, 0.05); /* Very subtle hint */
+}
+
+.resizer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3px;
+    width: 0;
+    height: 100%;
+    background: var(--neo-accent);
+    transition: all 0.2s;
+}
+
+.resizer:hover::after,
+.resizer.resizing::after {
+    width: 2px;
+    left: 2px;
+}
+
+body.resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}

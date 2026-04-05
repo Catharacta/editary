@@ -134,10 +134,10 @@
 
 /* ---------- App Layout ---------- */
 .app-container {
-  display: grid;
-  grid-template-columns: 48px auto 1fr;
+  display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* ---------- Neobrutalism Button ---------- */

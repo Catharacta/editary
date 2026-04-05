@@ -20,6 +20,14 @@ export type LicenseEntry = {
     text: string;
 };
 
+export type SearchOptions = {
+    isCaseSensitive: boolean;
+    isWholeWord: boolean;
+    isRegex: boolean;
+    includePattern?: string;
+    excludePattern?: string;
+};
+
 export type SearchMatch = {
     line: number;
     text: string;
@@ -40,8 +48,13 @@ export type EditaryRPCType = {
         requests: {
             /** Search for a query string in all .md files within a directory */
             searchInFiles: {
-                params: { query: string; dirPath: string };
+                params: { query: string; dirPath: string; options?: SearchOptions };
                 response: SearchResult[];
+            };
+            /** Replace a string in multiple files */
+            replaceAllInFiles: {
+                params: { query: string; replace: string; filePaths: string[]; options?: SearchOptions };
+                response: { successCount: number; errorCount: number };
             };
             /** Open a native folder dialog and return the selected folder path */
             openFolder: {

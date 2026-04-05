@@ -1,5 +1,5 @@
 import { rpc } from "./index";
-import type { FileEntry, LicenseEntry } from "../../shared/types";
+import type { FileEntry, LicenseEntry, SearchOptions } from "../../shared/types";
 
 /**
  * Manager for Inter-Process Communication (IPC) from the View side.
@@ -21,12 +21,24 @@ export class IpcManager {
     /**
      * Searches for a string in all files in a directory.
      */
-    static async searchInFiles(query: string, dirPath: string) {
+    static async searchInFiles(query: string, dirPath: string, options?: SearchOptions) {
         try {
-            return await rpc.request.searchInFiles({ query, dirPath });
+            return await rpc.request.searchInFiles({ query, dirPath, options });
         } catch (error) {
             console.error(`[IpcManager] searchInFiles failed: ${query}`, error);
             return [];
+        }
+    }
+
+    /**
+     * Replaces a string in multiple files.
+     */
+    static async replaceAllInFiles(query: string, replace: string, filePaths: string[], options?: SearchOptions) {
+        try {
+            return await rpc.request.replaceAllInFiles({ query, replace, filePaths, options });
+        } catch (error) {
+            console.error(`[IpcManager] replaceAllInFiles failed: ${query} -> ${replace}`, error);
+            return { successCount: 0, errorCount: filePaths.length };
         }
     }
 

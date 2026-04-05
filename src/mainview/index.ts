@@ -7,6 +7,7 @@ import { setupKeyboardShortcuts } from "./keyboard";
 import { setupWindowControls } from "./ui/window-controls";
 import { ActivityBarManager } from "./ui/ActivityBarManager";
 import { SearchManager } from "./ui/SearchManager";
+import { LayoutManager } from "./ui/LayoutManager";
 import { IpcManager } from "./ipc/IpcManager";
 import { state } from "./state/workspace";
 import { initI18n, updateUI } from "./utils/i18n";
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupTooltips();
     ActivityBarManager.init();
     SearchManager.init();
+    LayoutManager.init();
     setupSidebar();
     setupModals();
     setupSearchPanel();
@@ -50,8 +52,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, false);
 });
 
-// Fallback for debugging and RPC internals if needed
-(window as any).__editary_state = state;
-// Fallback for debugging and state access
+// For debugging and state access
 (window as any).__editary_state = state;
 (window as any).__ipc_manager = IpcManager;

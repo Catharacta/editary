@@ -17,6 +17,7 @@ export const setEditorContent = (editor: Editor, content: string, isMarkdown: bo
 export const getEditorHTML = (editor: Editor) => EditorManager.getHTML();
 export const getEditorText = (editor: Editor) => EditorManager.getText();
 export const reparseContent = (editor: Editor) => EditorManager.reparse();
+export const jumpToText = (editor: Editor, text: string) => EditorManager.jumpToText(text);
 
 // Re-export extension handlers
 export { handleImageInsert } from "./editor/extensions/ImageHandler";

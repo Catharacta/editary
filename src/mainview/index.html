@@ -180,8 +180,34 @@
             </div>
             <div class="search-row-right">
               <div class="search-input-wrapper">
-                <input type="text" id="workspaceSearchInput" class="search-input" data-i18n-placeholder="search.placeholder" placeholder="ワークスペース内を検索...">
+                <input type="text" id="workspaceSearchInput" class="search-input" data-i18n-placeholder="search.placeholder" placeholder="Search">
+                <div class="search-input-options">
+                  <button id="searchCaseBtn" class="search-option-btn" data-tooltip="Match Case (Aa)" data-i18n-tooltip="search.matchCase">Aa</button>
+                  <button id="searchWordBtn" class="search-option-btn" data-tooltip="Match Whole Word (W)" data-i18n-tooltip="search.matchWord">W</button>
+                  <button id="searchRegexBtn" class="search-option-btn" data-tooltip="Use Regular Expression (.*)" data-i18n-tooltip="search.regex">.*</button>
+                  <button id="searchDetailsToggle" class="search-option-btn" data-tooltip="Toggle Search Details" data-i18n-tooltip="search.details">...</button>
+                </div>
                 <div id="workspaceSearchSpinner" class="search-spinner hidden"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Search Details Row (Include/Exclude) -->
+          <div id="workspaceSearchDetailsRow" class="search-details-row hidden">
+            <div class="search-row">
+              <div class="search-row-left"><span class="search-label">Inc</span></div>
+              <div class="search-row-right">
+                <div class="search-input-wrapper">
+                  <input type="text" id="workspaceSearchInclude" class="search-input small-input" placeholder="Include">
+                </div>
+              </div>
+            </div>
+            <div class="search-row" style="margin-top: 4px;">
+              <div class="search-row-left"><span class="search-label">Exc</span></div>
+              <div class="search-row-right">
+                <div class="search-input-wrapper">
+                  <input type="text" id="workspaceSearchExclude" class="search-input small-input" placeholder="Exclude">
+                </div>
               </div>
             </div>
           </div>
@@ -193,7 +219,7 @@
             </div>
             <div class="search-row-right">
               <div class="search-input-wrapper">
-                <input type="text" id="workspaceReplaceInput" class="search-input" data-i18n-placeholder="editor.replace" placeholder="置換...">
+                <input type="text" id="workspaceReplaceInput" class="search-input" data-i18n-placeholder="editor.replace" placeholder="Replace">
                 <button id="workspaceReplaceAllBtn" class="search-action-btn inline-action" data-i18n-tooltip="editor.replaceAllBtn" data-tooltip="すべて置換">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21l-4-4 4-4"/><path d="M21 3l-4 4 4 4"/><path d="M3 7h18"/><path d="M21 17H3"/></svg>
                 </button>
@@ -205,10 +231,10 @@
         </div>
         <div id="workspaceSearchResultsList" class="search-results-list">
           <!-- Search results rendered by JS -->
-        </div>
-      </div>
+      </aside>
 
-    </aside>
+      <!-- Sidebar Resizer -->
+      <div id="sidebarResizer" class="resizer"></div>
 
     <!-- Editor Area -->
     <main id="editorContainer" class="editor-container">

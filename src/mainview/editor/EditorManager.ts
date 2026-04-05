@@ -137,7 +137,46 @@ export class EditorManager {
     /**
      * Focus the editor.
      */
-    static focus() {
-        this.instance?.commands.focus();
+    static focus(position: 'start' | 'end' | number | boolean = true) {
+        this.instance?.commands.focus(position);
+    }
+
+    /**
+     * Finds the specified text in the editor and jumps to it (scrolls and selects).
+     * @param text The text snippet to search for.
+     */
+    static jumpToText(text: string) {
+        if (!this.instance || !text) return;
+
+        const { state, view } = this.instance;
+        const { doc } = state;
+        let foundPos = -1;
+
+        // Search for the text in the document
+        doc.descendants((node, pos) => {
+            if (foundPos !== -1) return false; // Early exit if found
+
+            if (node.isText && node.text) {
+                const index = node.text.indexOf(text);
+                if (index !== -1) {
+                    foundPos = pos + index;
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        if (foundPos !== -1) {
+            // Select and scroll to the text
+            this.instance.commands.setTextSelection({
+                from: foundPos,
+                to: foundPos + text.length
+            });
+            this.instance.commands.scrollIntoView();
+        } else {
+            // Fallback: If exact snippet not found (maybe due to formatting gaps), 
+            // try focusing the start or showing a warning.
+            console.warn(`Text snippet not found for jump: "${text}"`);
+        }
     }
 }

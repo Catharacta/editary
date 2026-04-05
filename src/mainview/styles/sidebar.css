@@ -1,7 +1,7 @@
 /* ---------- Sidebar ---------- */
 .sidebar {
   width: var(--sidebar-width);
-  min-width: var(--sidebar-width);
+  min-width: 150px; /* Allow resizing down to 150px */
   background: var(--neo-bg-sidebar);
   border-right: var(--neo-border-width) solid var(--neo-border);
   display: flex;
