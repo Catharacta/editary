@@ -1,14 +1,12 @@
-import { createEditor } from "../editor";
-import { state } from "../state/workspace";
-import { renderOpenTabs, saveFile } from "../workspace/file-ops";
-import { updateTitleBar } from "../utils/dom";
-import { updateStatusBar } from "../ui/status-bar";
+import { EditorManager } from "./EditorManager";
 import { setupTablePicker } from "./table-picker";
 import { setupToolbar } from "./toolbar";
-import { setupOutline, renderOutline } from "../ui/outline";
+import { setupOutline } from "../ui/outline";
 
+/**
+ * Initializes the editor instance and binds application-level UI components.
+ */
 export function setupEditorInstance() {
-    let autoSaveTimeout: any = null;
     const editorElement = document.getElementById("editor");
     const tableBubbleMenu = document.getElementById("tableBubbleMenu");
 
@@ -16,33 +14,13 @@ export function setupEditorInstance() {
         throw new Error("Editor element not found");
     }
 
-    const editor = createEditor(editorElement, tableBubbleMenu);
+    // Initialize the centralized EditorManager
+    const editor = EditorManager.init(editorElement, tableBubbleMenu);
+    
+    // Initial state: readonly until a file is opened
     editor.setEditable(false);
-    state.editor = editor;
 
-    editor.on("update", () => {
-        if (state.currentFilePath) {
-            const tab = state.openTabs.get(state.currentFilePath);
-            if (tab && !tab.isDirty) {
-                tab.isDirty = true;
-                renderOpenTabs();
-                updateTitleBar();
-            }
-
-            // Auto-save logic
-            if (state.editorSettings.autoSave && tab && !tab.isUntitled) {
-                if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-                autoSaveTimeout = setTimeout(async () => {
-                    if (state.currentFilePath === tab.filePath && tab.isDirty) {
-                        await saveFile(tab.filePath);
-                    }
-                }, 2000); // 2 seconds delay
-            }
-        }
-        updateStatusBar();
-        renderOutline(editor);
-    });
-
+    // Initialize associated UI components
     setupTablePicker();
     setupToolbar();
     setupOutline();

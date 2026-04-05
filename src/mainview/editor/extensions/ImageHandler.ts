@@ -2,8 +2,8 @@ import { Extension } from "@tiptap/core";
 import { Plugin } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 import { Editor } from "@tiptap/core";
-import { electroview } from "../ipc";
-import { state } from "../state/workspace";
+import { electroview } from "../../ipc";
+import { state } from "../../state/workspace";
 
 /**
  * Tiptap Extension to handle drag and drop / paste for images.
