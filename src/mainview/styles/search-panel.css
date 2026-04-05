@@ -25,9 +25,31 @@
     padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px; /* Tighter gap like VS Code */
     border-bottom: 2px solid var(--neo-border);
     background: var(--neo-bg-sidebar);
+}
+
+.search-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-row-left {
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-row-right {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-row-spacer {
+    width: 24px;
 }
 
 .search-input-wrapper {
@@ -127,4 +149,87 @@
     background-color: var(--neo-accent);
     font-weight: 900;
     padding: 0 2px;
+}
+
+/* Sidebar Replace Styles */
+.search-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--neo-text-muted);
+    transition: color 0.1s;
+}
+
+.search-toggle-btn:hover {
+    color: var(--neo-text);
+}
+
+.search-toggle-btn .chevron {
+    transition: transform 0.2s;
+}
+
+.search-toggle-btn.active .chevron {
+    transform: rotate(90deg);
+}
+
+.search-replace-row {
+    display: none; /* Default to hidden */
+}
+
+.search-replace-row.visible {
+    display: flex !important;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-row-right .search-input {
+    width: 100%;
+    padding-right: 32px; /* Space for the inline action button */
+}
+
+.search-action-btn {
+    background: var(--neo-highlight);
+    border: 1px solid var(--neo-border);
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--neo-text);
+    transition: transform 0.05s, box-shadow 0.05s;
+}
+
+.search-action-btn:hover {
+    background: var(--neo-bg-alt);
+}
+
+.search-action-btn:active {
+    transform: translate(1px, 1px);
+}
+
+.search-action-btn.inline-action {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    padding: 2px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.search-action-btn.inline-action:hover {
+    background: var(--neo-bg-alt);
+}
+
+.search-action-btn.inline-action:active {
+    transform: translateY(-50%) translate(1px, 1px);
 }

@@ -1,7 +1,7 @@
 import { IpcManager } from "../ipc/IpcManager";
 import { state } from "../state/workspace";
 import { EditorManager } from "../editor/EditorManager";
-import { openFile } from "../workspace/file-ops";
+import { openFile, renderOpenTabs } from "../workspace/file-ops";
 import { SearchResult } from "../../shared/types";
 
 /**
@@ -10,6 +10,10 @@ import { SearchResult } from "../../shared/types";
 export class SearchManager {
     private static elements = {
         searchInput: null as HTMLInputElement | null,
+        replaceInput: null as HTMLInputElement | null,
+        replaceRow: null as HTMLElement | null,
+        replaceToggle: null as HTMLElement | null,
+        replaceAllBtn: null as HTMLElement | null,
         resultsList: null as HTMLElement | null,
         resultsCount: null as HTMLElement | null,
         spinner: null as HTMLElement | null,
@@ -22,13 +26,33 @@ export class SearchManager {
      */
     static init() {
         this.elements.searchInput = document.getElementById("workspaceSearchInput") as HTMLInputElement;
+        this.elements.replaceInput = document.getElementById("workspaceReplaceInput") as HTMLInputElement;
+        this.elements.replaceRow = document.getElementById("workspaceReplaceRow");
+        this.elements.replaceToggle = document.getElementById("workspaceReplaceToggle");
+        this.elements.replaceAllBtn = document.getElementById("workspaceReplaceAllBtn");
         this.elements.resultsList = document.getElementById("workspaceSearchResultsList");
         this.elements.resultsCount = document.getElementById("workspaceSearchResultsCount");
         this.elements.spinner = document.getElementById("workspaceSearchSpinner");
 
+        console.log("[SearchManager] Elements found:", {
+            toggle: !!this.elements.replaceToggle,
+            row: !!this.elements.replaceRow,
+            input: !!this.elements.searchInput
+        });
+
         this.elements.searchInput?.addEventListener("input", (e) => {
             const query = (e.target as HTMLInputElement).value;
             this.debouncedSearch(query);
+        });
+
+        this.elements.replaceToggle?.addEventListener("click", () => {
+            console.log("[SearchManager] Replace toggle clicked");
+            const isVisible = this.elements.replaceRow?.classList.toggle("visible");
+            this.elements.replaceToggle?.classList.toggle("active", isVisible);
+        });
+
+        this.elements.replaceAllBtn?.addEventListener("click", () => {
+            this.performGlobalReplace();
         });
 
         // Click on background of list to focus input
@@ -149,5 +173,64 @@ export class SearchManager {
     private static highlightQuery(text: string, query: string): string {
         const regex = new RegExp(`(${query})`, 'gi');
         return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    /**
+     * Executes the global replacement.
+     */
+    static async performGlobalReplace() {
+        const query = this.elements.searchInput?.value;
+        const replace = this.elements.replaceInput?.value;
+
+        if (!query || replace === undefined || !state.searchResults.length) return;
+
+        this.elements.spinner?.classList.remove("hidden");
+
+        try {
+            const closedFilePaths: string[] = [];
+            const results = state.searchResults;
+
+            for (const result of results) {
+                const tab = state.openTabs.get(result.filePath);
+
+                if (tab) {
+                    // Update open tab
+                    if (state.currentFilePath === result.filePath && state.editor) {
+                        // Current active tab: Update via editor
+                        const html = state.editor.getHTML();
+                        // String replace in HTML is dangerous but for simple term search it works.
+                        // Better to use regex on Markdown or safer HTML manipulation.
+                        // Here we use a simple text replacement for now matching the sidebar's behavior.
+                        // VS Code-like behavior: Mark it as dirty.
+                        const newHtml = html.split(query).join(replace);
+                        state.editor.commands.setContent(newHtml);
+                    } else {
+                        // Background tab: Update cachedContent
+                        if (tab.cachedContent) {
+                            tab.cachedContent = tab.cachedContent.split(query).join(replace);
+                        }
+                        tab.isDirty = true;
+                    }
+                } else {
+                    // File on disk
+                    closedFilePaths.push(result.filePath);
+                }
+            }
+
+            // Batch update closed files on disk
+            if (closedFilePaths.length > 0) {
+                await IpcManager.replaceAllInFiles(query, replace, closedFilePaths);
+            }
+
+            // Refresh UI
+            renderOpenTabs();
+            // Re-perform search to update results list
+            await this.performSearch(query);
+            
+        } catch (e) {
+            console.error("Global replace failed:", e);
+        } finally {
+            this.elements.spinner?.classList.add("hidden");
+        }
     }
 }

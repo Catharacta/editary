@@ -171,10 +171,36 @@
           <span class="panel-title" data-i18n="search.title">検索</span>
         </div>
         <div class="search-container">
-          <div class="search-input-wrapper">
-            <input type="text" id="workspaceSearchInput" class="search-input" data-i18n-placeholder="search.placeholder" placeholder="ワークスペース内を検索...">
-            <div id="workspaceSearchSpinner" class="search-spinner hidden"></div>
+          <!-- Search Row -->
+          <div class="search-row">
+            <div class="search-row-left">
+              <button id="workspaceReplaceToggle" class="search-toggle-btn" data-i18n-tooltip="editor.replace" data-tooltip="置換を切り替え">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <div class="search-row-right">
+              <div class="search-input-wrapper">
+                <input type="text" id="workspaceSearchInput" class="search-input" data-i18n-placeholder="search.placeholder" placeholder="ワークスペース内を検索...">
+                <div id="workspaceSearchSpinner" class="search-spinner hidden"></div>
+              </div>
+            </div>
           </div>
+          
+          <!-- Replace Row (Aligned with Search input) -->
+          <div id="workspaceReplaceRow" class="search-replace-row search-row" style="margin-top: 4px;">
+            <div class="search-row-left">
+              <div class="search-row-spacer"></div>
+            </div>
+            <div class="search-row-right">
+              <div class="search-input-wrapper">
+                <input type="text" id="workspaceReplaceInput" class="search-input" data-i18n-placeholder="editor.replace" placeholder="置換...">
+                <button id="workspaceReplaceAllBtn" class="search-action-btn inline-action" data-i18n-tooltip="editor.replaceAllBtn" data-tooltip="すべて置換">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21l-4-4 4-4"/><path d="M21 3l-4 4 4 4"/><path d="M3 7h18"/><path d="M21 17H3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div id="workspaceSearchResultsCount" class="search-results-count"></div>
         </div>
         <div id="workspaceSearchResultsList" class="search-results-list">

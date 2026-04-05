@@ -44,7 +44,7 @@ export class ActivityBarManager {
 
         // Focus search input if switching to search
         if (tab === 'search') {
-            const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+            const searchInput = document.getElementById("workspaceSearchInput") as HTMLInputElement;
             searchInput?.focus();
         }
     }
