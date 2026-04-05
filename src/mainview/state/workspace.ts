@@ -15,6 +15,8 @@ export const state = {
     openTabs: new Map<string, TabState>(),
     untitledCount: 0,
     editor: null as unknown as Editor,
+    activeSidebarTab: 'explorer' as 'explorer' | 'search',
+    searchResults: [] as any[],
     editorSettings: {
         autoSave: false,
         showLineNumbers: false,

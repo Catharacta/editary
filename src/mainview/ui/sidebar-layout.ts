@@ -82,53 +82,55 @@ function refreshResizeHandles(sidebar: HTMLElement) {
     
     // セクション間にハンドルを挿入
     for (let i = 0; i < sections.length - 1; i++) {
-        const handle = document.createElement("div");
-        handle.className = "resize-handle";
-        sidebar.insertBefore(handle, sections[i].nextSibling);
+        const currentSection = sections[i];
+        const nextSection = sections[i+1];
+        
+        // 同じ親要素（パネル）に属している場合のみハンドルを作成
+        if (currentSection.parentElement === nextSection.parentElement) {
+            const handle = document.createElement("div");
+            handle.className = "resize-handle";
+            currentSection.parentElement?.insertBefore(handle, nextSection);
 
-        let isResizing = false;
+            let isResizing = false;
 
-        handle.addEventListener("mousedown", (e) => {
-            isResizing = true;
-            document.body.style.cursor = "ns-resize";
-            handle.classList.add("active");
-            
-            const prevSection = sections[i];
-            const nextSection = sections[i+1];
-            const initialY = e.clientY;
-            const initialPrevHeight = prevSection.offsetHeight;
-            const initialNextHeight = nextSection.offsetHeight;
-
-            const onMouseMove = (moveEvent: MouseEvent) => {
-                if (!isResizing) return;
+            handle.addEventListener("mousedown", (e) => {
+                isResizing = true;
+                document.body.style.cursor = "ns-resize";
+                handle.classList.add("active");
                 
-                const deltaY = moveEvent.clientY - initialY;
-                
-                // flex-basis をピクセルに固定してリサイズを実現
-                // ただし、一番上のセクション以外という条件がある場合は調整が必要
-                // ここでは一般的なリサイズを実装
-                
-                const newPrevHeight = initialPrevHeight + deltaY;
-                const newNextHeight = initialNextHeight - deltaY;
+                const prevSection = currentSection;
+                const targetNextSection = nextSection;
+                const initialY = e.clientY;
+                const initialPrevHeight = prevSection.offsetHeight;
+                const initialNextHeight = targetNextSection.offsetHeight;
 
-                if (newPrevHeight > 30 && newNextHeight > 30) {
-                    prevSection.style.flexBasis = `${newPrevHeight}px`;
-                    prevSection.style.flexGrow = "0";
-                    nextSection.style.flexBasis = `${newNextHeight}px`;
-                    nextSection.style.flexGrow = "0";
-                }
-            };
+                const onMouseMove = (moveEvent: MouseEvent) => {
+                    if (!isResizing) return;
+                    
+                    const deltaY = moveEvent.clientY - initialY;
+                    
+                    const newPrevHeight = initialPrevHeight + deltaY;
+                    const newNextHeight = initialNextHeight - deltaY;
 
-            const onMouseUp = () => {
-                isResizing = false;
-                document.body.style.cursor = "";
-                handle.classList.remove("active");
-                window.removeEventListener("mousemove", onMouseMove);
-                window.removeEventListener("mouseup", onMouseUp);
-            };
+                    if (newPrevHeight > 30 && newNextHeight > 30) {
+                        prevSection.style.flexBasis = `${newPrevHeight}px`;
+                        prevSection.style.flexGrow = "0";
+                        targetNextSection.style.flexBasis = `${newNextHeight}px`;
+                        targetNextSection.style.flexGrow = "0";
+                    }
+                };
 
-            window.addEventListener("mousemove", onMouseMove);
-            window.addEventListener("mouseup", onMouseUp);
-        });
+                const onMouseUp = () => {
+                    isResizing = false;
+                    document.body.style.cursor = "";
+                    handle.classList.remove("active");
+                    window.removeEventListener("mousemove", onMouseMove);
+                    window.removeEventListener("mouseup", onMouseUp);
+                };
+
+                window.addEventListener("mousemove", onMouseMove);
+                window.addEventListener("mouseup", onMouseUp);
+            });
+        }
     }
 }

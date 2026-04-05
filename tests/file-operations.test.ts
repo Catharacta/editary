@@ -18,14 +18,25 @@ describe("file-operations", () => {
         await rm(testRoot, { recursive: true, force: true });
     });
 
-    test("readDirectory should return a tree of .md files", async () => {
+    test("readDirectory with recursive: false should only return top-level entries", async () => {
+        const entries = await handleFileOperations.readDirectory({ dirPath: testRoot, recursive: false });
+        
+        // Should have test.md and subdir, but subdir should NOT have children
+        expect(entries.length).toBe(2);
+        const subdir = entries.find((e: any) => e.name === "subdir");
+        expect(subdir).toBeDefined();
+        expect(subdir?.isDirectory).toBe(true);
+        expect(subdir?.children).toBeUndefined();
+    });
+
+    test("readDirectory should return a tree of .md files (recursive: true)", async () => {
         const entries = await handleFileOperations.readDirectory({ dirPath: testRoot });
         
         // Tree should have: test.md and subdir (which contains sub.md)
         expect(entries.length).toBe(2);
         
-        const testMd = entries.find(e => e.name === "test.md");
-        const subdir = entries.find(e => e.name === "subdir");
+        const testMd = entries.find((e: any) => e.name === "test.md");
+        const subdir = entries.find((e: any) => e.name === "subdir");
         
         expect(testMd).toBeDefined();
         expect(testMd?.isDirectory).toBe(false);

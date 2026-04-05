@@ -20,6 +20,17 @@ export type LicenseEntry = {
     text: string;
 };
 
+export type SearchMatch = {
+    line: number;
+    text: string;
+};
+
+export type SearchResult = {
+    filePath: string;
+    fileName: string;
+    matches: SearchMatch[];
+};
+
 /**
  * RPC schema for communication between the Bun main process and the Webview.
  * All file system operations run in Bun; UI interactions run in the Webview.
@@ -27,6 +38,11 @@ export type LicenseEntry = {
 export type EditaryRPCType = {
     bun: RPCSchema<{
         requests: {
+            /** Search for a query string in all .md files within a directory */
+            searchInFiles: {
+                params: { query: string; dirPath: string };
+                response: SearchResult[];
+            };
             /** Open a native folder dialog and return the selected folder path */
             openFolder: {
                 params: {};

@@ -53,93 +53,135 @@
 
   <!-- Main Content Area -->
   <div id="app" class="app-container">
+    <!-- Activity Bar (Leftmost icons) -->
+    <nav id="activityBar" class="activity-bar">
+      <div class="activity-bar-top">
+        <button id="explorerTabBtn" class="activity-btn active" data-i18n-tooltip="activity.explorer" data-tooltip="エクスプローラー">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+        </button>
+        <button id="searchTabBtn" class="activity-btn" data-i18n-tooltip="activity.search" data-tooltip="検索">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="activity-bar-bottom">
+        <!-- Settings can stay in titlebar or move here later -->
+      </div>
+    </nav>
+
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar">
 
-      <!-- Section 1: Open Editors -->
-      <div class="sidebar-section" id="openEditorsSection">
-        <div class="section-header">
-          <button class="section-toggle" id="openEditorsToggle" aria-label="セクション切り替え">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <span class="section-title" data-i18n="sidebar.editors">エディタ</span>
-          <div class="section-actions">
-            <button id="newFileFromEditorsBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFile" data-tooltip="新規ファイル">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      <!-- Explorer Panel -->
+      <div id="explorerPanel" class="sidebar-panel">
+        <!-- Section 1: Open Editors -->
+        <div class="sidebar-section" id="openEditorsSection">
+          <div class="section-header">
+            <button class="section-toggle" id="openEditorsToggle" aria-label="セクション切り替え">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            <button id="saveAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.saveAll" data-tooltip="すべて保存">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span class="section-title" data-i18n="sidebar.editors">エディタ</span>
+            <div class="section-actions">
+              <button id="newFileFromEditorsBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFile" data-tooltip="新規ファイル">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+              <button id="saveAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.saveAll" data-tooltip="すべて保存">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              </button>
+              <button id="closeAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.closeAll" data-tooltip="すべて閉じる">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="section-content" id="openEditorsList">
+            <!-- Open Editor tabs rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Section 2: Workspace -->
+        <div class="sidebar-section" id="workspaceSection">
+          <div class="section-header">
+            <button class="section-toggle" id="workspaceToggle" aria-label="セクション切り替え">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            <button id="closeAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.closeAll" data-tooltip="すべて閉じる">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            <span class="section-title" data-i18n="sidebar.workspace">ワークスペース</span>
+            <div class="section-actions hidden">
+              <button id="newFileBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFile" data-tooltip="新規ファイル">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+              </button>
+              <button id="newFolderBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFolder" data-tooltip="新規フォルダ">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              </button>
+              <button id="refreshBtn" class="section-action-btn" data-i18n-tooltip="sidebar.refresh" data-tooltip="更新">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l5.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              </button>
+              <button id="closeWorkspaceBtn" class="section-action-btn" data-i18n-tooltip="sidebar.closeWorkspace" data-tooltip="ワークスペースを閉じる">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+              <button id="collapseAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.collapseAll" data-tooltip="フォルダを折りたたむ">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 6 14 6 14 0"/><line x1="14" y1="6" x2="21" y2="13"/><line x1="3" y1="11" x2="10" y2="4"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="section-content" id="fileTree">
+          </div>
+          <!-- フォルダ未選択時のプロンプト -->
+          <div id="openFolderPrompt" class="open-folder-prompt">
+            <button id="openFolderBtn" class="neo-btn">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+              </svg>
+              <span data-i18n="sidebar.openWorkspace">ワークスペースを開く</span>
             </button>
           </div>
         </div>
-        <div class="section-content" id="openEditorsList">
-          <!-- Open Editor tabs rendered by JS -->
+        <!-- Section 3: Outline -->
+        <div class="sidebar-section" id="outlineSection">
+          <div class="section-header">
+            <button class="section-toggle" id="outlineToggle" aria-label="セクション切り替え">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="chevron">
+                <polygon points="2,0 8,5 2,10" />
+              </svg>
+            </button>
+            <span class="section-title" data-i18n="sidebar.outline">アウトライン</span>
+            <div class="section-actions">
+              <button class="section-action-btn" id="refreshOutlineBtn" data-tooltip="更新">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="square">
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="section-content" id="outlineList">
+            <div class="outline-empty" data-i18n="sidebar.noHeadings">アクティブなエディターはアウトライン情報を提供できません。</div>
+          </div>
         </div>
       </div>
 
-      <!-- Section 2: Workspace -->
-      <div class="sidebar-section" id="workspaceSection">
-        <div class="section-header">
-          <button class="section-toggle" id="workspaceToggle" aria-label="セクション切り替え">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <span class="section-title" data-i18n="sidebar.workspace">ワークスペース</span>
-          <div class="section-actions hidden">
-            <button id="newFileBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFile" data-tooltip="新規ファイル">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-            </button>
-            <button id="newFolderBtn" class="section-action-btn" data-i18n-tooltip="sidebar.newFolder" data-tooltip="新規フォルダ">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            </button>
-            <button id="refreshBtn" class="section-action-btn" data-i18n-tooltip="sidebar.refresh" data-tooltip="更新">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l5.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            </button>
-            <button id="closeWorkspaceBtn" class="section-action-btn" data-i18n-tooltip="sidebar.closeWorkspace" data-tooltip="ワークスペースを閉じる">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-            <button id="collapseAllBtn" class="section-action-btn" data-i18n-tooltip="sidebar.collapseAll" data-tooltip="フォルダを折りたたむ">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 6 14 6 14 0"/><line x1="14" y1="6" x2="21" y2="13"/><line x1="3" y1="11" x2="10" y2="4"/></svg>
-            </button>
+      <!-- Search Panel -->
+      <div id="workspaceSearchPanel" class="sidebar-panel hidden">
+        <div class="panel-header">
+          <span class="panel-title" data-i18n="search.title">検索</span>
+        </div>
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <input type="text" id="workspaceSearchInput" class="search-input" data-i18n-placeholder="search.placeholder" placeholder="ワークスペース内を検索...">
+            <div id="workspaceSearchSpinner" class="search-spinner hidden"></div>
           </div>
+          <div id="workspaceSearchResultsCount" class="search-results-count"></div>
         </div>
-        <div class="section-content" id="fileTree">
-        </div>
-        <!-- フォルダ未選択時のプロンプト -->
-        <div id="openFolderPrompt" class="open-folder-prompt">
-          <button id="openFolderBtn" class="neo-btn">
-            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
-              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-            </svg>
-            <span data-i18n="sidebar.openWorkspace">ワークスペースを開く</span>
-          </button>
+        <div id="workspaceSearchResultsList" class="search-results-list">
+          <!-- Search results rendered by JS -->
         </div>
       </div>
-      <!-- Section 3: Outline -->
-      <div class="sidebar-section" id="outlineSection">
-        <div class="section-header">
-          <button class="section-toggle" id="outlineToggle" aria-label="セクション切り替え">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="chevron">
-              <polygon points="2,0 8,5 2,10" />
-            </svg>
-          </button>
-          <span class="section-title" data-i18n="sidebar.outline">アウトライン</span>
-          <div class="section-actions">
-            <button class="section-action-btn" id="refreshOutlineBtn" data-tooltip="更新">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="square">
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="section-content" id="outlineList">
-          <div class="outline-empty" data-i18n="sidebar.noHeadings">アクティブなエディターはアウトライン情報を提供できません。</div>
-        </div>
-      </div>
+
     </aside>
 
     <!-- Editor Area -->

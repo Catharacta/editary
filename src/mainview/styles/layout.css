@@ -134,7 +134,8 @@
 
 /* ---------- App Layout ---------- */
 .app-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 48px auto 1fr;
   flex: 1;
   min-height: 0;
 }

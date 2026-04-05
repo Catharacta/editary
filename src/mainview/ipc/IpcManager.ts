@@ -19,6 +19,18 @@ export class IpcManager {
     }
 
     /**
+     * Searches for a string in all files in a directory.
+     */
+    static async searchInFiles(query: string, dirPath: string) {
+        try {
+            return await rpc.request.searchInFiles({ query, dirPath });
+        } catch (error) {
+            console.error(`[IpcManager] searchInFiles failed: ${query}`, error);
+            return [];
+        }
+    }
+
+    /**
      * Reads the contents of a directory.
      */
     static async readDirectory(dirPath: string): Promise<FileEntry[]> {

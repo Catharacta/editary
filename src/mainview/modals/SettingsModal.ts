@@ -6,19 +6,27 @@ import { t, loadLocale, getLocale, updateUI } from "../utils/i18n";
  * Modal for application settings.
  */
 export class SettingsModal extends BaseModal {
-    private settingsBtn = document.getElementById("settingsBtn");
-    private closeSettingsModal = document.getElementById("closeSettingsModal");
-    private saveSettingsBtn = document.getElementById("saveSettingsBtn");
-    private themeInputs = document.querySelectorAll('input[name="appTheme"]') as NodeListOf<HTMLInputElement>;
-    private settingsTabs = document.querySelectorAll('.settings-tab-btn');
-    private settingsPanes = document.querySelectorAll('.settings-pane');
-    private languageSelect = document.getElementById("languageSelect") as HTMLSelectElement;
+    private settingsBtn: HTMLElement | null = null;
+    private closeSettingsModal: HTMLElement | null = null;
+    private saveSettingsBtn: HTMLElement | null = null;
+    private themeInputs: NodeListOf<HTMLInputElement> | null = null;
+    private settingsTabs: NodeListOf<Element> | null = null;
+    private settingsPanes: NodeListOf<Element> | null = null;
+    private languageSelect: HTMLSelectElement | null = null;
 
     constructor() {
         super("settingsModal");
     }
 
     init(): void {
+        this.settingsBtn = document.getElementById("settingsBtn");
+        this.closeSettingsModal = document.getElementById("closeSettingsModal");
+        this.saveSettingsBtn = document.getElementById("saveSettingsBtn");
+        this.themeInputs = document.querySelectorAll('input[name="appTheme"]');
+        this.settingsTabs = document.querySelectorAll('.settings-tab-btn');
+        this.settingsPanes = document.querySelectorAll('.settings-pane');
+        this.languageSelect = document.getElementById("languageSelect") as HTMLSelectElement;
+
         this.settingsBtn?.addEventListener("click", () => {
             this.applyTheme(localStorage.getItem('editary-theme') || 'yellow');
             this.applyEditorSettings();
@@ -30,14 +38,14 @@ export class SettingsModal extends BaseModal {
         this.closeSettingsModal?.addEventListener("click", hide);
         this.saveSettingsBtn?.addEventListener("click", hide);
 
-        this.settingsTabs.forEach(tab => {
+        this.settingsTabs?.forEach(tab => {
             tab.addEventListener('click', () => {
                 const tabId = tab.getAttribute('data-tab');
                 if (tabId) this.switchSettingsTab(tabId);
             });
         });
 
-        this.themeInputs.forEach(input => {
+        this.themeInputs?.forEach(input => {
             input.addEventListener('change', () => {
                 if (input.checked) this.applyTheme(input.value);
             });
@@ -58,7 +66,7 @@ export class SettingsModal extends BaseModal {
         });
 
         this.languageSelect?.addEventListener('change', async () => {
-            const newLocale = this.languageSelect.value;
+            const newLocale = this.languageSelect!.value;
             await loadLocale(newLocale);
             updateUI();
         });
@@ -96,8 +104,8 @@ export class SettingsModal extends BaseModal {
     }
 
     private switchSettingsTab(tabId: string) {
-        this.settingsTabs.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId));
-        this.settingsPanes.forEach(pane => pane.classList.toggle('active', pane.id === `pane-${tabId}`));
+        this.settingsTabs?.forEach(tab => tab.classList.toggle('active', tab.getAttribute('data-tab') === tabId));
+        this.settingsPanes?.forEach(pane => pane.classList.toggle('active', pane.id === `pane-${tabId}`));
     }
 
     private updateEditorView() {

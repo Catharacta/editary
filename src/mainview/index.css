@@ -1,6 +1,8 @@
 @import "./styles/tokens.css";
 @import "./styles/layout.css";
+@import "./styles/activity-bar.css";
 @import "./styles/sidebar.css";
+@import "./styles/search-panel.css";
 @import "./styles/context-menu.css";
 @import "./styles/tabs.css";
 @import "./styles/editor.css";

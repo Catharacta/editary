@@ -1,0 +1,44 @@
+.activity-bar {
+  width: 48px;
+  background-color: var(--neo-bg-sidebar);
+  border-right: var(--neo-border-width) solid var(--neo-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  flex-shrink: 0;
+  z-index: 110;
+}
+
+.activity-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--neo-text-muted);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.1s;
+}
+
+.activity-btn:hover {
+  color: var(--neo-text);
+}
+
+.activity-btn.active {
+  color: var(--neo-accent);
+}
+
+.activity-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  background-color: var(--neo-accent);
+}

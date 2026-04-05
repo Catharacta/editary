@@ -5,6 +5,8 @@ import { setupSearchPanel } from "./ui/search-panel";
 import { setupTooltips } from "./ui/tooltips";
 import { setupKeyboardShortcuts } from "./keyboard";
 import { setupWindowControls } from "./ui/window-controls";
+import { ActivityBarManager } from "./ui/ActivityBarManager";
+import { SearchManager } from "./ui/SearchManager";
 import { IpcManager } from "./ipc/IpcManager";
 import { state } from "./state/workspace";
 import { initI18n, updateUI } from "./utils/i18n";
@@ -18,6 +20,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 1. UI Modules
     setupWindowControls();
     setupTooltips();
+    ActivityBarManager.init();
+    SearchManager.init();
     setupSidebar();
     setupModals();
     setupSearchPanel();

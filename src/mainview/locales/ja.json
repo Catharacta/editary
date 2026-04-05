@@ -17,6 +17,14 @@
         "maximize": "最大化",
         "close": "閉じる"
     },
+    "activity": {
+        "explorer": "エクスプローラー",
+        "search": "検索"
+    },
+    "search": {
+        "title": "検索",
+        "placeholder": "ワークスペース内を検索"
+    },
     "sidebar": {
         "editors": "エディタ",
         "newFile": "新規ファイル",

@@ -51,6 +51,14 @@ global.IntersectionObserver = class {
     disconnect() {}
 } as any;
 
+global.DOMParser = class {
+    parseFromString(markup: string, type: any) {
+        const doc = new GlobalWindow().document;
+        doc.body.innerHTML = markup;
+        return doc;
+    }
+} as any;
+
 import { mock } from "bun:test";
 
 // Mock Worker

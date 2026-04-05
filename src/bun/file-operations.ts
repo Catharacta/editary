@@ -122,6 +122,53 @@ export function setMainWindow(win: BrowserWindow) {
 // @ts-ignore - Some handlers might need slight adjustments to match the exact electrobun RPC handler signature
 export const handleFileOperations: any = {
 
+    searchInFiles: async ({ query, dirPath }: { query: string; dirPath: string }) => {
+        const results: any[] = [];
+        if (!query) return results;
+
+        const lowerQuery = query.toLowerCase();
+
+        async function walk(currentPath: string) {
+            const items = await readdir(currentPath, { withFileTypes: true });
+            for (const item of items) {
+                if (item.name.startsWith(".")) continue;
+                const fullPath = join(currentPath, item.name);
+
+                if (item.isDirectory()) {
+                    await walk(fullPath);
+                } else if (extname(item.name).toLowerCase() === ".md") {
+                    try {
+                        const content = await readFile(fullPath, "utf-8");
+                        const lines = content.split(/\r?\n/);
+                        const matches: any[] = [];
+
+                        lines.forEach((lineText, index) => {
+                            if (lineText.toLowerCase().includes(lowerQuery)) {
+                                matches.push({
+                                    line: index + 1,
+                                    text: lineText.trim()
+                                });
+                            }
+                        });
+
+                        if (matches.length > 0) {
+                            results.push({
+                                filePath: fullPath,
+                                fileName: item.name,
+                                matches: matches
+                            });
+                        }
+                    } catch (e) {
+                        console.error(`Failed to search in file: ${fullPath}`, e);
+                    }
+                }
+            }
+        }
+
+        await walk(dirPath);
+        return results;
+    },
+
     openFolder: async () => {
         console.log("[openFolder] Starting native folder dialog...");
         return await withDpiContext(async () => {

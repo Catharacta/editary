@@ -17,6 +17,14 @@
         "maximize": "Maximize",
         "close": "Close"
     },
+    "activity": {
+        "explorer": "Explorer",
+        "search": "Search"
+    },
+    "search": {
+        "title": "Search",
+        "placeholder": "Search in workspace"
+    },
     "sidebar": {
         "editors": "Editors",
         "newFile": "New File",
