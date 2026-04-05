@@ -11,6 +11,16 @@ export type FileEntry = {
 };
 
 /**
+ * Metadata for a software library's license.
+ */
+export type LicenseEntry = {
+    name: string;
+    type: string;
+    copyright: string;
+    text: string;
+};
+
+/**
  * RPC schema for communication between the Bun main process and the Webview.
  * All file system operations run in Bun; UI interactions run in the Webview.
  */
@@ -60,7 +70,7 @@ export type EditaryRPCType = {
             /** Retrieve the list of module licenses */
             getLicenses: {
                 params: {};
-                response: any[];
+                response: LicenseEntry[];
             };
             /** Save an image from a base64 string or buffer to a specific path */
             saveImage: {

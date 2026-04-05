@@ -5,7 +5,7 @@ import { setupSearchPanel } from "./ui/search-panel";
 import { setupTooltips } from "./ui/tooltips";
 import { setupKeyboardShortcuts } from "./keyboard";
 import { setupWindowControls } from "./ui/window-controls";
-import { electroview } from "./ipc";
+import { IpcManager } from "./ipc/IpcManager";
 import { state } from "./state/workspace";
 import { initI18n, updateUI } from "./utils/i18n";
 import "./index.css";
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 3. Dynamic Metadata (Version)
     try {
-        const version = await electroview.rpc?.request.getVersion({});
+        const version = await IpcManager.getVersion();
         const versionEl = document.getElementById("aboutVersion");
         if (versionEl && version) {
             versionEl.textContent = `Version ${version}`;
@@ -48,8 +48,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Fallback for debugging and RPC internals if needed
 (window as any).__editary_state = state;
-(window as any).__editary_rpc = electroview.rpc;
-
-// Fallback for debugging and RPC internals if needed
+// Fallback for debugging and state access
 (window as any).__editary_state = state;
-(window as any).__editary_rpc = electroview.rpc;
+(window as any).__ipc_manager = IpcManager;

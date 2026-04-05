@@ -55,6 +55,7 @@
     "build:installer": "bun run builder -- build --target nsis",
     "build:msi": "bun run builder -- build --target wix",
     "test:builder": "bun run builder -- build --target nsis --dry-run",
+    "test": "bun test",
     "electrobun:brand": "bun run builder brand"
   }
 }
