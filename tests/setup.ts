@@ -16,6 +16,14 @@ window.__electrobun = {
     receiveInternalMessageFromBun: () => {},
 };
 
+window.__electrobun_encrypt = async (msg: string) => ({
+    encryptedData: msg,
+    iv: "mock-iv",
+    tag: "mock-tag"
+});
+
+window.__electrobun_decrypt = async (data: any) => data.encryptedData;
+
 // Mock WebSocket for electrobun
 global.WebSocket = class {
     constructor() {}

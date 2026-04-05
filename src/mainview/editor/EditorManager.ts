@@ -82,7 +82,8 @@ export class EditorManager {
      * Set the editor content from a Markdown or HTML string.
      */
     static async setContent(content: string, isMarkdown: boolean = false): Promise<void> {
-        if (!this.instance) return;
+        const editor = this.instance || state.editor;
+        if (!editor) return;
 
         let finalContent = content;
         
@@ -96,21 +97,21 @@ export class EditorManager {
             }
         }
         
-        this.instance.commands.setContent(finalContent);
+        editor.commands.setContent(finalContent);
     }
 
     /**
      * Get the editor content as HTML.
      */
     static getHTML(): string {
-        return this.instance?.getHTML() || "";
+        return (this.instance || state.editor)?.getHTML() || "";
     }
 
     /**
      * Get the editor content as plain text.
      */
     static getText(): string {
-        return this.instance?.getText() || "";
+        return (this.instance || state.editor)?.getText() || "";
     }
 
     /**
@@ -138,7 +139,7 @@ export class EditorManager {
      * Focus the editor.
      */
     static focus(position: 'start' | 'end' | number | boolean = true) {
-        this.instance?.commands.focus(position);
+        (this.instance || state.editor)?.commands.focus(position);
     }
 
     /**

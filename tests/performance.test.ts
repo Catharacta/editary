@@ -21,15 +21,14 @@ describe("Performance Optimization Tests", () => {
     });
 
     it("setEditorContent should handle empty string asynchronously", async () => {
+        // Ensure state.editor is set to our mock
+        state.editor = mockEditor;
         await setEditorContent(mockEditor, "");
         expect(mockEditor.commands.setContent).toHaveBeenCalledWith("");
     });
 
     it("setEditorContent with isMarkdown=true should use a Worker (mocked)", async () => {
-        // We can't easily test the real Worker in Bun tests, 
-        // but we can verify that it doesn't throw and eventually calls setContent
-        // if we mock the Worker message handling.
-        
+        state.editor = mockEditor;
         const workerMock = global.Worker as any;
         workerMock.mockClear();
         
@@ -40,15 +39,14 @@ describe("Performance Optimization Tests", () => {
         
         // Simulate worker response
         const workerInstance = workerMock.mock.results[0].value;
+        // Wait a bit for the async logic in setEditorContent to reach the worker.postMessage
+        await new Promise(r => setTimeout(r, 0));
+        
         workerInstance._trigger('message', { data: { html: "<h1>Hello</h1>" } });
         
         await promise;
-        // The worker is mocked to return <h1>Hello</h1>
-        // If it succeeded, setContent should have been called with it.
-        // We check the last call.
         const setContentMock = mockEditor.commands.setContent as any;
-        const calls = setContentMock.mock.calls;
-        expect(calls[calls.length - 1][0]).toBe("<h1>Hello</h1>");
+        expect(setContentMock).toHaveBeenCalledWith("<h1>Hello</h1>");
     });
 
     it("Math block should be observable by IntersectionObserver", async () => {
