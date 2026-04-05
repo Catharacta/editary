@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeEach, spyOn, mock } from "bun:test";
+import { expect, test, describe, beforeEach, afterEach, spyOn, mock } from "bun:test";
 import "./setup";
 import { EditorManager } from "../src/mainview/editor/EditorManager";
 import { state } from "../src/mainview/state/workspace";
@@ -53,13 +53,11 @@ describe("EditorManager", () => {
 
     test("init should create editor instance and bind events", async () => {
         const editorEl = document.getElementById("editor") as HTMLElement;
-        EditorManager.init(editorEl);
+        const editor = EditorManager.init(editorEl);
         
-        expect(state.editor).toBeDefined();
+        expect(state.editor).toBe(editor);
         expect(state.editor instanceof MockEditor).toBe(true);
-        
-        const autoSaveToggle = document.getElementById("autoSaveToggle") as HTMLInputElement;
-        expect(autoSaveToggle).toBeDefined();
+        expect(state.editor!.options.element).toBe(editorEl);
     });
 
     test("getHTML/setContent should work", async () => {
@@ -67,10 +65,10 @@ describe("EditorManager", () => {
         EditorManager.init(editorEl);
         
         const testHtml = "<h1>Test</h1>";
-        (state.editor.commands.setContent as any).mockClear();
+        (state.editor!.commands.setContent as any).mockClear();
         
         await EditorManager.setContent(testHtml);
-        expect(state.editor.commands.setContent).toHaveBeenCalledWith(testHtml);
+        expect(state.editor!.commands.setContent).toHaveBeenCalledWith(testHtml);
         
         const content = EditorManager.getHTML();
         expect(content).toBe("<p>mock content</p>");
@@ -85,7 +83,7 @@ describe("EditorManager", () => {
         state.openTabs.set("test.md", { filePath: "test.md", isDirty: false });
         
         // Trigger update
-        (EditorManager as any).handleUpdate(state.editor);
+        (EditorManager as any).handleUpdate(state.editor!);
         
         // Wait for auto-save timeout (2000ms in EditorManager)
         return new Promise<void>((resolve) => {

@@ -3,6 +3,7 @@ import { describe, it, expect, mock, beforeEach, spyOn } from "bun:test";
 
 import { Editor } from "@tiptap/core";
 import { setEditorContent } from "../src/mainview/editor";
+import { EditorManager } from "../src/mainview/editor/EditorManager";
 import { state } from "../src/mainview/state/workspace";
 
 // Mock the editor instance
@@ -17,6 +18,7 @@ const mockEditor = {
 
 describe("Performance Optimization Tests", () => {
     beforeEach(() => {
+        EditorManager.reset();
         state.editor = mockEditor;
     });
 

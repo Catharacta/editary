@@ -18,6 +18,18 @@ export class EditorManager {
     private static autoSaveTimeout: any = null;
 
     /**
+     * Resets the editor instance and global state reference.
+     * Useful for testing and clean teardown.
+     */
+    static reset(): void {
+        if (this.instance) {
+            this.instance.destroy();
+            this.instance = null;
+        }
+        state.editor = null;
+    }
+
+    /**
      * Initializes the editor in the specified element.
      */
     static init(element: HTMLElement, tableBubbleMenu: HTMLElement | null = null): Editor {

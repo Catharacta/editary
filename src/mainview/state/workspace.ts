@@ -14,7 +14,7 @@ export const state = {
     expandedPaths: new Set<string>(), // Paths of folders currently expanded
     openTabs: new Map<string, TabState>(),
     untitledCount: 0,
-    editor: null as unknown as Editor,
+    editor: null as Editor | null,
     activeSidebarTab: 'explorer' as 'explorer' | 'search',
     searchResults: [] as any[],
     editorSettings: {
