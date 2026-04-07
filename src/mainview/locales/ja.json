@@ -143,5 +143,8 @@
         "lines": "行",
         "words": "単語数",
         "chars": "文字数"
+    },
+    "outline": {
+        "emptyHeading": "(空の見出し)"
     }
 }

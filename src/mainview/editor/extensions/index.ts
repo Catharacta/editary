@@ -6,6 +6,10 @@ import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table
 import { TextAlign } from "@tiptap/extension-text-align";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import BulletList from "@tiptap/extension-bullet-list";
+import ListItem from "@tiptap/extension-list-item";
+import OrderedList from "@tiptap/extension-ordered-list";
+import { wrappingInputRule, InputRule } from "@tiptap/core";
 import SearchAndReplace from "@sereneinserenade/tiptap-search-and-replace";
 import CharacterCount from "@tiptap/extension-character-count";
 import BubbleMenu from "@tiptap/extension-bubble-menu";
@@ -20,6 +24,85 @@ import { SlashCommandsExtension } from "./SlashCommands";
 import { CustomImage } from "./CustomImage";
 
 /**
+ * Custom ListItem that handles conversion to TaskItem on '[' key.
+ */
+const CustomListItem = ListItem.extend({
+    addKeyboardShortcuts() {
+        return {
+            '[': ({ editor }) => {
+                const { state } = editor;
+                const { selection } = state;
+                const { $from } = selection;
+                
+                // If we're at the very beginning of a bullet list item
+                if (editor.isActive('bulletList') && $from.parentOffset === 0) {
+                    // Convert this list item to a task list item
+                    return editor.commands.toggleTaskList();
+                }
+                
+                return false;
+            },
+        };
+    },
+});
+
+/**
+ * Custom BulletList with smarter InputRules.
+ * It waits for a non-space, non-[ character after hyphen-space before converting.
+ */
+const CustomBulletList = BulletList.extend({
+    addInputRules() {
+        return [
+            // Delayed Bullet List Rule: Matches '- ' and then any character except '[' or Space
+            // It replaces the matched part with a list item containing the typed character.
+            new InputRule({
+                find: /^\s*([-+*])\s([^\s\[])$/,
+                handler: ({ state, range, match }) => {
+                    const char = match[2];
+                    const { tr } = state;
+                    
+                    // Delete the range where ' - a' was typed
+                    tr.delete(range.from, range.to);
+                    // Insert the character
+                    tr.insertText(char, range.from);
+                    
+                    // Apply toggleBulletList command via the editor
+                    // Note: handler gets 'state', 'range', 'match'. To use commands, we need the editor instance.
+                    // Extensions can use this.editor
+                    this.editor.commands.toggleBulletList();
+                    
+                    return null;
+                },
+            }),
+        ];
+    },
+});
+
+/**
+ * Custom TaskItem that handles "- [ ] " pattern correctly.
+ */
+const CustomTaskItem = TaskItem.extend({
+    addInputRules() {
+        return [
+            // Rule to handle "- [ ] " and "- [x] " completion
+            new InputRule({
+                find: /^\s*([-+*])\s+\[([ xX])\]\s$/,
+                handler: ({ state, range, match }) => {
+                    // Toggle task list
+                    this.editor.chain().focus()
+                        .deleteRange(range)
+                        .toggleTaskList()
+                        .updateAttributes('taskItem', { checked: match[2].toLowerCase() === 'x' })
+                        .run();
+                    return null;
+                },
+            }),
+            // Rule to handle "[ ] " (already in standard, but let's be explicit if needed)
+        ];
+    },
+});
+
+/**
  * Returns the full list of Tiptap extensions configured for Editary.
  */
 export function getExtensions(options: { tableBubbleMenu?: HTMLElement | null } = {}) {
@@ -27,6 +110,11 @@ export function getExtensions(options: { tableBubbleMenu?: HTMLElement | null } 
         MathBlock,
         MathInline,
         EditaryCodeBlock,
+        TaskList.configure({ HTMLAttributes: { class: "neo-task-list" } }),
+        CustomTaskItem.configure({ nested: true, HTMLAttributes: { class: "neo-task-item" } }),
+        CustomListItem,
+        CustomBulletList.configure({ HTMLAttributes: { class: "neo-bullet-list" } }),
+        OrderedList.configure({ HTMLAttributes: { class: "neo-ordered-list" } }),
         Kbd,
         MarkTag,
         Underline,
@@ -38,9 +126,12 @@ export function getExtensions(options: { tableBubbleMenu?: HTMLElement | null } 
         StarterKit.configure({
             link: false,
             codeBlock: false,
+            bulletList: false, // Use our CustomBulletList instead
+            orderedList: false,
+            listItem: false,
+            horizontalRule: { HTMLAttributes: { class: "neo-hr" } },
             heading: { levels: [1, 2, 3, 4, 5, 6] },
             blockquote: { HTMLAttributes: { class: "neo-blockquote" } },
-            horizontalRule: { HTMLAttributes: { class: "neo-hr" } },
         }),
         TextAlign.configure({
             types: ["tableCell", "tableHeader"],
@@ -63,8 +154,6 @@ export function getExtensions(options: { tableBubbleMenu?: HTMLElement | null } 
         TableRow,
         TableCell.configure({ HTMLAttributes: { class: "neo-table-cell" } }),
         TableHeader.configure({ HTMLAttributes: { class: "neo-table-header" } }),
-        TaskList.configure({ HTMLAttributes: { class: "neo-task-list" } }),
-        TaskItem.configure({ nested: true, HTMLAttributes: { class: "neo-task-item" } }),
         SearchAndReplace.configure({ searchResultClass: 'search-result' }),
         CharacterCount,
         ImageHandlerExtension,

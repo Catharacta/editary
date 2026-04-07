@@ -56,6 +56,7 @@ export function setupToolbar() {
         // Lists
         bindBtn("bulletListBtn", () => editor.chain().focus().toggleBulletList().run());
         bindBtn("orderedListBtn", () => editor.chain().focus().toggleOrderedList().run());
+        bindBtn("taskListBtn", () => editor.chain().focus().toggleTaskList().run());
 
         // Blockquote
         bindBtn("blockquoteBtn", () => editor.chain().focus().toggleBlockquote().run());
@@ -87,6 +88,7 @@ export function setupToolbar() {
         checkActive("h3Btn", "heading", { level: 3 });
         checkActive("bulletListBtn", "bulletList");
         checkActive("orderedListBtn", "orderedList");
+        checkActive("taskListBtn", "taskList");
         checkActive("blockquoteBtn", "blockquote");
         checkActive("inlineMathBtn", "mathInline");
         checkActive("mathBlockBtn", "mathBlock");
