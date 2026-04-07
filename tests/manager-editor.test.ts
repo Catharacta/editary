@@ -7,12 +7,25 @@ import { state } from "../src/mainview/state/workspace";
 class MockEditor {
     options: any;
     commands: any;
+    extensionManager: any;
+    state: any;
     storage: any;
     constructor(options: any) {
         this.options = options;
+        this.state = {
+            doc: {
+                firstChild: {
+                    type: { name: "paragraph" }
+                }
+            }
+        };
         this.commands = {
             setContent: mock(() => {}),
+            insertContent: mock(() => {}),
             focus: mock(() => {}),
+        };
+        this.extensionManager = {
+            extensions: []
         };
         this.storage = {
             characterCount: {
@@ -24,10 +37,10 @@ class MockEditor {
     getHTML() { return "<p>mock content</p>"; }
     getJSON() { return { type: "doc", content: [] }; }
     getText() { return "mock text content"; }
+    isActive() { return false; }
     destroy() {}
     setOptions() {}
     getAttributes() { return {}; }
-    isActive() { return false; }
 }
 
 // Mock Tiptap Editor import
@@ -46,9 +59,13 @@ describe("EditorManager", () => {
             <input type="checkbox" id="showLineNumbersToggle">
         `;
         
-        // Reset state
-        state.editor = null as any;
+        // Reset state and singleton
+        EditorManager.reset();
         state.currentFilePath = null;
+    });
+
+    afterEach(() => {
+        EditorManager.reset();
     });
 
     test("init should create editor instance and bind events", async () => {
